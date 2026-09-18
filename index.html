@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Joy Taxi — 24/7 rides. Beirut, Metn, Bsalim, Jounieh, Jbeil.</title>
+<meta name="description" content="A taxi in Beirut, Metn, Bsalim, Jounieh and Jbeil, any hour of the night. Send your pickup pin on WhatsApp and a car is on the way. From $7.">
+<meta name="theme-color" content="#08080A">
+<link rel="canonical" href="https://joytaxi.cierp.uk/">
+<link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/">
+<link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Joy Taxi">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="ar_LB">
+<meta property="og:url" content="https://joytaxi.cierp.uk/">
+<meta property="og:title" content="Joy Taxi — 24/7 rides across the coast">
+<meta property="og:description" content="Beirut, Metn, Bsalim, Jounieh, Jbeil. Send your pin on WhatsApp, a car is on the way. From $7.">
+<meta property="og:image" content="https://joytaxi.cierp.uk/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+/* ── Joy Taxi ───────────────────────────────────────────────────────────────
+   One file. No fonts, no frameworks, no trackers, no network calls.
+   It opens instantly on a phone on 3G in Jbeil, which is the only benchmark
+   that matters for a taxi.
+   ───────────────────────────────────────────────────────────────────────── */
+
+:root{
+  --ink:#08080A; --ink-2:#101015; --ink-3:#17171F; --line:#26262F;
+  --amber:#FFB800; --amber-2:#FFD166; --amber-dim:#8A6400;
+  --cream:#FAF7F0; --muted:#98958E; --muted-2:#6C6A65;
+  --wa:#25D366;
+  --r:18px; --r-lg:26px;
+  --pad:clamp(20px,5vw,64px);
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--ink); color:var(--cream);
+  font-family:var(--sans); line-height:1.55; letter-spacing:-.011em;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px));
+}
+@media(min-width:880px){ body{padding-bottom:0} }
+img{max-width:100%;display:block}
+a{color:inherit}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+:focus-visible{outline:3px solid var(--amber); outline-offset:3px; border-radius:6px}
+.wrap{max-width:1140px;margin:0 auto;padding-inline:var(--pad)}
+/* The header is sticky, so an in-page jump must stop below it, not under it. */
+[id]{scroll-margin-top:86px}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Hidden upwards, not sideways: a negative `left` is invisible in LTR but adds
+   a thousand pixels of scrollable width to an RTL page. */
+.skip{position:absolute;inset-inline-start:12px;top:-64px;z-index:99;background:var(--amber);color:#000;
+  padding:10px 16px;border-radius:10px;font-weight:800;transition:top .15s}
+.skip:focus{top:calc(8px + env(safe-area-inset-top,0px))}
+
+/* ── Type scale ── */
+h1,h2,h3{margin:0;line-height:1.02;letter-spacing:-.035em;font-weight:860}
+.h1{font-size:clamp(2.7rem,9.2vw,6.4rem)}
+.h2{font-size:clamp(2rem,5.4vw,3.6rem)}
+.h3{font-size:clamp(1.15rem,2.4vw,1.5rem);letter-spacing:-.02em}
+.kicker{
+  font-size:.7rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--amber);margin:0 0 14px
+}
+.lede{font-size:clamp(1.02rem,2.1vw,1.28rem);color:var(--muted);max-width:52ch;margin:18px 0 0;letter-spacing:-.005em}
+
+/* ── Header ── */
+header{
+  position:sticky;top:0;z-index:40;
+  padding-top:env(safe-area-inset-top,0px);
+  background:color-mix(in srgb,var(--ink) 82%,transparent);
+  backdrop-filter:saturate(1.4) blur(14px);
+  border-bottom:1px solid transparent;transition:border-color .25s
+}
+header.stuck{border-bottom-color:var(--line)}
+.bar{display:flex;align-items:center;gap:18px;height:66px}
+.mark{display:flex;align-items:center;gap:10px;text-decoration:none;flex:0 0 auto}
+.mark .lamp{
+  width:30px;height:17px;border-radius:5px 5px 3px 3px;background:var(--amber);
+  position:relative;flex:0 0 auto;box-shadow:0 0 22px -2px rgba(255,184,0,.75)
+}
+.mark .lamp::after{content:"";position:absolute;inset:auto 4px 0;height:4px;background:rgba(0,0,0,.28);border-radius:2px}
+.mark b{font-size:1.02rem;font-weight:900;letter-spacing:.13em}
+nav{display:none;margin-inline-start:auto;gap:30px;font-size:.87rem;font-weight:650}
+nav a{text-decoration:none;color:var(--muted);transition:color .18s}
+nav a:hover{color:var(--cream)}
+@media(min-width:880px){nav{display:flex}}
+.bar-end{margin-inline-start:auto;display:flex;align-items:center;gap:10px}
+@media(min-width:880px){.bar-end{margin-inline-start:26px}}
+.lang{
+  font-size:.74rem;font-weight:800;letter-spacing:.1em;text-decoration:none;
+  color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 13px;transition:.18s
+}
+.lang:hover{color:var(--cream);border-color:var(--muted-2)}
+
+/* ── Buttons ── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:15px 24px;border-radius:14px;font-weight:800;font-size:.97rem;
+  text-decoration:none;transition:transform .14s,box-shadow .2s,background .2s;
+  letter-spacing:-.01em
+}
+.btn:active{transform:translateY(1px) scale(.994)}
+.btn-amber{background:var(--amber);color:#000;box-shadow:0 10px 34px -12px rgba(255,184,0,.85)}
+.btn-amber:hover{background:var(--amber-2)}
+.btn-wa{background:var(--wa);color:#04210F;box-shadow:0 10px 34px -12px rgba(37,211,102,.8)}
+.btn-wa:hover{filter:brightness(1.08)}
+.btn-ghost{border:1px solid var(--line);color:var(--cream);background:var(--ink-2)}
+.btn-ghost:hover{border-color:var(--muted-2);background:var(--ink-3)}
+.btn-lg{padding:18px 30px;font-size:1.04rem;border-radius:16px}
+.btn-block{display:flex;width:100%}
+.ico{width:19px;height:19px;flex:0 0 auto}
+
+/* ── Hero ── */
+.hero{position:relative;padding:clamp(46px,8vw,86px) 0 clamp(50px,7vw,80px);overflow:hidden}
+/* Headlights sweeping a dark road — drawn, not photographed. */
+.hero::before{
+  content:"";position:absolute;inset:-30% -10% auto -10%;height:120%;pointer-events:none;
+  background:
+    radial-gradient(60% 46% at 18% 6%,rgba(255,184,0,.15),transparent 66%),
+    radial-gradient(52% 40% at 88% 22%,rgba(255,184,0,.085),transparent 68%);
+  filter:blur(6px)
+}
+.hero::after{
+  content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 18%,var(--line) 82%,transparent)
+}
+.hero .wrap{position:relative}
+.hero-grid{display:grid;gap:clamp(36px,5vw,56px)}
+@media(min-width:980px){.hero-grid{grid-template-columns:1.06fr .94fr;align-items:start}}
+
+.pill{
+  display:inline-flex;align-items:center;gap:9px;font-size:.73rem;font-weight:800;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--amber);
+  border:1px solid rgba(255,184,0,.3);background:rgba(255,184,0,.07);
+  padding:8px 15px;border-radius:999px
+}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--amber);animation:pulse 2.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.38;transform:scale(.72)}}
+@media(prefers-reduced-motion:reduce){.dot{animation:none}}
+
+h1 .em{color:var(--amber);display:inline-block}
+.h1-sub{
+  display:block;font-size:clamp(.95rem,2.2vw,1.18rem);font-weight:650;letter-spacing:.01em;
+  color:var(--muted);line-height:1.5;margin-top:22px;max-width:44ch
+}
+.trust{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:30px;font-size:.84rem;color:var(--muted);font-weight:650}
+.trust span{display:inline-flex;align-items:center;gap:8px}
+.tick{width:15px;height:15px;color:var(--amber);flex:0 0 auto}
+
+/* ── The booker ── */
+.booker{
+  background:linear-gradient(168deg,var(--ink-2),var(--ink));
+  border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:clamp(20px,3.4vw,30px);
+  box-shadow:0 40px 90px -50px #000, inset 0 1px 0 rgba(255,255,255,.045);
+  position:relative
+}
+.booker h2{font-size:1.22rem;letter-spacing:-.028em}
+.booker .hint{font-size:.85rem;color:var(--muted-2);margin:7px 0 0}
+.field{margin-top:22px}
+.field > label,.leg{
+  display:block;font-size:.69rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted-2);margin:0 0 10px
+}
+fieldset{border:0;margin:0;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  padding:10px 15px;border-radius:11px;border:1px solid var(--line);background:var(--ink-3);
+  font-size:.88rem;font-weight:700;color:var(--muted);transition:.16s;line-height:1.2
+}
+.chip:hover{border-color:var(--muted-2);color:var(--cream)}
+.chip[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:#000}
+.chip-gps{display:inline-flex;align-items:center;gap:7px}
+.chip-gps svg{width:14px;height:14px}
+.chip-gps[data-state="on"]{background:rgba(255,184,0,.14);border-color:var(--amber);color:var(--amber)}
+.chip-gps[data-state="busy"]{opacity:.6}
+input[type=text],input[type=time],select{
+  width:100%;margin-top:8px;padding:13px 15px;border-radius:12px;
+  background:var(--ink-3);border:1px solid var(--line);color:var(--cream);
+  font-size:.95rem;font-family:inherit
+}
+input::placeholder{color:var(--muted-2)}
+input:focus,select:focus{outline:none;border-color:var(--amber)}
+.when{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.when input[type=time]{width:auto;margin-top:0;flex:1 1 130px;min-width:120px}
+.preview{
+  margin-top:20px;padding:14px 16px;border-radius:12px;
+  background:var(--ink-3);border:1px dashed var(--line);
+  font-size:.83rem;line-height:1.65;color:var(--muted);white-space:pre-wrap;
+  word-break:break-word;max-height:160px;overflow:auto
+}
+.preview b{color:var(--cream);font-weight:700}
+.go{display:grid;gap:9px;margin-top:18px}
+.calls{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.calls .btn{padding:14px 10px;font-size:.92rem}
+.fineprint{font-size:.76rem;color:var(--muted-2);margin:14px 0 0;text-align:center;line-height:1.6}
+
+/* ── Fare estimate ── */
+.fare{margin-top:14px;padding:15px 17px;border-radius:12px;border:1px solid var(--line);
+  background:linear-gradient(140deg,rgba(255,184,0,.1),transparent 70%);
+  display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.fare .d{font-size:.78rem;font-weight:750;color:var(--muted);letter-spacing:.02em;
+  font-variant-numeric:tabular-nums}
+.fare .p{font-size:1.5rem;font-weight:900;color:var(--amber);letter-spacing:-.035em;
+  font-variant-numeric:tabular-nums;line-height:1}
+.fare .p.soft{font-size:.86rem;font-weight:750;color:var(--cream);letter-spacing:-.01em}
+.fare[hidden]{display:none!important}
+
+/* ── Price band ── */
+.band{border-block:1px solid var(--line);background:var(--ink-2)}
+.band .wrap{display:grid;gap:26px;padding-block:clamp(34px,5vw,50px)}
+@media(min-width:760px){.band .wrap{grid-template-columns:auto 1fr auto;align-items:center;gap:40px}}
+.price{display:flex;align-items:baseline;gap:12px}
+.price .n{font-size:clamp(3.4rem,9vw,5rem);font-weight:900;color:var(--amber);letter-spacing:-.05em;line-height:.85}
+.price .u{font-size:.98rem;font-weight:750;color:var(--muted);letter-spacing:-.01em;max-width:13ch}
+.band p{margin:0;color:var(--muted);font-size:1rem;max-width:46ch}
+
+/* ── Sections ── */
+section{padding-block:clamp(60px,9vw,110px)}
+.head{max-width:60ch;margin-bottom:clamp(34px,5vw,54px)}
+
+/* ── Why ── */
+.why{display:grid;gap:14px}
+@media(min-width:660px){.why{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.why{grid-template-columns:repeat(4,1fr)}}
+.card{
+  padding:26px 24px 28px;border-radius:var(--r);border:1px solid var(--line);
+  background:linear-gradient(170deg,var(--ink-2),var(--ink));transition:border-color .22s,transform .22s
+}
+.card:hover{border-color:var(--amber-dim);transform:translateY(-3px)}
+.card .ic{width:34px;height:34px;color:var(--amber);margin-bottom:18px}
+.card h3{margin-bottom:9px}
+.card p{margin:0;color:var(--muted);font-size:.93rem}
+
+/* ── Map ── */
+.mapgrid{display:grid;gap:clamp(34px,5vw,58px);align-items:center}
+@media(min-width:940px){.mapgrid{grid-template-columns:1.12fr .88fr}}
+.mapbox{
+  border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(16px,3vw,30px);
+  background:radial-gradient(120% 90% at 78% 12%,rgba(255,184,0,.075),transparent 62%),var(--ink-2)
+}
+.mapbox svg{width:100%;height:auto;overflow:visible}
+.route{stroke:var(--amber);stroke-width:2.4;fill:none;stroke-linecap:round;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);animation:draw 2.3s .25s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.route{animation:none;stroke-dashoffset:0}}
+.coast{stroke:var(--line);stroke-width:1.4;fill:none}
+.sea{fill:rgba(255,255,255,.022)}
+.stop circle{fill:var(--ink);stroke:var(--amber);stroke-width:2.4}
+.stop text{fill:var(--cream);font:700 13px var(--sans);letter-spacing:-.01em}
+.stop tspan.sm{fill:var(--muted-2);font-weight:600;font-size:11px}
+.arealist{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.arealist li{background:var(--ink-2);padding:17px 20px;display:flex;align-items:center;gap:14px;font-weight:700}
+.arealist li span{color:var(--muted-2);font-size:.82rem;font-weight:600;margin-inline-start:auto;text-align:end}
+
+/* ── Steps ── */
+.steps{display:grid;gap:14px;counter-reset:s}
+@media(min-width:780px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{position:relative;padding:30px 24px 28px;border-radius:var(--r);border:1px solid var(--line);background:var(--ink-2)}
+.step::before{
+  counter-increment:s;content:counter(s);
+  font-size:3.1rem;font-weight:900;color:var(--amber);opacity:.22;line-height:1;
+  display:block;margin-bottom:12px;letter-spacing:-.05em
+}
+.step h3{margin-bottom:8px}
+.step p{margin:0;color:var(--muted);font-size:.93rem}
+
+/* ── Photos (only appear once real ones are dropped in) ── */
+.shots{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.shot{
+  aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
+  background:var(--ink-2)
+}
+.shot img{width:100%;height:100%;object-fit:cover}
+#gallery[hidden]{display:none!important}
+
+/* ── Voices ── */
+.quotes{display:grid;gap:14px}
+@media(min-width:800px){.quotes{grid-template-columns:repeat(3,1fr)}}
+.quote{position:relative;padding:34px 26px 26px;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--ink-2)}
+.quote::before{content:"\201C";position:absolute;top:6px;inset-inline-start:18px;
+  font-size:4.2rem;line-height:1;color:var(--amber);opacity:.3}
+.quote p{position:relative;margin:0 0 18px;font-size:1rem;line-height:1.6;color:var(--cream)}
+.quote cite{font-style:normal;font-size:.86rem;font-weight:750;color:var(--muted)}
+.quote.empty{border-style:dashed;background:transparent}
+.quote.empty p,.quote.empty cite{color:var(--muted-2)}
+.quote.empty::before{opacity:.16}
+.voices-note{margin:24px auto 0;max-width:54ch;text-align:center;font-size:.87rem;
+  color:var(--muted-2);line-height:1.6}
+.voices-note b{color:var(--amber);font-weight:750}
+#voices[hidden]{display:none!important}
+
+/* ── FAQ ── */
+.faq{max-width:760px;border-top:1px solid var(--line)}
+details{border-bottom:1px solid var(--line)}
+summary{
+  padding:24px 0;padding-inline-end:40px;font-weight:750;font-size:1.02rem;cursor:pointer;
+  list-style:none;position:relative;letter-spacing:-.015em
+}
+summary::-webkit-details-marker{display:none}
+summary::after{
+  content:"";position:absolute;inset-inline-end:6px;top:31px;width:11px;height:11px;
+  border-inline-end:2px solid var(--amber);border-bottom:2px solid var(--amber);
+  transform:rotate(45deg);transition:transform .22s
+}
+details[open] summary::after{transform:rotate(-135deg);top:34px}
+details p{margin:0 0 26px;color:var(--muted);max-width:62ch;font-size:.96rem}
+
+/* ── Closing CTA ── */
+.close-cta{
+  border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;
+  background:radial-gradient(110% 130% at 50% -20%,rgba(255,184,0,.16),transparent 58%),var(--ink-2);
+  padding:clamp(40px,7vw,76px) clamp(24px,5vw,60px);text-align:center
+}
+.close-cta p{color:var(--muted);margin:18px auto 0;max-width:46ch}
+.cta-btns{display:flex;flex-wrap:wrap;gap:11px;justify-content:center;margin-top:34px}
+.vcard{
+  display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-size:.87rem;
+  color:var(--muted);font-weight:700;text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:3px
+}
+.vcard:hover{color:var(--amber);border-color:var(--amber)}
+
+/* ── Footer ── */
+footer{border-top:1px solid var(--line);background:var(--ink-2);padding-block:clamp(44px,6vw,64px)}
+.fgrid{display:grid;gap:34px}
+@media(min-width:760px){.fgrid{grid-template-columns:1.4fr 1fr 1fr}}
+footer h4{font-size:.69rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-2);margin:0 0 15px;font-weight:850}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:9px;font-size:.93rem;color:var(--muted)}
+footer a{text-decoration:none;color:var(--muted);transition:color .18s}
+footer a:hover{color:var(--amber)}
+.tel{font-weight:800;color:var(--cream);letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.legal{margin-top:42px;padding-top:24px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:space-between;font-size:.8rem;color:var(--muted-2)}
+
+/* ── Sticky phone bar ── */
+.dock{
+  position:fixed;inset-inline:0;bottom:0;z-index:50;display:grid;grid-template-columns:1fr 1fr;gap:9px;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));
+  background:color-mix(in srgb,var(--ink) 92%,transparent);
+  backdrop-filter:blur(16px);border-top:1px solid var(--line)
+}
+.dock .btn{padding:14px 8px;font-size:.93rem;border-radius:13px}
+@media(min-width:880px){.dock{display:none}}
+
+/* ── Reveal ── */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .7s cubic-bezier(.2,.7,.3,1),transform .7s cubic-bezier(.2,.7,.3,1)}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+<a class="skip" href="#book">Skip to booking</a>
+
+<header id="top">
+  <div class="wrap bar">
+    <a class="mark" href="#top" aria-label="Joy Taxi, home">
+      <span class="lamp" aria-hidden="true"></span>
+      <b>JOY TAXI</b>
+    </a>
+    <nav aria-label="Main">
+      <a href="#book">Book</a>
+      <a href="#areas">Areas</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <div class="bar-end">
+      <a class="lang" href="ar/index.html" hreflang="ar" lang="ar">عربي</a>
+      <a class="btn btn-amber" href="tel:+96171056677" data-ev="call" style="padding:11px 18px;font-size:.88rem">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+        Call
+      </a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ── Hero + booker ─────────────────────────────────────────────────── -->
+<section class="hero" id="book" style="padding-top:clamp(40px,6vw,72px)">
+  <div class="wrap hero-grid">
+
+    <div>
+      <p class="pill"><span class="dot" aria-hidden="true"></span>Open now · 24 hours, every day</p>
+      <h1 class="h1" style="margin-top:26px">
+        A car,<br>whenever<br>you <span class="em">call.</span>
+      </h1>
+      <span class="h1-sub">
+        Joy Taxi runs the coast road day and night — Beirut, Metn, Bsalim,
+        Jounieh and Jbeil. Three in the morning counts as day and night.
+      </span>
+
+      <div class="trust">
+        <span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>Fares from $7</span>
+        <span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>Drivers who know the roads</span>
+        <span><svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 6-11 11-5-5"/></svg>Price agreed before you get in</span>
+      </div>
+    </div>
+
+    <!-- The whole point of the page. -->
+    <form class="booker" id="bk" novalidate>
+      <h2 class="h3">Book in three taps</h2>
+      <p class="hint">Fill this in and it opens WhatsApp with everything already written. Or just call — we answer.</p>
+
+      <fieldset class="field">
+        <legend class="leg">Picking you up from</legend>
+        <div class="chips" id="from-chips"></div>
+        <label class="sr" for="from-other">Pickup, in your own words</label>
+        <input type="text" id="from-other" placeholder="Or type it — building, street, near what…" autocomplete="off">
+      </fieldset>
+
+      <fieldset class="field">
+        <legend class="leg">Going to</legend>
+        <div class="chips" id="to-chips"></div>
+        <label class="sr" for="to-other">Destination, in your own words</label>
+        <input type="text" id="to-other" placeholder="Or type it — anywhere in Lebanon" autocomplete="off">
+      </fieldset>
+
+      <fieldset class="field">
+        <legend class="leg">When</legend>
+        <div class="when">
+          <button type="button" class="chip" id="when-now" aria-pressed="true">Right now</button>
+          <button type="button" class="chip" id="when-later" aria-pressed="false">Later today</button>
+          <label class="sr" for="when-time">Pickup time</label>
+          <input type="time" id="when-time" hidden>
+        </div>
+      </fieldset>
+
+      <div class="fare" id="fare" hidden aria-live="polite">
+        <span class="d" id="fare-d"></span>
+        <span class="p" id="fare-p"></span>
+      </div>
+
+      <p class="preview" id="preview" aria-live="polite"></p>
+
+      <div class="go">
+        <a class="btn btn-wa btn-lg btn-block" id="wa-go" href="#" data-ev="whatsapp">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>
+          Book on WhatsApp
+        </a>
+        <div class="calls">
+          <a class="btn btn-ghost" href="tel:+96171056677" data-ev="call">71 056 677</a>
+          <a class="btn btn-ghost" href="tel:+96181686839" data-ev="call">81 686 839</a>
+        </div>
+      </div>
+      <p class="fineprint">Nothing is stored and no account is needed. The message is written on your phone and sent by you.</p>
+    </form>
+
+  </div>
+</section>
+
+<!-- ── Price band ────────────────────────────────────────────────────── -->
+<div class="band">
+  <div class="wrap">
+    <div class="price"><span class="n">$7</span><span class="u">is where fares start</span></div>
+    <p>You hear the price before the car moves, and it does not change afterwards. No meter creeping up in traffic, no bill at the end that is bigger than the one you agreed to. Nights cost more — and you are told exactly how much before you say yes.</p>
+    <a class="btn btn-amber" href="#book">Get your price</a>
+  </div>
+</div>
+
+<!-- ── Why ───────────────────────────────────────────────────────────── -->
+<section>
+  <div class="wrap">
+    <div class="head rv">
+      <p class="kicker">Why people keep the number</p>
+      <h2 class="h2">The boring things, done properly.</h2>
+    </div>
+    <div class="why">
+      <div class="card rv">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <h3 class="h3">Someone answers</h3>
+        <p>A phone that rings out at midnight is not a taxi service. Ours is answered around the clock, by a person.</p>
+      </div>
+      <div class="card rv">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+        <h3 class="h3">On time, or you know</h3>
+        <p>If the road is closed or the driver is eight minutes away, you are told eight minutes — not "coming, coming".</p>
+      </div>
+      <div class="card rv">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <h3 class="h3">They know the road</h3>
+        <p>Local drivers on roads they drive every day. No one circling Bsalim with a map open on the dashboard.</p>
+      </div>
+      <div class="card rv">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17h18M5 17V9l2-4h10l2 4v8"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/></svg>
+        <h3 class="h3">A clean, quiet car</h3>
+        <p>Air conditioning that works, a car that smells of nothing, and a driver who lets you sit in silence if that is what you want.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Areas ─────────────────────────────────────────────────────────── -->
+<section id="areas" style="background:var(--ink-2);border-block:1px solid var(--line)">
+  <div class="wrap mapgrid">
+    <div class="mapbox rv">
+      <svg viewBox="0 0 560 380" role="img" aria-label="Map of the coast road Joy Taxi covers, from Beirut north to Jbeil">
+        <path class="sea" d="M0 0h560v380H0z" opacity=".5"/>
+        <!-- coastline, abstracted -->
+        <path class="coast" d="M18 358C74 330 108 300 132 268c26-35 34-70 62-104 26-32 66-56 106-82 34-22 66-44 96-70"/>
+        <path class="coast" d="M0 372c70-30 112-64 140-100 30-38 38-74 68-108 28-32 70-58 112-84 30-20 58-40 84-64" opacity=".45"/>
+        <!-- the road -->
+        <path class="route" id="rd" d="M96 330C142 300 168 272 190 240c24-36 32-70 60-102 26-30 64-52 102-76 30-19 58-38 82-58"/>
+        <g class="stop">
+          <circle cx="96" cy="330" r="7"/><text x="114" y="336">Beirut <tspan class="sm">· the city</tspan></text>
+        </g>
+        <g class="stop">
+          <circle cx="190" cy="240" r="7"/><text x="208" y="246">Metn North <tspan class="sm">· the hills</tspan></text>
+        </g>
+        <g class="stop">
+          <circle cx="250" cy="138" r="7"/><text x="268" y="144">Bsalim <tspan class="sm">· home base</tspan></text>
+        </g>
+        <g class="stop">
+          <circle cx="352" cy="62" r="7"/><text x="370" y="68">Jounieh <tspan class="sm">· the bay</tspan></text>
+        </g>
+        <g class="stop">
+          <circle cx="434" cy="4" r="7"/><text x="452" y="10">Jbeil <tspan class="sm">· Byblos</tspan></text>
+        </g>
+      </svg>
+    </div>
+    <div class="rv">
+      <p class="kicker">Where we run</p>
+      <h2 class="h2" style="margin-bottom:18px;font-size:clamp(1.9rem,4vw,3rem)">One strip of coast,<br>known by heart.</h2>
+      <p class="lede" style="margin-bottom:26px">
+        We are not everywhere, and that is deliberate. This corridor is the road our
+        drivers live on — which is why they know which junction is blocked before they reach it.
+      </p>
+      <ul class="arealist">
+        <li>Beirut <span>Airport runs, Downtown, Hamra, Ashrafieh</span></li>
+        <li>Metn North <span>Villages and the highway</span></li>
+        <li>Bsalim <span>Fastest pickups</span></li>
+        <li>Jounieh <span>Bay, Kaslik, Maameltein</span></li>
+        <li>Jbeil <span>Byblos, old souk, the coast</span></li>
+        <li>Beirut Airport <span>Around the clock · book ahead for an early flight</span></li>
+      </ul>
+      <p style="margin:20px 0 0;font-size:.89rem;color:var(--muted-2)">
+        Going somewhere just off this map? Ask anyway — most of the time the answer is yes.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ── How ───────────────────────────────────────────────────────────── -->
+<section id="how">
+  <div class="wrap">
+    <div class="head rv">
+      <p class="kicker">How it works</p>
+      <h2 class="h2">From "I need a taxi" to a car outside.</h2>
+    </div>
+    <div class="steps">
+      <div class="step rv">
+        <h3 class="h3">Send where you are</h3>
+        <p>Tap <b style="color:var(--amber)">My location</b> above and your exact pin goes with the message. No explaining which building, no "next to the pharmacy".</p>
+      </div>
+      <div class="step rv">
+        <h3 class="h3">We confirm the price</h3>
+        <p>A number comes back in writing, along with how long the car will be. You agree before anything moves.</p>
+      </div>
+      <div class="step rv">
+        <h3 class="h3">The car arrives</h3>
+        <p>You get the driver and the plate. Nothing changes at the end of the ride — you pay what was agreed.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Photos: hidden until real ones exist in /photos ────────────────── -->
+<section id="gallery" hidden style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv">
+      <p class="kicker">The cars</p>
+      <h2 class="h2">Ours. Not a photo of somebody else's.</h2>
+    </div>
+    <div class="shots" id="shots"></div>
+  </div>
+</section>
+
+<!-- ── FAQ ───────────────────────────────────────────────────────────── -->
+<!-- ── Voices: real ones only. Placeholders until they exist. ────────── -->
+<section id="voices" style="padding-top:0">
+  <div class="wrap">
+    <div class="head rv" style="margin-inline:auto;text-align:center">
+      <p class="kicker">In their words</p>
+      <h2 class="h2">What regulars say.</h2>
+    </div>
+    <div class="quotes rv" id="quotes"></div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="head rv">
+      <p class="kicker">Before you call</p>
+      <h2 class="h2">Straight answers.</h2>
+    </div>
+    <div class="faq rv">
+      <details>
+        <summary>Are you really open at 4am?</summary>
+        <p>Yes. Nights, weekends and holidays. The number is the same one at four in the morning as it is at four in the afternoon, and it is answered by a person rather than a recording.</p>
+      </details>
+      <details>
+        <summary>How much will my ride cost?</summary>
+        <p>Fares start at $7. The exact price depends on how far you are going and what time it is — a late-night ride costs more than the same ride in the afternoon. Send your pickup and destination on WhatsApp and you get the number in writing before you commit to anything, and it does not change afterwards.</p>
+      </details>
+      <details>
+        <summary>Can I book for tomorrow morning?</summary>
+        <p>Yes, and for an early flight it is the sensible thing to do. Choose <b>Later today</b> in the form above, or simply say the day and time in your message. We confirm the booking back to you.</p>
+      </details>
+      <details>
+        <summary>I do not know how to explain where I am.</summary>
+        <p>You do not have to. Tap <b>My location</b> in the form and your phone attaches a map pin the driver can open and follow. It is the fastest way to be found, especially at night or on a road with no name.</p>
+      </details>
+      <details>
+        <summary>Do you go to the airport?</summary>
+        <p>Yes, around the clock, and an airport run is priced separately from a ride across town. Send your flight time when you book and the car is outside before you need it. For anything departing early, book it the night before — that is the one booking worth not leaving to the morning.</p>
+      </details>
+      <details>
+        <summary>How do I pay?</summary>
+        <p>Cash to the driver at the end of the ride, in dollars or lira. If you need another arrangement, ask when you book and we will tell you straight away whether it works.</p>
+      </details>
+      <details>
+        <summary>Can you take a package instead of a person?</summary>
+        <p>Often, yes — documents, keys, a forgotten bag. Message us with what it is and where it is going and we will tell you whether we can do it and what it costs.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ── Closing ───────────────────────────────────────────────────────── -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="close-cta rv">
+      <h2 class="h2">Save the number<br>before you need it.</h2>
+      <p>The moment you need a taxi is never the moment you want to start searching for one.</p>
+      <div class="cta-btns">
+        <a class="btn btn-wa btn-lg" href="https://wa.me/96171056677?text=Hi%20Joy%20Taxi%2C%20I%20need%20a%20ride." data-ev="whatsapp">
+          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>
+          WhatsApp us
+        </a>
+        <a class="btn btn-amber btn-lg" href="tel:+96171056677" data-ev="call">Call 71 056 677</a>
+        <a class="btn btn-ghost btn-lg" href="tel:+96181686839" data-ev="call">Call 81 686 839</a>
+      </div>
+      <br>
+      <a class="vcard" id="save-contact" href="joy-taxi.vcf" download="joy-taxi.vcf">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+        Add Joy Taxi to your contacts
+      </a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="fgrid">
+      <div>
+        <a class="mark" href="#top" style="margin-bottom:16px" aria-label="Joy Taxi">
+          <span class="lamp" aria-hidden="true"></span><b>JOY TAXI</b>
+        </a>
+        <p style="color:var(--muted);margin:0;max-width:34ch;font-size:.93rem">
+          Taxi and private hire along the coast road. Twenty-four hours, every day of the year.
+        </p>
+      </div>
+      <div>
+        <h4>Call or message</h4>
+        <ul>
+          <li><a class="tel" href="tel:+96171056677">71 056 677</a></li>
+          <li><a class="tel" href="tel:+96181686839">81 686 839</a></li>
+          <li><a href="https://wa.me/96171056677">WhatsApp</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Areas</h4>
+        <ul>
+          <li>Beirut</li><li>Metn North</li><li>Bsalim</li><li>Jounieh</li><li>Jbeil</li>
+        </ul>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© <span id="yr">2026</span> Joy Taxi · Lebanon</span>
+      <span><a href="ar/index.html" hreflang="ar" lang="ar">عربي</a> · Open 24/7</span>
+    </div>
+  </div>
+</footer>
+
+<div class="dock" role="group" aria-label="Quick contact">
+  <a class="btn btn-wa" href="https://wa.me/96171056677?text=Hi%20Joy%20Taxi%2C%20I%20need%20a%20ride." data-ev="whatsapp">WhatsApp</a>
+  <a class="btn btn-amber" href="tel:+96171056677" data-ev="call">Call now</a>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"TaxiService",
+  "@id":"https://joytaxi.cierp.uk/#business",
+  "name":"Joy Taxi",
+  "url":"https://joytaxi.cierp.uk/",
+  "description":"24/7 taxi and private hire across Beirut, Metn North, Bsalim, Jounieh and Jbeil, Lebanon. Fares from $7, agreed before the ride.",
+  "telephone":["+96171056677","+96181686839"],
+  "priceRange":"$",
+  "currenciesAccepted":"USD, LBP",
+  "paymentAccepted":"Cash",
+  "areaServed":[
+    {"@type":"City","name":"Beirut"},
+    {"@type":"AdministrativeArea","name":"Metn North"},
+    {"@type":"City","name":"Bsalim"},
+    {"@type":"City","name":"Jounieh"},
+    {"@type":"City","name":"Jbeil"}
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"LB","addressRegion":"Mount Lebanon"},
+  "openingHoursSpecification":[{
+    "@type":"OpeningHoursSpecification",
+    "dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"],
+    "opens":"00:00","closes":"23:59"
+  }],
+  "availableLanguage":["ar","en"]
+}
+</script>
+
+<script>
+/* ──────────────────────────────────────────────────────────────────────────
+   Everything below is optional. With JavaScript off, the page still reads
+   and every phone number and WhatsApp link still works — which for a taxi
+   is the only thing that must never break.
+   ────────────────────────────────────────────────────────────────────── */
+(function () {
+  'use strict';
+
+  /* The one place to edit. ─────────────────────────────────────────────── */
+  var CFG = {
+    whatsapp: '96171056677',              // digits only, country code, no +
+    from: ['Bsalim', 'Beirut', 'Metn North', 'Jounieh', 'Jbeil'],
+    to:   ['Beirut', 'Beirut Airport', 'Jounieh', 'Jbeil', 'Metn North', 'Bsalim'],
+    airportName: 'Beirut Airport',
+    // Real coordinates, used only to work out roughly how far a ride is.
+    places: {
+      'Beirut':         [33.8938, 35.5018],
+      'Beirut Airport': [33.8209, 35.4884],
+      'Bsalim':         [33.9047, 35.5906],
+      'Metn North':     [33.9050, 35.6400],
+      'Jounieh':        [33.9808, 35.6178],
+      'Jbeil':          [34.1232, 35.6519],
+    },
+    roadFactor: 1.3,                       // roads are not straight lines
+    // ── FARES ───────────────────────────────────────────────────────────────
+    // Until base and perKm are real numbers from Joy Taxi, the estimator shows the
+    // distance and says the price is confirmed on WhatsApp. Nothing is guessed.
+    rates: {
+      base: null,        // what every ride starts at, in dollars
+      perKm: null,       // added per kilometre
+      minimum: 7,        // never quote below the published "from $7"
+      nightFrom: null,   // hour the night rate begins, e.g. 23
+      nightTo: null,     // hour it ends, e.g. 5
+      nightExtra: null,  // multiplier at night, e.g. 1.25
+      airport: null,     // { 'Bsalim': 25, 'Jbeil': 45 } to price airport runs separately
+      spread: 0.12,      // quoted as a range, because traffic and route vary
+    },
+    photoDir: 'photos/',
+    photos: ['car-1.jpg', 'car-2.jpg', 'car-3.jpg'],   // drop files in /photos
+    voices: [                                          // replace with real ones; see README
+      { placeholder: true, quote: 'A real customer\u2019s own words go here \u2014 one or two sentences is plenty.', name: 'First name', place: 'Jounieh' },
+      { placeholder: true, quote: 'What they say about the driver, the price, or being picked up at three in the morning.', name: 'First name', place: 'Jbeil' },
+      { placeholder: true, quote: 'Short and in their own voice beats polished and written for them.', name: 'First name', place: 'Beirut' },
+    ],
+    t: {
+      hi: 'Hi Joy Taxi,',
+      pickup: 'Pickup', dest: 'Going to', when: 'When',
+      now: 'Now, as soon as possible',
+      at: 'Today at ',
+      pin: 'My location',
+      ask: 'Could you confirm the price and how long the car will be?',
+      empty: 'Pick where you are and where you are going — the message writes itself.',
+      locating: 'Finding you…', located: 'Location attached', denied: 'Location off',
+      about: 'about {km} km',
+      roughly: 'Distance',
+      quoteOnWa: 'Your price, confirmed in seconds',
+      alt: 'A Joy Taxi car',
+      citeSep: ', ',
+      voicesNote: 'These three are <b>placeholders</b>. Send three real lines from regulars and they go live the same day \u2014 nothing on this site is invented.'
+    }
+  };
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var enc = encodeURIComponent;
+
+  var state = { from: '', to: '', coords: null, later: false, time: '' };
+
+  /* ── Chips ───────────────────────────────────────────────────────────── */
+  function chip(label, group) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = label;
+    b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', function () {
+      var on = b.getAttribute('aria-pressed') === 'true';
+      Array.prototype.forEach.call(b.parentNode.querySelectorAll('.chip'), function (o) {
+        if (o !== b) o.setAttribute('aria-pressed', 'false');
+      });
+      b.setAttribute('aria-pressed', on ? 'false' : 'true');
+      if (group === 'from') {
+        state.from = on ? '' : label;
+        if (!on) { state.coords = null; resetGps(); $('#from-other').value = ''; }
+      } else {
+        state.to = on ? '' : label;
+        if (!on) $('#to-other').value = '';
+      }
+      render();
+    });
+    return b;
+  }
+
+  var fromBox = $('#from-chips'), toBox = $('#to-chips');
+  CFG.from.forEach(function (n) { fromBox.appendChild(chip(n, 'from')); });
+  CFG.to.forEach(function (n) { toBox.appendChild(chip(n, 'to')); });
+
+  /* ── "My location": the feature that actually saves the driver time ──── */
+  var gps = document.createElement('button');
+  gps.type = 'button';
+  gps.className = 'chip chip-gps';
+  gps.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>' +
+    '<span>' + CFG.t.pin + '</span>';
+  var gpsLabel = gps.querySelector('span');
+
+  function resetGps() { gps.removeAttribute('data-state'); gpsLabel.textContent = CFG.t.pin; }
+
+  if ('geolocation' in navigator) {
+    fromBox.insertBefore(gps, fromBox.firstChild);
+    gps.addEventListener('click', function () {
+      if (gps.getAttribute('data-state') === 'on') {
+        state.coords = null; resetGps(); render(); return;
+      }
+      gps.setAttribute('data-state', 'busy');
+      gpsLabel.textContent = CFG.t.locating;
+      navigator.geolocation.getCurrentPosition(function (p) {
+        state.coords = [p.coords.latitude.toFixed(5), p.coords.longitude.toFixed(5)];
+        gps.setAttribute('data-state', 'on');
+        gpsLabel.textContent = CFG.t.located;
+        Array.prototype.forEach.call(fromBox.querySelectorAll('.chip:not(.chip-gps)'), function (o) {
+          o.setAttribute('aria-pressed', 'false');
+        });
+        state.from = '';
+        render();
+      }, function () {
+        resetGps();
+        gpsLabel.textContent = CFG.t.denied;
+        setTimeout(resetGps, 2600);
+      }, { enableHighAccuracy: true, timeout: 9000, maximumAge: 30000 });
+    });
+  }
+
+  /* ── When ────────────────────────────────────────────────────────────── */
+  var nowBtn = $('#when-now'), laterBtn = $('#when-later'), timeIn = $('#when-time');
+  function setWhen(later) {
+    state.later = later;
+    nowBtn.setAttribute('aria-pressed', String(!later));
+    laterBtn.setAttribute('aria-pressed', String(later));
+    timeIn.hidden = !later;
+    if (later && !timeIn.value) {
+      var d = new Date(Date.now() + 45 * 60000);
+      timeIn.value = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    state.time = timeIn.value;
+    render();
+  }
+  nowBtn.addEventListener('click', function () { setWhen(false); });
+  laterBtn.addEventListener('click', function () { setWhen(true); });
+  timeIn.addEventListener('input', function () { state.time = timeIn.value; render(); });
+
+  /* ── Free text overrides a chip ───────────────────────────────────────── */
+  ['from', 'to'].forEach(function (g) {
+    $('#' + g + '-other').addEventListener('input', function () {
+      var box = g === 'from' ? fromBox : toBox;
+      if (this.value.trim()) {
+        Array.prototype.forEach.call(box.querySelectorAll('.chip:not(.chip-gps)'), function (o) {
+          o.setAttribute('aria-pressed', 'false');
+        });
+        state[g] = '';
+      }
+      render();
+    });
+  });
+
+  /* ── Distance, and what it costs ──────────────────────────────────────────
+     Distance is real geography: great-circle between two known points, scaled by
+     roadFactor for the fact that roads are not straight lines. Checked against the
+     runs that matter — Beirut to Jbeil comes out 38km against a true 37, Beirut to
+     the airport 11 against 9. Close enough to show as "about", never as a promise.
+
+     The fare is NOT geography, and is not guessed. Until rates are set in CFG this
+     shows the distance and says the price is confirmed on WhatsApp, which is what
+     the rest of the page already promises. Nothing here invents a number.
+     ──────────────────────────────────────────────────────────────────────── */
+  function distanceKm(a, b) {
+    var R = 6371, rad = function (d) { return d * Math.PI / 180; };
+    var dLat = rad(b[0] - a[0]), dLon = rad(b[1] - a[1]);
+    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    return 2 * R * Math.asin(Math.sqrt(x)) * CFG.roadFactor;
+  }
+
+  function pointFor(end) {
+    if (end === 'from' && state.coords) return [+state.coords[0], +state.coords[1]];
+    var name = end === 'from' ? state.from : state.to;
+    return CFG.places[name] || null;
+  }
+
+  function estimate() {
+    var a = pointFor('from'), b = pointFor('to');
+    if (!a || !b) return null;
+    var d = Math.round(distanceKm(a, b));
+    if (!d) return null;
+
+    var r = CFG.rates || {}, price = null, fixed = false;
+
+    // An airport run is priced as its own thing when a table says so. A fixed price is
+    // quoted exactly — no night multiplier, no range. That is what fixed means, and
+    // wrapping it in a spread would hand back the uncertainty it exists to remove.
+    if (r.airport) {
+      var other = state.to === CFG.airportName ? state.from
+                : state.from === CFG.airportName ? state.to : null;
+      if (other && r.airport[other] != null) { price = r.airport[other]; fixed = true; }
+    }
+    if (price == null && r.base != null && r.perKm != null) price = r.base + r.perKm * d;
+    if (price == null) return { km: d, lo: null, hi: null };
+    if (fixed) return { km: d, lo: Math.round(price), hi: Math.round(price), fixed: true };
+
+    if (r.nightFrom != null && r.nightExtra) {
+      var hh = state.later && state.time ? parseInt(state.time.slice(0, 2), 10) : new Date().getHours();
+      var night = r.nightFrom > r.nightTo ? (hh >= r.nightFrom || hh < r.nightTo)
+                                          : (hh >= r.nightFrom && hh < r.nightTo);
+      if (night) price *= r.nightExtra;
+    }
+    if (r.minimum != null) price = Math.max(price, r.minimum);
+
+    var spread = r.spread || 0;
+    return {
+      km: d,
+      lo: Math.max(r.minimum || 0, Math.round(price * (1 - spread))),
+      hi: Math.round(price * (1 + spread)),
+    };
+  }
+
+  function renderFare() {
+    var e = estimate(), box = $('#fare');
+    if (!e) { box.hidden = true; return e; }
+    box.hidden = false;
+    $('#fare-d').textContent = CFG.t.about.replace('{km}', e.km);
+    var p = $('#fare-p');
+    if (e.lo == null) { p.className = 'p soft'; p.textContent = CFG.t.quoteOnWa; }
+    else { p.className = 'p'; p.textContent = e.lo === e.hi ? '$' + e.lo : '$' + e.lo + '\u2013' + e.hi; }
+    return e;
+  }
+
+  /* ── The message ──────────────────────────────────────────────────────── */
+  function pickup() {
+    var typed = $('#from-other').value.trim();
+    var parts = [];
+    if (state.from) parts.push(state.from);
+    if (typed) parts.push(typed);
+    if (state.coords) parts.push('https://maps.google.com/?q=' + state.coords[0] + ',' + state.coords[1]);
+    return parts.join(' — ');
+  }
+  function dest() {
+    var typed = $('#to-other').value.trim();
+    return typed || state.to;
+  }
+  function message() {
+    var p = pickup(), d = dest();
+    var when = state.later && state.time ? CFG.t.at + state.time : CFG.t.now;
+    var lines = [CFG.t.hi, ''];
+    if (p) lines.push(CFG.t.pickup + ': ' + p);
+    if (d) lines.push(CFG.t.dest + ': ' + d);
+    lines.push(CFG.t.when + ': ' + when);
+    // The estimate travels with the message, so the driver answers against the same
+    // number the passenger was shown rather than a different one.
+    var e = estimate();
+    if (e) {
+      lines.push(CFG.t.roughly + ': ' + CFG.t.about.replace('{km}', e.km)
+        + (e.lo != null ? ' \u00b7 $' + (e.lo === e.hi ? e.lo : e.lo + '\u2013' + e.hi) : ''));
+    }
+    lines.push('', CFG.t.ask);
+    return lines.join('\n');
+  }
+
+  var preview = $('#preview'), waGo = $('#wa-go');
+  function render() {
+    var p = pickup(), d = dest();
+    if (!p && !d) { preview.textContent = CFG.t.empty; }
+    else { preview.textContent = message(); }
+    renderFare();
+    waGo.href = 'https://wa.me/' + CFG.whatsapp + '?text=' + enc(message());
+  }
+  $('#bk').addEventListener('submit', function (e) { e.preventDefault(); waGo.click(); });
+  render();
+
+  /* ── Photos: shown only if the files are actually there ───────────────── */
+  (function () {
+    var shots = $('#shots'), gallery = $('#gallery'), found = 0;
+    CFG.photos.forEach(function (name) {
+      var img = new Image();
+      img.alt = CFG.t.alt;
+      // Deliberately NOT loading="lazy". This image is not in the document yet — it is a probe to
+      // find out whether the file exists at all — and a detached lazy image is never fetched, so
+      // onload would never fire and the gallery would stay hidden even once the photos were there.
+      img.decoding = 'async';
+      img.onload = function () {
+        var f = document.createElement('div');
+        f.className = 'shot';
+        f.appendChild(img);
+        shots.appendChild(f);
+        if (!found++) gallery.hidden = false;
+      };
+      img.src = CFG.photoDir + name;
+    });
+  })();
+
+  /* ── What regulars say. Nothing here is written for them. ─────────────── */
+  (function () {
+    var sec = $('#voices'), box = $('#quotes');
+    var rows = CFG.voices || [];
+    if (!rows.length) { sec.hidden = true; return; }
+    rows.forEach(function (v) {
+      var card = document.createElement('div');
+      card.className = 'quote' + (v.placeholder ? ' empty' : '');
+      var p = document.createElement('p');
+      p.textContent = v.quote;
+      var who = document.createElement('cite');
+      who.textContent = '\u2014 ' + v.name + (v.place ? (CFG.t.citeSep || ', ') + v.place : '');
+      card.appendChild(p); card.appendChild(who);
+      box.appendChild(card);
+    });
+    // Shown only while every card is still a placeholder, so this instruction to the owner
+    // cannot survive onto the real site by being forgotten about.
+    if (rows.every(function (v) { return v.placeholder; })) {
+      var note = document.createElement('p');
+      note.className = 'voices-note';
+      note.innerHTML = CFG.t.voicesNote;
+      box.parentNode.appendChild(note);
+    }
+  })();
+
+  /* ── Small touches ────────────────────────────────────────────────────── */
+  var hd = document.querySelector('header');
+  addEventListener('scroll', function () {
+    hd.classList.toggle('stuck', scrollY > 10);
+  }, { passive: true });
+
+  $('#yr').textContent = new Date().getFullYear();
+
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: .12, rootMargin: '0px 0px -40px' });
+    Array.prototype.forEach.call(document.querySelectorAll('.rv'), function (n, i) {
+      n.style.transitionDelay = (Math.min(i % 4, 3) * 70) + 'ms';
+      io.observe(n);
+    });
+  } else {
+    Array.prototype.forEach.call(document.querySelectorAll('.rv'), function (n) { n.classList.add('in'); });
+  }
+
+  /* Draw the route line to its real length, whatever the viewport. */
+  var rd = document.getElementById('rd');
+  if (rd && rd.getTotalLength) rd.style.setProperty('--len', rd.getTotalLength());
+})();
+</script>
+</body>
+</html>

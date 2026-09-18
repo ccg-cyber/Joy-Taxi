@@ -1,0 +1,13 @@
+BEGIN:VCARD
+VERSION:3.0
+N:;Joy Taxi;;;
+FN:Joy Taxi
+ORG:Joy Taxi
+TITLE:24/7 Taxi Service
+TEL;TYPE=CELL,VOICE,PREF:+96171056677
+TEL;TYPE=CELL,VOICE:+96181686839
+URL:https://joytaxi.cierp.uk/
+NOTE:24/7 taxi — Beirut, Metn North, Bsalim, Jounieh, Jbeil. Fares from $7.
+ADR;TYPE=WORK:;;;;Mount Lebanon;;Lebanon
+CATEGORIES:Taxi,Transport
+END:VCARD
