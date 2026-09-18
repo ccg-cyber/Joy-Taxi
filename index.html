@@ -446,14 +446,14 @@ footer a:hover{color:var(--amber)}
         <legend class="leg">Picking you up from</legend>
         <div class="chips" id="from-chips"></div>
         <label class="sr" for="from-other">Pickup, in your own words</label>
-        <input type="text" id="from-other" placeholder="Or type it — building, street, near what…" autocomplete="off">
+        <input type="text" id="from-other" placeholder="Add the building, street, near what…" autocomplete="off">
       </fieldset>
 
       <fieldset class="field">
         <legend class="leg">Going to</legend>
         <div class="chips" id="to-chips"></div>
         <label class="sr" for="to-other">Destination, in your own words</label>
-        <input type="text" id="to-other" placeholder="Or type it — anywhere in Lebanon" autocomplete="off">
+        <input type="text" id="to-other" placeholder="Anywhere in Lebanon, or add a detail…" autocomplete="off">
       </fieldset>
 
       <fieldset class="field">
@@ -846,13 +846,8 @@ footer a:hover{color:var(--amber)}
         if (o !== b) o.setAttribute('aria-pressed', 'false');
       });
       b.setAttribute('aria-pressed', on ? 'false' : 'true');
-      if (group === 'from') {
-        state.from = on ? '' : label;
-        if (!on) { state.coords = null; resetGps(); $('#from-other').value = ''; }
-      } else {
-        state.to = on ? '' : label;
-        if (!on) $('#to-other').value = '';
-      }
+      if (group === 'from') state.from = on ? '' : label;
+      else                  state.to   = on ? '' : label;
       render();
     });
     return b;
@@ -885,10 +880,6 @@ footer a:hover{color:var(--amber)}
         state.coords = [p.coords.latitude.toFixed(5), p.coords.longitude.toFixed(5)];
         gps.setAttribute('data-state', 'on');
         gpsLabel.textContent = CFG.t.located;
-        Array.prototype.forEach.call(fromBox.querySelectorAll('.chip:not(.chip-gps)'), function (o) {
-          o.setAttribute('aria-pressed', 'false');
-        });
-        state.from = '';
         render();
       }, function () {
         resetGps();
@@ -916,18 +907,12 @@ footer a:hover{color:var(--amber)}
   laterBtn.addEventListener('click', function () { setWhen(true); });
   timeIn.addEventListener('input', function () { state.time = timeIn.value; render(); });
 
-  /* ── Free text overrides a chip ───────────────────────────────────────── */
+  /* ── Free text ADDS to the chip, it never replaces it ─────────────────────
+     The area chip says which town; this field says where inside it. Both go
+     into the message, and keeping the chip lit keeps the distance estimate
+     alive while the passenger types the building. Clearing it here was the bug. */
   ['from', 'to'].forEach(function (g) {
-    $('#' + g + '-other').addEventListener('input', function () {
-      var box = g === 'from' ? fromBox : toBox;
-      if (this.value.trim()) {
-        Array.prototype.forEach.call(box.querySelectorAll('.chip:not(.chip-gps)'), function (o) {
-          o.setAttribute('aria-pressed', 'false');
-        });
-        state[g] = '';
-      }
-      render();
-    });
+    $('#' + g + '-other').addEventListener('input', render);
   });
 
   /* ── Distance, and what it costs ──────────────────────────────────────────
@@ -1012,7 +997,10 @@ footer a:hover{color:var(--amber)}
   }
   function dest() {
     var typed = $('#to-other').value.trim();
-    return typed || state.to;
+    var parts = [];
+    if (state.to) parts.push(state.to);
+    if (typed) parts.push(typed);
+    return parts.join(' — ');
   }
   function message() {
     var p = pickup(), d = dest();
