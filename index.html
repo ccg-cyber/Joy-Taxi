@@ -6,6 +6,13 @@
 <title>Joy Taxi — 24/7 rides. Beirut, Metn, Bsalim, Jounieh, Jbeil.</title>
 <meta name="description" content="A taxi in Beirut, Metn, Bsalim, Jounieh and Jbeil, any hour of the night. Send your pickup pin on WhatsApp and a car is on the way. From $7.">
 <meta name="theme-color" content="#08080A">
+<script>
+/* Day or night before anything paints: a remembered choice wins, otherwise the clock decides. */
+(function(){var t=null;try{t=localStorage.getItem('joy-theme')}catch(e){}
+if(t!=='day'&&t!=='night'){var h=new Date().getHours();t=(h>=7&&h<18)?'day':'night'}
+document.documentElement.setAttribute('data-theme',t);
+var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='day'?'#F6F3EC':'#08080A'})();
+</script>
 <link rel="canonical" href="https://joytaxi.cierp.uk/">
 <link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/">
 <link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/">
@@ -39,6 +46,16 @@
   --pad:clamp(20px,5vw,64px);
   --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
 }
+
+/* ── Day. Chosen automatically by the hour, or by the switch in the header. ── */
+:root[data-theme="day"]{
+  --ink:#F6F3EC; --ink-2:#FFFFFF; --ink-3:#EFEBE2; --line:#E3DDD0;
+  --amber:#E39B00; --amber-2:#F2AE14; --amber-dim:#B27A00;
+  --cream:#141416; --muted:#5B5953; --muted-2:#8C8880;
+  --shadow:0 30px 70px -44px rgba(20,20,22,.28);
+  color-scheme:light
+}
+:root{--shadow:0 40px 90px -50px #000; color-scheme:dark}
 *,*::before,*::after{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%}
 body{
@@ -105,6 +122,12 @@ nav a:hover{color:var(--cream)}
 }
 .lang:hover{color:var(--cream);border-color:var(--muted-2)}
 
+.theme{width:38px;height:38px;border-radius:999px;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);transition:.18s}
+.theme:hover{color:var(--cream);border-color:var(--muted-2)}
+.theme svg{width:17px;height:17px}
+:root[data-theme="day"] .theme .moon{display:none}
+:root:not([data-theme="day"]) .theme .sun{display:none}
+
 /* ── Buttons ── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;
@@ -165,7 +188,7 @@ h1 .em{color:var(--amber);display:inline-block}
   background:linear-gradient(168deg,var(--ink-2),var(--ink));
   border:1px solid var(--line);border-radius:var(--r-lg);
   padding:clamp(20px,3.4vw,30px);
-  box-shadow:0 40px 90px -50px #000, inset 0 1px 0 rgba(255,255,255,.045);
+  box-shadow:var(--shadow);
   position:relative
 }
 .booker h2{font-size:1.22rem;letter-spacing:-.028em}
@@ -378,6 +401,10 @@ footer a:hover{color:var(--amber)}
       <a href="#faq">Questions</a>
     </nav>
     <div class="bar-end">
+      <button type="button" class="theme" id="theme" aria-label="Day or night">
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
       <a class="lang" href="ar/index.html" hreflang="ar" lang="ar">عربي</a>
       <a class="btn btn-amber" href="tel:+96171056677" data-ev="call" style="padding:11px 18px;font-size:.88rem">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
@@ -798,6 +825,15 @@ footer a:hover{color:var(--amber)}
   var enc = encodeURIComponent;
 
   var state = { from: '', to: '', coords: null, later: false, time: '' };
+
+  /* ── Day / night switch ─────────────────────────────────────────────────── */
+  $('#theme').addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'day' ? 'night' : 'day';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('joy-theme', next); } catch (e) {}
+    var m = document.querySelector('meta[name=theme-color]');
+    if (m) m.content = next === 'day' ? '#F6F3EC' : '#08080A';
+  });
 
   /* ── Chips ───────────────────────────────────────────────────────────── */
   function chip(label, group) {
