@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<!-- A working page for whoever runs the Instagram account: the launch grid and the
+     captions to copy. It is a concept, not Joy Taxi's real Instagram, so it is kept
+     out of search results and out of sitemap.xml on purpose. -->
+<meta name="robots" content="noindex,nofollow">
+<title>Joy Taxi Instagram</title>
+<meta name="theme-color" content="#08080A">
+<link rel="icon" href="../favicon.svg">
+<link rel="apple-touch-icon" href="../icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=Figtree:wght@400;500;600;700&family=Tajawal:wght@500;800&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+</style>
+<style>
+:root{
+  color-scheme:dark;
+  --ink:#08080A;--ink-2:#101015;--ink-3:#17171F;--line:#26262F;
+  --amber:#FFB800;--amber-2:#FFD166;--amber-dim:#8A6400;
+  --cream:#FAF7F0;--muted:#98958E;--muted-2:#6C6A65;--wa:#25D366;
+  --disp:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --sans:"Figtree",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --ar:"Tajawal","Geeza Pro","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--ink);color:var(--cream);font-family:var(--sans);font-size:14px;line-height:1.45;padding-inline:16px;padding-block:32px 56px}
+.stage{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr minmax(0,430px);gap:56px;align-items:start}
+@media (max-width:860px){.stage{grid-template-columns:1fr;gap:28px}}
+
+/* left intro */
+.intro{position:sticky;top:calc(env(safe-area-inset-top,0px) + 32px);display:grid;gap:18px;padding-top:24px}
+@media (max-width:860px){.intro{position:static;padding-top:0}}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);font-weight:700}
+.intro h1{font-family:var(--disp);font-weight:900;font-size:clamp(48px,7vw,88px);line-height:.88;margin:0;text-transform:uppercase;letter-spacing:.005em;text-wrap:balance}
+.intro h1 em{font-style:normal;color:var(--amber)}
+.intro p{color:var(--muted);max-width:44ch;margin:0;font-size:15px}
+.meta{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px;color:var(--cream);background:var(--ink-2)}
+.chip b{color:var(--amber);font-weight:700}
+.hint{font-size:12px;color:var(--muted-2)}
+
+/* phone */
+/* Grid items default to min-width:auto, so the phone's widest inner strip (the
+   highlights rail) was inflating the column past the viewport and scrolling the
+   whole page sideways. Let the items shrink; the rail scrolls on its own. */
+.stage>*{min-width:0}
+.phone{background:var(--ink-2);border:1px solid var(--line);border-radius:44px;padding:10px;box-shadow:0 40px 90px -50px #000,0 0 0 6px #0c0c10}
+@media (max-width:480px){.phone{border-radius:28px;padding:6px;box-shadow:none}}
+.screen{background:#000;border-radius:36px;overflow:hidden}
+@media (max-width:480px){.screen{border-radius:22px}}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 8px}
+.handle{font-weight:700;font-size:17px;display:flex;align-items:center;gap:6px}
+.verified{width:15px;height:15px;border-radius:50%;background:var(--amber);display:inline-grid;place-items:center}
+.verified svg{width:9px;height:9px}
+.icons{display:flex;gap:18px;color:var(--cream)}
+.icons svg{width:22px;height:22px}
+
+.head{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;padding:8px 18px 12px}
+.avatar{width:86px;height:86px;border-radius:50%;padding:3px;background:conic-gradient(var(--amber),var(--amber-2),#FF8A00,var(--amber))}
+.avatar>div{width:100%;height:100%;border-radius:50%;background:var(--ink);border:3px solid #000;display:grid;place-items:center}
+.avatar svg{width:56%;height:56%}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);text-align:center}
+.stats b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.stats span{font-size:12.5px;color:var(--cream)}
+.bio{padding:0 18px 14px;display:grid;gap:3px;font-size:13.5px}
+.bio .name{font-weight:700}
+.bio .cat{color:var(--muted)}
+.bio .link{color:#9DB9FF;font-weight:600}
+.bio .ar{font-family:var(--ar);direction:rtl;text-align:left;unicode-bidi:plaintext}
+.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 18px 16px}
+.btns button{font:600 13px var(--sans);border:0;border-radius:9px;padding:8px 0;background:#26262B;color:var(--cream);cursor:pointer}
+.btns button.pri{background:var(--amber);color:var(--ink)}
+.btns button:focus-visible,.tile:focus-visible,.hl:focus-visible{outline:2px solid var(--amber-2);outline-offset:2px}
+
+.hls{display:flex;gap:14px;padding:0 18px 16px;overflow-x:auto;scrollbar-width:none}
+.hl{flex:0 0 auto;display:grid;justify-items:center;gap:6px;background:none;border:0;color:var(--cream);font:500 12px var(--sans);cursor:pointer;padding:0}
+.hl i{width:62px;height:62px;border-radius:50%;border:1px solid #3a3a42;display:grid;place-items:center;background:var(--ink-3);font-style:normal}
+.hl i b{font-family:var(--disp);font-size:20px;color:var(--amber);font-weight:900}
+.hl i svg{width:26px;height:26px}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #1e1e24}
+.tabs span{display:grid;place-items:center;padding:10px 0;color:var(--muted-2)}
+.tabs span.on{color:var(--cream);box-shadow:inset 0 -1px 0 var(--cream)}
+.tabs svg{width:22px;height:22px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+
+/* post tiles — sized with container units so the same design works in grid & modal */
+.tile{aspect-ratio:1;max-width:100%;container-type:inline-size;position:relative;overflow:hidden;border:0;padding:0;cursor:pointer;background:var(--ink);color:var(--cream);text-align:left;display:block;width:100%}
+.p{position:absolute;inset:0;padding:8cqw;display:flex;flex-direction:column;justify-content:space-between}
+.tag{font:700 5.2cqw var(--sans);letter-spacing:.12em;text-transform:uppercase}
+.big{font-family:var(--disp);font-weight:900;text-transform:uppercase;line-height:.86;letter-spacing:.005em}
+.logo{display:flex;align-items:center;gap:2.4cqw;font:800 5cqw var(--disp);letter-spacing:.14em}
+.logo svg{width:7cqw;height:7cqw}
+.amber{background:var(--amber);color:var(--ink)}
+.ink{background:var(--ink);color:var(--cream)}
+.ink3{background:var(--ink-3);color:var(--cream)}
+.checker{background:repeating-conic-gradient(var(--ink) 0 25%,var(--amber) 0 50%) 0 0/10cqw 10cqw}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.82);display:grid;place-items:center;padding:16px;z-index:10}
+.card{background:var(--ink-2);border:1px solid var(--line);border-radius:18px;max-width:880px;width:100%;max-height:calc(100% - 20px);overflow:auto;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}
+@media (max-width:720px){.card{grid-template-columns:1fr}}
+.card .big-tile{pointer-events:none;cursor:default}
+.cap{padding:20px;display:grid;gap:14px;align-content:start}
+.cap h3{margin:0;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--amber)}
+.cap pre{margin:0;white-space:pre-wrap;font:14px/1.55 var(--sans);color:var(--cream)}
+.cap .row{display:flex;gap:8px;flex-wrap:wrap}
+.cap button{font:600 13px var(--sans);border-radius:10px;padding:10px 14px;cursor:pointer;border:1px solid var(--line);background:var(--ink-3);color:var(--cream)}
+.cap button.pri{background:var(--amber);color:var(--ink);border-color:var(--amber)}
+.cap .note{font-size:12px;color:var(--muted-2)}
+@media (prefers-reduced-motion:no-preference){.tile .p{transition:transform .35s ease}.grid .tile:hover .p{transform:scale(1.04)}}
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <section class="intro">
+    <div class="eyebrow">Instagram page · concept</div>
+    <h1>Joy Taxi,<br><em>on the feed.</em></h1>
+    <p>The launch grid for Joy Taxi's Instagram: profile, highlights and the first twelve posts, all in the site's black and taxi amber. Tap any post to see it full size with its caption ready to copy.</p>
+    <div class="meta">
+      <span class="chip"><b>12</b> launch posts</span>
+      <span class="chip"><b>5</b> highlights</span>
+      <span class="chip">English + عربي</span>
+      <span class="chip">joytaxi.cierp.uk</span>
+    </div>
+    <p class="hint">Handle @joytaxi.lb is a placeholder. Follower counts show a fresh page.</p>
+  </section>
+
+  <div class="phone"><div class="screen">
+    <div class="bar">
+      <div class="handle">joytaxi.lb <span class="verified"><svg viewBox="0 0 10 10"><path d="M2 5.2 4.2 7.3 8 3" fill="none" stroke="#08080A" stroke-width="1.8" stroke-linecap="round"/></svg></span></div>
+      <div class="icons">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M12 8v8M8 12h8"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </div>
+    </div>
+
+    <div class="head">
+      <div class="avatar"><div>
+        <svg viewBox="0 0 64 64"><rect x="8" y="20" width="48" height="24" rx="7" fill="#FFB800"/><rect x="14" y="37" width="36" height="7" rx="3.5" fill="#08080A" opacity=".3"/><rect x="25" y="47" width="14" height="6" rx="3" fill="#FFB800" opacity=".55"/></svg>
+      </div></div>
+      <div class="stats">
+        <div><b>12</b><span>posts</span></div>
+        <div><b>0</b><span>followers</span></div>
+        <div><b>48</b><span>following</span></div>
+      </div>
+    </div>
+
+    <div class="bio">
+      <span class="name">Joy Taxi · 24/7</span>
+      <span class="cat">Taxi service</span>
+      <span>🚕 A car, whenever you call. Day and night.</span>
+      <span>📍 Beirut · Metn North · Bsalim · Jounieh · Jbeil</span>
+      <span>💵 Fares from $7, price agreed before you get in</span>
+      <span>📲 WhatsApp 71 056 677 · 81 686 839</span>
+      <span class="ar">تاكسي ٢٤/٧ — سيارة ساعة ما بدك</span>
+      <span class="link">joytaxi.cierp.uk</span>
+    </div>
+
+    <div class="btns">
+      <button class="pri" type="button">Follow</button>
+      <button type="button">WhatsApp</button>
+      <button type="button">Call</button>
+    </div>
+
+    <div class="hls" id="hls"></div>
+
+    <div class="tabs">
+      <span class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="2"/><path d="M9.2 3.5v17M14.8 3.5v17M3.5 9.2h17M3.5 14.8h17"/></svg></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="4"/><path d="M3.5 8.5h17M8 3.5l3 5M13.5 3.5l3 5M10.5 12v5l4.5-2.5z"/></svg></span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><circle cx="12" cy="10.5" r="3"/><path d="M6.5 20c1-3 3-4.5 5.5-4.5s4.5 1.5 5.5 4.5"/></svg></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div></div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="card" role="dialog" aria-modal="true" aria-labelledby="capTitle">
+    <div id="modalTile"></div>
+    <div class="cap">
+      <h3 id="capTitle">Caption</h3>
+      <pre id="capText"></pre>
+      <div class="row">
+        <button class="pri" type="button" id="copyBtn">Copy caption</button>
+        <button type="button" id="prevBtn">← Prev</button>
+        <button type="button" id="nextBtn">Next →</button>
+        <button type="button" id="closeBtn">Close</button>
+      </div>
+      <span class="note" id="copyNote"></span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+var CAR='<svg viewBox="0 0 64 64"><rect x="8" y="20" width="48" height="24" rx="7" fill="#FFB800"/><rect x="14" y="37" width="36" height="7" rx="3.5" fill="#08080A" opacity=".3"/><rect x="25" y="47" width="14" height="6" rx="3" fill="#FFB800" opacity=".55"/></svg>';
+var CAR_INK=CAR.replace(/#FFB800/g,'#08080A').replace('fill="#08080A" opacity=".3"','fill="#FFB800" opacity=".45"');
+function logo(ink){return '<div class="logo">'+(ink?CAR_INK:CAR)+'JOY TAXI</div>'}
+var TAGS='\n\n#JoyTaxi #LebanonTaxi #Beirut #Jounieh #Jbeil #Byblos #Metn #Bsalim #TaxiLebanon #24_7';
+
+var posts=[
+ {t:'Launch',html:'<div class="p amber">'+logo(1)+'<div class="big" style="font-size:20cqw">A car,<br>whenever<br>you call.</div><div class="tag">Open now · 24 hours, every day</div></div>',
+  c:'A car, whenever you call. 🚕\n\nJoy Taxi runs the coast road day and night: Beirut, Metn North, Bsalim, Jounieh and Jbeil. Three in the morning counts.\n\n📲 WhatsApp your pin: 71 056 677\n☎️ Or call: 81 686 839'},
+ {t:'Fares',html:'<div class="p ink"><div class="tag" style="color:var(--amber)">Fares start at</div><div class="big" style="font-size:66cqw;color:var(--amber);line-height:.8">$7</div><div style="font:600 5.6cqw var(--sans);color:var(--muted)">Price agreed before the car moves.<br>It doesn\'t change after.</div></div>',
+  c:'$7 is where fares start. 💵\n\nYou hear the price before the car moves, and it does not change afterwards. No meter creeping up in traffic. Nights cost more, and you are told exactly how much before you say yes.\n\nAsk for your price on WhatsApp: 71 056 677'},
+ {t:'Night',html:'<div class="p ink3" style="background:radial-gradient(120% 90% at 80% 10%,#2a2410,var(--ink) 60%)"><div class="tag" style="color:var(--muted)">Beirut · Tonight</div><div><div class="big" style="font-size:40cqw;color:var(--amber);font-variant-numeric:tabular-nums">3:00</div><div class="big" style="font-size:10cqw">AM counts as<br>day and night.</div></div>'+logo()+'</div>',
+  c:'3:00 AM? We answer. 🌙\n\nA phone that rings out at midnight is not a taxi service. Ours is answered around the clock, by a person.\n\n📲 71 056 677 · 81 686 839'},
+ {t:'Route',html:'<div class="p ink"><div class="tag" style="color:var(--amber)">Where we run</div><svg viewBox="0 0 100 62" style="width:100%;overflow:visible"><path d="M6 52 C22 50 26 40 38 38 S58 30 66 22 S84 10 94 6" fill="none" stroke="#FFB800" stroke-width="1.6" stroke-dasharray="3 2.4"/><g fill="#FFB800"><circle cx="6" cy="52" r="2.6"/><circle cx="38" cy="38" r="2.6"/><circle cx="52" cy="31" r="3.6"/><circle cx="68" cy="21" r="2.6"/><circle cx="94" cy="6" r="2.6"/></g><g fill="#FAF7F0" font-family="Figtree,sans-serif" font-size="5.2" font-weight="600"><text x="3" y="61">Beirut</text><text x="24" y="47">Metn</text><text x="45" y="24">Bsalim</text><text x="70" y="28">Jounieh</text><text x="80" y="15">Jbeil</text></g></svg><div class="big" style="font-size:11cqw">One strip of coast,<br><span style="color:var(--amber)">known by heart.</span></div></div>',
+  c:'One strip of coast, known by heart. 🗺️\n\nBeirut → Metn North → Bsalim → Jounieh → Jbeil.\n\nWe are not everywhere, and that is deliberate. This corridor is the road our drivers live on, so they know which junction is blocked before they reach it.'},
+ {t:'How to book',html:'<div class="p amber"><div class="tag">Book in three taps</div><div style="display:grid;gap:3.4cqw">'+
+   ['Where you are','Where you\'re going','Send on WhatsApp'].map(function(s,i){return '<div style="display:flex;align-items:center;gap:4cqw"><span class="big" style="font-size:17cqw;width:11cqw">'+(i+1)+'</span><span style="font:700 7.4cqw var(--sans)">'+s+'</span></div>'}).join('')+
+   '</div><div class="tag" style="opacity:.7">joytaxi.cierp.uk</div></div>',
+  c:'Booking takes three taps. 👆\n\n1. Where you are\n2. Where you\'re going\n3. Send on WhatsApp\n\nThe form on joytaxi.cierp.uk writes the message for you. Nothing stored, no account. Or just call, we answer.'},
+ {t:'Airport',html:'<div class="p ink3"><div style="display:flex;justify-content:space-between;align-items:center"><div class="tag" style="color:var(--amber)">Airport runs</div><div class="tag" style="color:var(--muted)">24/7</div></div><div><div class="big" style="font-size:38cqw;letter-spacing:.02em">BEY</div><div style="font:600 6cqw var(--sans);color:var(--muted)">Beirut–Rafic Hariri International</div></div><div style="display:flex;justify-content:space-between;align-items:end"><div class="big" style="font-size:8.5cqw;color:var(--amber)">Early flight?<br>Book the night before.</div>'+'<svg viewBox="0 0 24 24" style="width:12cqw;height:12cqw" fill="#FFB800"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></div></div>',
+  c:'Early flight? Book the night before. ✈️\n\nAirport runs to and from Beirut, around the clock. Send us your flight time and pickup pin and the car is there on time, or you know exactly why not.\n\n📲 71 056 677'},
+ {t:'عربي',html:'<div class="p amber" style="direction:rtl;text-align:right"><div style="font:800 7cqw var(--ar)">جوي تاكسي</div><div style="font:800 14cqw/1.1 var(--ar)">سيارة،<br>ساعة ما بدك.</div><div style="font:500 6.4cqw var(--ar)">٢٤ ساعة · ٧ أيام · من ٧$</div></div>',
+  c:'سيارة، ساعة ما بدك. 🚕\n\nجوي تاكسي شغّال ليل نهار: بيروت، المتن الشمالي، بصاليم، جونية وجبيل.\nالسعر متفق عليه قبل ما تطلع بالسيارة.\n\n📲 واتساب: 71 056 677\n☎️ 81 686 839\n\n#جوي_تاكسي #تاكسي_لبنان #بيروت #جونية #جبيل'},
+ {t:'Call us',html:'<div class="p checker" style="padding:0"><div style="position:absolute;inset:14cqw 8cqw;background:var(--ink);border-radius:5cqw;padding:7cqw;display:flex;flex-direction:column;justify-content:space-between"><div class="tag" style="color:var(--amber)">Someone answers</div><div><div class="big" style="font-size:14cqw;color:var(--amber);font-variant-numeric:tabular-nums">71 056 677</div><div class="big" style="font-size:14cqw;font-variant-numeric:tabular-nums">81 686 839</div></div></div></div>',
+  c:'Save the number. Someone answers. ☎️\n\n71 056 677 (WhatsApp)\n81 686 839\n\nDay or night, a person picks up. Tag a friend who always gets stuck after a night out 👇'},
+ {t:'The price',html:'<div class="p ink"><div class="tag" style="color:var(--muted)">Before you get in</div><div style="background:var(--cream);color:var(--ink);border-radius:3cqw;padding:6cqw;display:grid;gap:2.6cqw;font:600 6cqw var(--sans)"><div style="display:flex;justify-content:space-between"><span>Bsalim → Jounieh</span></div><div style="border-top:.6cqw dashed #bbb"></div><div style="display:flex;justify-content:space-between;align-items:baseline"><span>Agreed</span><span class="big" style="font-size:16cqw">$—</span></div><div style="font-size:4.8cqw;color:#6C6A65">Same number at the end. Always.</div></div><div class="big" style="font-size:11cqw;color:var(--amber)">No meter creep.</div></div>',
+  c:'The price you hear is the price you pay. 🧾\n\nNo meter creeping up in traffic. No bill at the end that is bigger than the one you agreed to.\n\nAsk for your fare on WhatsApp: 71 056 677'},
+ {t:'Jbeil',html:'<div class="p" style="background:linear-gradient(180deg,#1a1408 0%,#08080A 55%),var(--ink)"><div class="tag" style="color:var(--amber)">Jbeil · Byblos</div><div class="big" style="font-size:19cqw">Old souk.<br>The coast.<br><span style="color:var(--amber)">A ride home.</span></div>'+logo()+'</div>',
+  c:'Jbeil nights, sorted. 🌊\n\nDinner by the old port, a walk through the souk, and a car waiting when you are done. Jbeil, Jounieh, Kaslik, Maameltein, all on our road.\n\n📲 71 056 677'},
+ {t:'The car',html:'<div class="p ink3"><div class="tag" style="color:var(--amber)">The boring things, done properly</div><div style="display:grid;gap:3cqw;font:700 7.2cqw var(--sans)">'+
+   ['A/C that works','A car that smells of nothing','A driver who knows the road','Silence, if you want it'].map(function(s){return '<div style="display:flex;gap:3cqw;align-items:center"><span style="width:5cqw;height:5cqw;border-radius:50%;background:var(--amber);flex:none"></span>'+s+'</div>'}).join('')+
+   '</div>'+logo()+'</div>',
+  c:'A clean, quiet car. ❄️\n\nAir conditioning that works, a car that smells of nothing, and a driver who lets you sit in silence if that is what you want.\n\nThe boring things, done properly.'},
+ {t:'Follow',html:'<div class="p amber" style="align-items:center;justify-content:center;text-align:center;gap:4cqw"><div style="width:30cqw">'+CAR_INK+'</div><div class="big" style="font-size:22cqw">Joy Taxi</div><div class="tag">24/7 · From $7 · WhatsApp 71 056 677</div></div>',
+  c:'Welcome to Joy Taxi. 🚕\n\nFollow for routes, night fares and airport tips. Keep the number in your phone for the night you need it.\n\n📲 WhatsApp 71 056 677\n☎️ 81 686 839\n🌐 joytaxi.cierp.uk'}
+];
+
+// Instagram shows newest first: the "Follow" welcome post sits last so it appears in the bottom-right, launch post first.
+var grid=document.getElementById('grid');
+posts.forEach(function(p,i){
+  var b=document.createElement('button');b.type='button';b.className='tile';b.setAttribute('aria-label','Open post: '+p.t);
+  b.innerHTML=p.html;b.addEventListener('click',function(){open(i)});grid.appendChild(b);
+});
+
+var hls=[['Book','<svg viewBox="0 0 24 24" fill="none" stroke="#FFB800" stroke-width="2" stroke-linecap="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',4],
+ ['Fares','<b>$7</b>',1],['Areas','<svg viewBox="0 0 24 24" fill="none" stroke="#FFB800" stroke-width="2" stroke-linecap="round"><path d="M3 18c4 0 5-5 9-6s5-6 9-8"/></svg>',3],
+ ['Airport','<b>BEY</b>',5],['عربي','<b style="font-family:var(--ar)">ع</b>',6]];
+var hlBox=document.getElementById('hls');
+hls.forEach(function(h){var b=document.createElement('button');b.type='button';b.className='hl';b.innerHTML='<i>'+h[1]+'</i>'+h[0];b.addEventListener('click',function(){open(h[2])});hlBox.appendChild(b)});
+
+var modal=document.getElementById('modal'),mt=document.getElementById('modalTile'),ct=document.getElementById('capText'),cur=0,note=document.getElementById('copyNote');
+function full(i){return posts[i].c+(posts[i].t==='عربي'?'':TAGS)}
+function open(i){cur=(i+posts.length)%posts.length;mt.innerHTML='<div class="tile big-tile">'+posts[cur].html+'</div>';ct.textContent=full(cur);document.getElementById('capTitle').textContent='Post '+(cur+1)+' · '+posts[cur].t;note.textContent='';modal.hidden=false;document.getElementById('copyBtn').focus()}
+function close(){modal.hidden=true}
+document.getElementById('closeBtn').onclick=close;
+document.getElementById('prevBtn').onclick=function(){open(cur-1)};
+document.getElementById('nextBtn').onclick=function(){open(cur+1)};
+modal.addEventListener('click',function(e){if(e.target===modal)close()});
+document.addEventListener('keydown',function(e){if(modal.hidden)return;if(e.key==='Escape')close();if(e.key==='ArrowRight')open(cur+1);if(e.key==='ArrowLeft')open(cur-1)});
+document.getElementById('copyBtn').onclick=function(){
+  var txt=full(cur);
+  function fallback(){var r=document.createRange();r.selectNodeContents(ct);var s=getSelection();s.removeAllRanges();s.addRange(r);note.textContent='Caption selected. Press Ctrl/Cmd+C to copy.'}
+  try{navigator.clipboard.writeText(txt).then(function(){note.textContent='Copied.'},fallback)}catch(e){fallback()}
+};
+})();
+</script>
+
+</body>
+</html>
