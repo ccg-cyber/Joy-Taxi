@@ -199,6 +199,24 @@ does not.
 
 ---
 
+## The homepage FAQ schema
+
+The seven questions on each homepage are also marked up as `FAQPage` structured
+data, which is what lets them appear as expandable answers in a search result.
+
+Google requires the marked-up answer to match the words a visitor actually reads,
+so the schema is not written by hand next to the questions — it is parsed out of
+them:
+
+    python3 tools/build-home-faq.py
+
+Edit a question or an answer in `index.html` or `ar/index.html`, run that, and the
+schema follows. It cannot drift out of sync with the page, which is the usual way
+this kind of markup turns into a penalty rather than a feature. The script is
+idempotent: it replaces its own block on each run.
+
+---
+
 ## How it is deployed, and how to update it
 
 This repository **is** the site. No build step. GitHub Pages serves the
