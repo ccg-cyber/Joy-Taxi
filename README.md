@@ -2,10 +2,11 @@
 
 Live at **https://joytaxi.cierp.uk/** (Arabic: **/ar/**).
 
-Two hand-written HTML files. No build step, no framework, no CDN, no fonts to
-download, no trackers, no cookies, no backend. You can open `index.html` from a
-USB stick on a laptop with no internet and it works. That is deliberate: the
-person loading this is usually standing on a street at night on one bar of 3G.
+Two hand-written HTML files, plus twelve generated area pages. No build step at
+serve time, no framework, no CDN, no trackers, no cookies, no backend. You can
+open `index.html` from a USB stick on a laptop with no internet and it works.
+That is deliberate: the person loading this is usually standing on a street at
+night on one bar of 3G.
 
 ---
 
@@ -149,6 +150,52 @@ Setting `voices: []` hides the section entirely.
 
 Ask three regulars on WhatsApp tonight. It takes an evening, and it is the
 single highest-converting thing this page is missing.
+
+---
+
+## The area pages
+
+Twelve pages, six areas in two languages:
+
+    /taxi-beirut/          /ar/taxi-beirut/
+    /taxi-beirut-airport/  /ar/taxi-beirut-airport/
+    /taxi-metn/            /ar/taxi-metn/
+    /taxi-bsalim/          /ar/taxi-bsalim/
+    /taxi-jounieh/         /ar/taxi-jounieh/
+    /taxi-jbeil/           /ar/taxi-jbeil/
+
+They exist to be found. Somebody typing "taxi jounieh" into a phone should land
+on a page that names Kaslik and Maameltein, shows both numbers, and has a
+WhatsApp button already holding "I need a taxi in Jounieh" — not on a homepage
+they then have to navigate. Each page carries `TaxiService`, `FAQPage` and
+`BreadcrumbList` structured data, a canonical URL, and `hreflang` pointing at
+its opposite-language twin.
+
+**Do not edit those twelve files by hand.** They are written by:
+
+    python3 tools/build-areas.py
+
+That script holds the areas, the neighbourhood lists and every line of copy in
+one table at the top. Adding a seventh area is three lines there and one run —
+both languages, the cross-links on all the other pages, and `sitemap.xml` all
+update themselves. Editing a page directly means the next run overwrites you.
+
+Nothing at runtime depends on the script. It writes static files, those files
+are committed, and GitHub Pages serves them as-is — so the site keeps its
+no-build-step promise; the script is just how the files get written.
+
+`area.css` is generated too, extracted from `index.html`'s own `<style>` block
+plus a short addendum for the pieces only these pages use. That keeps
+`index.html` the single source of truth for the design tokens: change a colour
+there, re-run the script, and all twelve pages follow. The homepages keep their
+CSS inline (one request, instant first paint); the area pages share one cached
+stylesheet instead of carrying twelve copies of it.
+
+The four questions on every area page — how to book, what it costs, whether we
+run at night, how to pay — are the four people actually ask. The price answer
+says fares start at $7 and that the number is agreed before the car moves. It
+quotes no figure beyond the published $7, for the same reason the homepage
+does not.
 
 ---
 

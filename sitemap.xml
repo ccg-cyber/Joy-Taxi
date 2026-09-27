@@ -3,7 +3,7 @@
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://joytaxi.cierp.uk/</loc>
-    <lastmod>2026-09-18</lastmod>
+    <lastmod>2026-09-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/"/>
@@ -11,10 +11,106 @@
   </url>
   <url>
     <loc>https://joytaxi.cierp.uk/ar/</loc>
-    <lastmod>2026-09-18</lastmod>
+    <lastmod>2026-09-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-beirut/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-beirut/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-beirut/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-beirut/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-beirut/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-beirut/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-beirut-airport/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-beirut-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-beirut-airport/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-beirut-airport/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-beirut-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-beirut-airport/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-metn/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-metn/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-metn/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-metn/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-metn/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-metn/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-bsalim/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-bsalim/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-bsalim/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-bsalim/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-bsalim/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-bsalim/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-jounieh/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-jounieh/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-jounieh/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-jounieh/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-jounieh/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-jounieh/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-jbeil/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-jbeil/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-jbeil/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-jbeil/</loc>
+    <lastmod>2026-09-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-jbeil/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-jbeil/"/>
   </url>
 </urlset>
