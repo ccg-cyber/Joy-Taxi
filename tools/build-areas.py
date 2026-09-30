@@ -35,6 +35,8 @@ AREAS = [
    ar_body='زحمة بيروت ما هي مشكلة مسافة، هي مشكلة وقت. سوّاقينا عمّال بهالمدينة نهار وليل، فبياخدوا الطريق يلي ماشي مش يلي مبيّن أقصر عالخريطة. طالع من مار مخايل الساعة تنتين بالليل، أو عندك اجتماع بالداون تاون الساعة تمانة — نفس التلفون.'),
 
  dict(slug='taxi-beirut-airport', en='Beirut Airport', ar='مطار بيروت', schema='Airport', to=True,
+   title_en='Beirut Airport Taxi 24/7 — Joy Taxi Lebanon | From $7',
+   title_ar='تاكسي مطار بيروت ٢٤/٧ — جوي تاكسي لبنان | من ٧$',
    en_hoods=[('Arrivals','we wait, you walk out'),('Departures','dropped at the door'),
              ('Khaldeh','and the airport road'),('Ouzai','and Jnah'),('Bir Hassan','and Ramlet al-Baida')],
    ar_hoods=[('الوصول','ننطرك، إنت بس اطلع'),('المغادرة','ننزّلك عالباب'),
@@ -92,18 +94,18 @@ AREAS = [
 ]
 
 DESCS = {
- 'taxi-beirut': ('Taxi in Beirut, 24/7 — Hamra, Achrafieh, Gemmayzeh, Verdun, Downtown and the airport road. Fares from $7, agreed before you get in. WhatsApp 71 056 677.',
-      'تاكسي ببيروت، ٢٤/٧ — الحمرا، الأشرفية، الجميزة، فردان، وسط البلد وطريق المطار. من ٧$، السعر متفق عليه قبل ما تطلع. واتساب 71 056 677.'),
- 'taxi-beirut-airport': ('Taxi to Beirut Airport, 24/7. Send your flight time and the car is outside before you need it. Airport fares quoted before you go. WhatsApp 71 056 677.',
-      'تاكسي عمطار بيروت، ٢٤/٧. ابعتلنا وقت الطيارة والسيارة برّا قبل ما تحتاجها. سعر المطار بتعرفو قبل ما تمشي. واتساب 71 056 677.'),
- 'taxi-metn': ('Taxi across Metn North, 24/7 — Antelias, Dbayeh, Jal el Dib, Zalka, Bikfaya, Broumana, Beit Mery. Fares from $7, agreed up front. WhatsApp 71 056 677.',
-      'تاكسي بالمتن الشمالي، ٢٤/٧ — أنطلياس، ضبية، جل الديب، الزلقا، بكفيا، برمانا، بيت مري. من ٧$، السعر متفق عليه. واتساب 71 056 677.'),
- 'taxi-bsalim': ('Taxi in Bsalim, 24/7 — our base, so pickups here are the fastest we do. Mazraat Yachouh, Bqennaya, Ain Aar, Mtayleb. From $7. WhatsApp 71 056 677.',
-      'تاكسي ببصاليم، ٢٤/٧ — مركزنا، فالتوصيلة من هون أسرع شي. مزرعة يشوع، بقنايا، عين عار، المطيلب. من ٧$. واتساب 71 056 677.'),
- 'taxi-jounieh': ('Taxi in Jounieh, 24/7 — Kaslik, Maameltein, Sarba, Zouk, Ghadir, Harissa. Late nights included. Fares from $7, agreed before you get in. WhatsApp 71 056 677.',
-      'تاكسي بجونية، ٢٤/٧ — الكسليك، المعاملتين، صربا، الذوق، غدير، حريصا. وسهرات الليل. من ٧$، السعر متفق عليه قبل ما تطلع. واتساب 71 056 677.'),
- 'taxi-jbeil': ('Taxi in Jbeil and Byblos, 24/7 — old souk, the port, Amchit, Halat, Fidar. Fares from $7, agreed before you set off. WhatsApp 71 056 677.',
-      'تاكسي بجبيل، ٢٤/٧ — السوق القديم، المرفأ، عمشيت، حالات، فيدار. من ٧$، السعر متفق عليه قبل ما تمشي. واتساب 71 056 677.'),
+ 'taxi-beirut': ('Taxi in Beirut, Lebanon, 24/7 — Hamra, Achrafieh, Gemmayzeh, Verdun, Downtown, airport road. From $7, agreed before you get in. WhatsApp 71 056 677.',
+      'تاكسي ببيروت، لبنان، ٢٤/٧ — الحمرا، الأشرفية، الجميزة، فردان، وسط البلد وطريق المطار. من ٧$، السعر متفق عليه قبل ما تطلع. واتساب 71 056 677.'),
+ 'taxi-beirut-airport': ('Airport taxi in Lebanon, 24/7 to and from Beirut (BEY). Send your flight time and the car is outside before you need it. WhatsApp 71 056 677.',
+      'تاكسي مطار بلبنان، ٢٤/٧ من وعلى مطار بيروت. ابعتلنا وقت الطيارة والسيارة برّا قبل ما تحتاجها. واتساب 71 056 677.'),
+ 'taxi-metn': ('Taxi in Metn North, Lebanon, 24/7 — Antelias, Dbayeh, Jal el Dib, Zalka, Bikfaya, Broumana, Beit Mery. From $7, agreed up front. WhatsApp 71 056 677.',
+      'تاكسي بالمتن الشمالي، لبنان، ٢٤/٧ — أنطلياس، ضبية، جل الديب، الزلقا، بكفيا، برمانا، بيت مري. من ٧$، السعر متفق عليه. واتساب 71 056 677.'),
+ 'taxi-bsalim': ('Taxi in Bsalim, Lebanon, 24/7 — our base, so pickups here are fastest. Mazraat Yachouh, Bqennaya, Ain Aar, Mtayleb. From $7. WhatsApp 71 056 677.',
+      'تاكسي ببصاليم، لبنان، ٢٤/٧ — مركزنا، فالتوصيلة من هون أسرع شي. مزرعة يشوع، بقنايا، عين عار، المطيلب. من ٧$. واتساب 71 056 677.'),
+ 'taxi-jounieh': ('Taxi in Jounieh, Lebanon, 24/7 — Kaslik, Maameltein, Sarba, Zouk, Ghadir, Harissa. From $7, agreed before you get in. WhatsApp 71 056 677.',
+      'تاكسي بجونية، لبنان، ٢٤/٧ — الكسليك، المعاملتين، صربا، الذوق، غدير، حريصا. من ٧$، السعر متفق عليه قبل ما تطلع. واتساب 71 056 677.'),
+ 'taxi-jbeil': ('Taxi in Jbeil (Byblos), Lebanon, 24/7 — old souk, the port, Amchit, Halat, Fidar. From $7, agreed before you set off. WhatsApp 71 056 677.',
+      'تاكسي بجبيل، لبنان، ٢٤/٧ — السوق القديم، المرفأ، عمشيت، حالات، فيدار. من ٧$، السعر متفق عليه قبل ما تمشي. واتساب 71 056 677.'),
 }
 
 # ── Words, per language ──────────────────────────────────────────────────────
@@ -151,7 +153,7 @@ L = {
    crumb_home='جوي تاكسي', wa_pre='بدي تاكسي ب%s', wa_pre_to='بدي تاكسي ع%s',
    desc='تاكسي %s، ٢٤/٧. %s التسعيرة من ٧$، متفق عليها قبل ما تطلع. واتساب أو اتصل %s.',
    h1='تاكسي ب%s', h1_to='تاكسي ع%s',
-   title='تاكسي %s ٢٤/٧ — جوي تاكسي | من ٧$، اتصل '+DSP1,
+   title='تاكسي %s ٢٤/٧ — جوي تاكسي | من ٧$ · '+DSP1,
    ogtitle='تاكسي %s ٢٤/٧ — جوي تاكسي'),
 }
 
@@ -328,7 +330,7 @@ def page(area, lc):
     lede = area[lc + '_lede']
     body = area[lc + '_body']
     h1 = (w['h1_to'] if to else w['h1']) % name
-    title = w['title'] % name
+    title = area.get('title_' + lc) or (w['title'] % name)
     ogtitle = w['ogtitle'] % name
     desc = DESCS[slug][0 if lc == 'en' else 1]
     wa_txt = (w['wa_pre_to'] if to else w['wa_pre']) % name
