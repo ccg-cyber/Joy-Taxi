@@ -1,8 +1,7 @@
-Put Joy Taxi's own photographs here.
+Put Joy Taxi's own photographs here — never stock, never somebody else's car.
 
-    car-1.jpg
-    car-2.jpg
-    car-3.jpg
+    car-1.jpg  car-2.jpg  car-3.jpg  interior.jpg  driver.jpg
+    coast.jpg  jounieh-bay.jpg  byblos-port.jpg
 
 Landscape, roughly 4:3, anything from 1200px wide up. The page loads whichever
 of these files exist and hides the gallery entirely if none do — so an empty

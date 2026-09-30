@@ -9,8 +9,9 @@ is added or the shared design changes:
 
     python3 tools/build-areas.py
 
-area.css is extracted from index.html's <style> block on every run, so the
-homepage stays the single source of truth for the design tokens.
+area.css is extracted from index.html's <style> block on every run, and the same
+block (plus the night-road hero) is copied into ar/index.html, so the homepage
+stays the single source of truth for the design.
 """
 import io, os, re, sys, urllib.parse
 
@@ -193,96 +194,111 @@ FAQ = {
  ],
 }
 
-MARK = ('<span class="lamp" aria-hidden="true"></span>\n      <b>JOY TAXI</b>')
-ICO_CALL = ('<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" '
+# ── Links every page carries in its footer ───────────────────────────────────
+SERVICE_LINKS = [('tours', 'Day tours', 'رحلات يومية'),
+                 ('school-transport', 'School & student runs', 'نقل الطلاب'),
+                 ('shared-rides', 'Shared rides', 'رحلات مشتركة')]
+
+CHROME = {
+ 'en': dict(skip='Skip to booking', home='Joy Taxi, home', main='Main',
+   nav=[('Book', '#book'), ('Fares', '#fares'), ('Areas', '#areas'), ('Services', '#services'), ('Questions', '#faq')],
+   langlink='عربي', langcode='ar', call_aria='Call ' + DSP1, crumb='Breadcrumb',
+   wa='WhatsApp', book_wa='Book on WhatsApp', call='Call', callnow='Call now', quick='Quick contact',
+   close_k='Keep it close', close_h='Save the number <em>before you need it.</em>',
+   close_p='The moment you need a driver is never the moment you want to start looking for one.',
+   vcard='Add Joy Taxi to your contacts',
+   foot_p='A private car and a driver who knows the coast road. Twenty-four hours, every day of the year.',
+   foot_call='Call or message', foot_areas='Areas', foot_services='Services',
+   legal='Joy Taxi · Lebanon', open247='Open 24/7',
+   fonts=['bodoni.woff2', 'jost.woff2']),
+ 'ar': dict(skip='انتقل عالحجز', home='جوي تاكسي، الصفحة الرئيسية', main='الرئيسية',
+   nav=[('احجز', '#book'), ('الأسعار', '#fares'), ('المناطق', '#areas'), ('الخدمات', '#services'), ('أسئلة', '#faq')],
+   langlink='EN', langcode='en', call_aria='اتصل على ' + DSP1, crumb='مسار',
+   wa='واتساب', book_wa='احجز عالواتساب', call='اتصل', callnow='اتصل هلّق', quick='اتصال سريع',
+   close_k='خلّيه قريب', close_h='خبّي الرقم <em>قبل ما تحتاجو.</em>',
+   close_p='اللحظة يلّي بتحتاج فيها سوّاق، أبداً مش اللحظة يلّي بتحبّ تبلّش فيها تدوّر على واحد.',
+   vcard='ضيف جوي تاكسي عجهات الاتصال',
+   foot_p='سيارة خاصة وسوّاق بيعرف طريق الساحل. ٢٤ ساعة، كل يوم من السنة.',
+   foot_call='اتصل أو ابعت رسالة', foot_areas='المناطق', foot_services='الخدمات',
+   legal='جوي تاكسي · لبنان', open247='مفتوح ٢٤/٧',
+   fonts=['amiri-700.woff2', 'plex-arabic-400.woff2']),
+}
+
+ICO_CALL = ('<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" '
   'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 '
   '19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 '
   '1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 '
   '1 1.7 2z"/></svg>')
-ICO_WA = ('<svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 '
-  '0 0-8.5 15.2L2 22l4.9-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-2.6.7.7-2.5-.2-.4A8 8 0 0 1 12 '
-  '4zm-2.3 4c-.2 0-.5.1-.7.3-.3.3-.8.8-.8 1.7 0 .9.6 1.8.7 1.9.1.2 1.3 2.1 3.2 2.9 1.6.7 2 .6 2.4.5.4 0 1.2-.5 '
-  '1.4-1 .2-.5.2-.9.1-1l-.2-.2c-.2-.1-1.2-.6-1.4-.7-.2-.1-.4-.1-.5.1l-.6.8c-.1.1-.3.2-.5.1-.2-.1-.9-.4-1.7-1.1-.6-.6-1-1.2-1.1-1.4-.1-.2 '
-  '0-.3.1-.4l.4-.5c.1-.1.1-.2.2-.4v-.3l-.7-1.6c-.2-.4-.3-.4-.5-.4h-.4z"/></svg>')
-THEME_SVGS = ('<svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-  'stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 '
-  '4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>\n        '
-  '<svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-  'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 '
-  '0 0 9.8 9.8z"/></svg>')
-
-THEME_BOOT = """(function(){var t=null;try{t=localStorage.getItem('joy-theme')}catch(e){}
-if(t!=='day'&&t!=='night'){var h=new Date().getHours();t=(h>=7&&h<18)?'day':'night'}
-document.documentElement.setAttribute('data-theme',t);
-var m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='day'?'#F6F3EC':'#08080A'})();"""
+ICO_WA = ('<svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 '
+  '0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 '
+  '4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 '
+  '1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>')
+ICO_GO = ('<svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" '
+  'aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>')
+ICO_ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">'
+  '<path d="M3 12h18M15 6l6 6-6 6"/></svg>')
+ICO_SAVE = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" '
+  'stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>'
+  '<path d="m7 10 5 5 5-5M12 15V3"/></svg>')
+WORDMARK = ('<span class="wm-j">JOY</span><span class="wm-bar" aria-hidden="true"></span>'
+            '<span class="wm-t">TAXI</span>')
 
 TAIL_JS = """(function(){
-  var b=document.getElementById('theme');
-  if(b)b.addEventListener('click',function(){
-    var n=document.documentElement.getAttribute('data-theme')==='day'?'night':'day';
-    document.documentElement.setAttribute('data-theme',n);
-    try{localStorage.setItem('joy-theme',n)}catch(e){}
-    var m=document.querySelector('meta[name=theme-color]');if(m)m.content=n==='day'?'#F6F3EC':'#08080A';
-  });
+  var hd=document.querySelector('.top');
+  function onScroll(){hd.classList.toggle('stuck',scrollY>24)}
+  addEventListener('scroll',onScroll,{passive:true});onScroll();
   var y=document.getElementById('yr');if(y)y.textContent=new Date().getFullYear();
+  var dock=document.getElementById('dock'),cta=document.querySelector('.hero-cta');
+  if(dock&&cta&&'IntersectionObserver' in window){
+    new IntersectionObserver(function(es){
+      dock.classList.toggle('show',!es[0].isIntersecting&&es[0].boundingClientRect.top<0)}).observe(cta);
+  } else if(dock){dock.classList.add('show')}
   var els=Array.prototype.slice.call(document.querySelectorAll('.rv'));
   function show(el){el.classList.add('in')}
   if('IntersectionObserver' in window){
     var io=new IntersectionObserver(function(es){es.forEach(function(e){
       if(e.isIntersecting){show(e.target);io.unobserve(e.target)}})},
-      {threshold:.12,rootMargin:'0px 0px -40px'});
-    els.forEach(function(el,i){
-      el.style.transitionDelay=(Math.min(i%4,3)*70)+'ms';io.observe(el)});
+      {threshold:.08,rootMargin:'0px 0px -40px'});
+    els.forEach(function(el){io.observe(el)});
     /* An element scrolled PAST never intersects, so the observer alone can leave
        blank sections behind: a jump to the end, a restored scroll position or a
        deep link into the page. These are search landing pages, so sweep as well
        and let the animation be the enhancement, never the thing showing the text. */
     var sweep=function(){
-      var left=0;
       els.forEach(function(el){
-        if(el.classList.contains('in'))return;
-        if(el.getBoundingClientRect().top<window.innerHeight){show(el);io.unobserve(el)}
-        else left++;
-      });
-      if(!left)window.removeEventListener('scroll',sweep);
+        if(!el.classList.contains('in')&&el.getBoundingClientRect().top<innerHeight){show(el);io.unobserve(el)}});
     };
-    window.addEventListener('scroll',sweep,{passive:true});
-    setTimeout(sweep,0);
+    addEventListener('scroll',sweep,{passive:true});setTimeout(sweep,0);
   } else { els.forEach(show); }
 })();"""
 
 ADDENDUM = """
-/* ── Area pages ─────────────────────────────────────────────────────────────
+/* ── Area and service pages ─────────────────────────────────────────────────
    Added on top of the homepage's own stylesheet, which this file is generated
    from. Everything above is shared with index.html; only these rules are extra.
    ───────────────────────────────────────────────────────────────────────── */
-.h1-area{font-size:clamp(2.1rem,6.4vw,4.1rem);line-height:1.02}
-.cta-start{justify-content:flex-start}
-.crumb{font-size:.82rem;color:var(--muted-2);padding-block:clamp(18px,3vw,26px);font-weight:600}
+.hero.sub{min-height:auto;align-items:flex-end}
+.hero.sub .hero-in{padding-top:calc(104px + env(safe-area-inset-top,0px));padding-bottom:clamp(40px,7vw,72px)}
+@media(min-width:960px){.hero.sub .hero-in{padding-top:150px}}
+.hero.sub .h1{font-size:clamp(2.5rem,7vw,5rem);max-width:14ch}
+.crumb{margin:0 0 30px;font-size:.8rem;letter-spacing:.06em;color:var(--moon-3)}
 .crumb ol{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0}
-.crumb li+li::before{content:"/";margin-inline-end:8px;color:var(--line)}
-.crumb a{color:var(--muted);text-decoration:none}
-.crumb a:hover{color:var(--amber)}
-.crumb [aria-current]{color:var(--cream)}
-.hoods{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-@media(min-width:720px){.hoods{grid-template-columns:1fr 1fr}}
-.hoods li{background:var(--ink-2);padding:16px 20px;display:flex;align-items:baseline;gap:12px;
-  font-weight:750;font-size:.98rem}
-.hoods li span{color:var(--muted-2);font-size:.81rem;font-weight:600;margin-inline-start:auto;text-align:end}
-.arealinks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
-@media(min-width:640px){.arealinks{grid-template-columns:1fr 1fr}}
-@media(min-width:1000px){.arealinks{grid-template-columns:repeat(3,1fr)}}
-.arealinks a{display:flex;align-items:center;justify-content:space-between;gap:12px;
-  padding:16px 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--ink-2);
-  text-decoration:none;font-weight:750;transition:border-color .2s,transform .2s}
-.arealinks a:hover{border-color:var(--amber-dim);transform:translateY(-2px)}
-.arealinks a::after{content:"\\2192";color:var(--amber);font-weight:900}
-[dir=rtl] .arealinks a::after{content:"\\2190"}
-.prose{color:var(--muted);max-width:60ch;font-size:1.02rem}
-.prose p{margin:0 0 16px}
-.arealist li a{color:inherit;text-decoration:none;border-bottom:1px solid var(--line)}
-.arealist li a:hover{color:var(--amber);border-color:var(--amber)}
+.crumb li+li::before{content:"/";margin-inline-end:8px;color:var(--gold);opacity:.6}
+.crumb a{color:var(--moon-2);text-decoration:none;transition:color .25s}
+.crumb a:hover{color:var(--gold-hi)}
+.crumb [aria-current]{color:var(--moon)}
+.hoods{list-style:none;margin:0;padding:0;display:grid;border-top:1px solid var(--hair)}
+@media(min-width:760px){.hoods{grid-template-columns:1fr 1fr;column-gap:56px}}
+.hoods li{display:flex;align-items:baseline;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid var(--hair)}
+.hoods b{font-family:var(--serif);font-weight:500;font-size:1.3rem;color:var(--fg);line-height:1.2}
+:lang(ar) .hoods b{font-weight:700}
+.hoods span{font-size:.88rem;color:var(--fg-3);text-align:end}
+.prose{margin-top:44px;max-width:62ch;color:var(--fg-2);font-size:1.04rem}
+.prose p{margin:0 0 18px}
+@media(max-width:559px){
+  .hero.sub .facts{flex-direction:column;gap:8px}
+  .hero.sub .facts li::before,.hero.sub .facts li+li::before{content:"";width:14px;height:1px;background:var(--gold);opacity:.7;margin:0;margin-inline-end:12px}
+}
 """
 
 
@@ -304,8 +320,20 @@ def urlenc(s):
     return urllib.parse.quote(s, safe='')
 
 
+def home_src():
+    return io.open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+
+
+def night_svg():
+    """The hero's night road, taken from index.html so every page draws the same scene."""
+    m = re.search(r'<!--night-->\n(.*?)\n<!--/night-->', home_src(), re.S)
+    if not m:
+        sys.exit('could not find the <!--night--> block in index.html')
+    return m.group(1)
+
+
 def build_css():
-    src = io.open(os.path.join(ROOT, 'index.html'), encoding='utf-8').read()
+    src = home_src()
     m = re.search(r'<style>(.*?)</style>', src, re.S)
     if not m:
         sys.exit('could not find the <style> block in index.html')
@@ -314,6 +342,208 @@ def build_css():
            + m.group(1).strip() + '\n' + ADDENDUM)
     io.open(os.path.join(ROOT, 'area.css'), 'w', encoding='utf-8').write(css)
     return len(css)
+
+
+def sync_ar_home():
+    """ar/index.html inlines the same stylesheet and night scene as index.html; copy both across."""
+    src = home_src()
+    p = os.path.join(ROOT, 'ar', 'index.html')
+    ar = io.open(p, encoding='utf-8').read()
+    style = re.search(r'<style>.*?</style>', src, re.S).group(0)
+    night = re.search(r'<!--night-->.*?<!--/night-->', src, re.S).group(0)
+    ar = re.sub(r'<style>.*?</style>', lambda m: style, ar, count=1, flags=re.S)
+    ar = re.sub(r'<!--night-->.*?<!--/night-->', lambda m: night, ar, count=1, flags=re.S)
+    io.open(p, 'w', encoding='utf-8').write(ar)
+
+
+# ── Page chrome shared by the area pages and the service pages ─────────────────
+def head(A, lc, title, desc, canon, en_url, ar_url, ogtitle, up):
+    w = L[lc]; c = CHROME[lc]
+    A('<!DOCTYPE html>')
+    A('<html lang="%s" dir="%s">' % (w['lang'], w['dir']))
+    A('<head>')
+    A('<meta charset="utf-8">')
+    A('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">')
+    A('<title>%s</title>' % esc(title))
+    A('<meta name="description" content="%s">' % esc(desc))
+    A('<meta name="theme-color" content="#070B15">')
+    A('<link rel="canonical" href="%s">' % canon)
+    A('<link rel="alternate" hreflang="en" href="%s">' % en_url)
+    A('<link rel="alternate" hreflang="ar" href="%s">' % ar_url)
+    A('<link rel="alternate" hreflang="x-default" href="%s">' % en_url)
+    A('<link rel="icon" href="%sfavicon.svg" type="image/svg+xml">' % up)
+    A('<link rel="apple-touch-icon" href="%sicon-180.png">' % up)
+    for f in c['fonts']:
+        A('<link rel="preload" href="/fonts/%s" as="font" type="font/woff2" crossorigin>' % f)
+    A('<meta property="og:type" content="website">')
+    A('<meta property="og:site_name" content="Joy Taxi">')
+    A('<meta property="og:locale" content="%s">' % w['oglocale'])
+    A('<meta property="og:url" content="%s">' % canon)
+    A('<meta property="og:title" content="%s">' % esc(ogtitle))
+    A('<meta property="og:description" content="%s">' % esc(desc))
+    A('<meta property="og:image" content="%s/og.png">' % SITE)
+    A('<meta property="og:image:width" content="1200">')
+    A('<meta property="og:image:height" content="630">')
+    A('<meta name="twitter:card" content="summary_large_image">')
+    A("<script>document.documentElement.className+=' js'</script>")
+    A('<link rel="stylesheet" href="%sarea.css">' % up)
+    A('</head>')
+    A('<body>')
+
+
+def header(A, lc, slug):
+    c = CHROME[lc]; hup = '../'
+    twin = ('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)
+    A('<a class="skip" href="#book">%s</a>' % esc(c['skip']))
+    A('')
+    A('<header class="top" id="top">')
+    A('  <div class="wrap bar">')
+    A('    <a class="wm" href="%s" aria-label="%s" lang="en">%s</a>' % (hup, esc(c['home']), WORDMARK))
+    A('    <nav class="nav" aria-label="%s">' % esc(c['main']))
+    for label, href in c['nav']:
+        A('      <a href="%s%s">%s</a>' % (hup, href, esc(label)))
+    A('    </nav>')
+    A('    <div class="bar-end">')
+    A('      <a class="lang" href="%s" hreflang="%s" lang="%s">%s</a>'
+      % (twin, c['langcode'], c['langcode'], esc(c['langlink'])))
+    A('      <a class="btn btn-line btn-sm" href="tel:%s" data-ev="call" aria-label="%s">' % (TEL1, esc(c['call_aria'])))
+    A('        ' + ICO_CALL)
+    A('        <span class="call-lbl num" dir="ltr">%s</span>' % DSP1)
+    A('      </a>')
+    A('    </div>')
+    A('  </div>')
+    A('</header>')
+    A('')
+    A('<main>')
+    A('')
+
+
+def hero(A, lc, crumbs, kicker, h1_html, lede, wa_href, facts):
+    """crumbs: [(label, href or None)], the last one is the current page."""
+    c = CHROME[lc]
+    A('<section class="hero sub dark" id="book" aria-labelledby="h1">')
+    A(night_svg())
+    A('  <div class="wrap hero-in">')
+    A('    <nav class="crumb" aria-label="%s">' % esc(c['crumb']))
+    A('      <ol>')
+    for label, href in crumbs:
+        if href:
+            A('        <li><a href="%s">%s</a></li>' % (href, esc(label)))
+        else:
+            A('        <li><span aria-current="page">%s</span></li>' % esc(label))
+    A('      </ol>')
+    A('    </nav>')
+    A('    <p class="kicker">%s</p>' % esc(kicker))
+    A('    <h1 class="h1" id="h1">%s</h1>' % h1_html)
+    A('    <p class="lede">%s</p>' % esc(lede))
+    A('    <div class="hero-cta">')
+    A('      <a class="btn btn-gold" href="%s" data-ev="whatsapp">' % esc(wa_href))
+    A('        ' + ICO_WA)
+    A('        %s' % esc(c['book_wa']))
+    A('      </a>')
+    A('      <a class="btn btn-line" href="tel:%s" data-ev="call"><span class="num" dir="ltr">%s</span></a>' % (TEL1, DSP1))
+    A('      <a class="btn btn-line" href="tel:%s" data-ev="call"><span class="num" dir="ltr">%s</span></a>' % (TEL2, DSP2))
+    A('    </div>')
+    A('    <ul class="facts">')
+    for f in facts:
+        A('      <li>%s</li>' % esc(f))
+    A('    </ul>')
+    A('  </div>')
+    A('</section>')
+    A('')
+
+
+def faq_section(A, kicker, title, faqs, answer_is_html):
+    A('<section class="band light paper" id="faq">')
+    A('  <div class="wrap">')
+    A('    <div class="head rv">')
+    A('      <p class="kicker">%s</p>' % esc(kicker))
+    A('      <h2 class="h2">%s</h2>' % esc(title))
+    A('    </div>')
+    A('    <div class="faq rv">')
+    for q, a in faqs:
+        A('      <details>')
+        A('        <summary>%s</summary>' % esc(q))
+        A('        <div class="a"><p>%s</p></div>' % (a if answer_is_html else esc(a)))
+        A('      </details>')
+    A('    </div>')
+    A('  </div>')
+    A('</section>')
+    A('')
+
+
+def closing(A, lc, up, wa_href):
+    c = CHROME[lc]
+    A('<section class="band dark darker close" id="contact">')
+    A('  <div class="wrap rv">')
+    A('    <p class="kicker" style="justify-content:center">%s</p>' % esc(c['close_k']))
+    A('    <h2 class="h2">%s</h2>' % c['close_h'])
+    A('    <p class="lede">%s</p>' % esc(c['close_p']))
+    A('    <div class="cta-row">')
+    A('      <a class="btn btn-gold" href="%s" data-ev="whatsapp">' % esc(wa_href))
+    A('        ' + ICO_WA)
+    A('        %s' % esc(c['wa']))
+    A('      </a>')
+    A('      <a class="btn btn-line" href="tel:%s" data-ev="call">%s <span class="num" dir="ltr">%s</span></a>' % (TEL1, esc(c['call']), DSP1))
+    A('      <a class="btn btn-line" href="tel:%s" data-ev="call">%s <span class="num" dir="ltr">%s</span></a>' % (TEL2, esc(c['call']), DSP2))
+    A('    </div>')
+    A('    <a class="vcard" href="%sjoy-taxi.vcf" download="joy-taxi.vcf">' % up)
+    A('      ' + ICO_SAVE)
+    A('      %s' % esc(c['vcard']))
+    A('    </a>')
+    A('  </div>')
+    A('</section>')
+    A('')
+    A('</main>')
+    A('')
+
+
+def footer(A, lc, slug, wa_href):
+    c = CHROME[lc]; hup = '../'
+    twin = ('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)
+    A('<footer class="foot dark darker">')
+    A('  <div class="wrap">')
+    A('    <div class="fgrid">')
+    A('      <div>')
+    A('        <a class="wm" href="%s" aria-label="%s" lang="en">%s</a>' % (hup, esc(c['home']), WORDMARK))
+    A('        <p>%s</p>' % esc(c['foot_p']))
+    A('      </div>')
+    A('      <div>')
+    A('        <h2>%s</h2>' % esc(c['foot_call']))
+    A('        <ul>')
+    A('          <li><a class="tel num" href="tel:%s" dir="ltr">%s</a></li>' % (TEL1, DSP1))
+    A('          <li><a class="tel num" href="tel:%s" dir="ltr">%s</a></li>' % (TEL2, DSP2))
+    A('          <li><a href="%s">%s</a></li>' % (esc(wa_href), esc(c['wa'])))
+    A('        </ul>')
+    A('      </div>')
+    A('      <div>')
+    A('        <h2>%s</h2>' % esc(c['foot_areas']))
+    A('        <ul>')
+    for a in AREAS:
+        A('          <li><a href="../%s/">%s</a></li>' % (a['slug'], esc(a[lc])))
+    A('        </ul>')
+    A('      </div>')
+    A('      <div>')
+    A('        <h2>%s</h2>' % esc(c['foot_services']))
+    A('        <ul>')
+    for s, en, ar in SERVICE_LINKS:
+        A('          <li><a href="../%s/">%s</a></li>' % (s, esc(en if lc == 'en' else ar)))
+    A('        </ul>')
+    A('      </div>')
+    A('    </div>')
+    A('    <div class="legal">')
+    A('      <span>&copy; <span id="yr">2026</span> %s</span>' % esc(c['legal']))
+    A('      <span><a href="%s" hreflang="%s" lang="%s">%s</a> &middot; %s</span>'
+      % (twin, c['langcode'], c['langcode'], esc(c['langlink']), esc(c['open247'])))
+    A('    </div>')
+    A('  </div>')
+    A('</footer>')
+    A('')
+    A('<div class="dock" id="dock" role="group" aria-label="%s">' % esc(c['quick']))
+    A('  <a class="btn btn-gold" href="%s" data-ev="whatsapp">%s</a>' % (esc(wa_href), esc(c['wa'])))
+    A('  <a class="btn btn-line" href="tel:%s" data-ev="call">%s</a>' % (TEL1, esc(c['callnow'])))
+    A('</div>')
+    A('')
 
 
 def page(area, lc):
@@ -336,103 +566,15 @@ def page(area, lc):
     wa_txt = (w['wa_pre_to'] if to else w['wa_pre']) % name
     wa_href = 'https://wa.me/%s?text=%s' % (WA, urlenc(wa_txt))
     faqs = FAQ[lc](name, to)
-    others = [a for a in AREAS if a['slug'] != slug]
 
     H = []
     A = H.append
-    A('<!DOCTYPE html>')
-    A('<html lang="%s" dir="%s">' % (w['lang'], w['dir']))
-    A('<head>')
-    A('<meta charset="utf-8">')
-    A('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">')
-    A('<title>%s</title>' % esc(title))
-    A('<meta name="description" content="%s">' % esc(desc))
-    A('<meta name="theme-color" content="#08080A">')
-    A('<script>')
-    A('/* Day or night before anything paints: a remembered choice wins, otherwise the clock decides. */')
-    A(THEME_BOOT)
-    A('</script>')
-    A('<link rel="canonical" href="%s">' % canon)
-    A('<link rel="alternate" hreflang="en" href="%s">' % en_url)
-    A('<link rel="alternate" hreflang="ar" href="%s">' % ar_url)
-    A('<link rel="alternate" hreflang="x-default" href="%s">' % en_url)
-    A('<link rel="icon" href="%sfavicon.svg" type="image/svg+xml">' % up)
-    A('<link rel="apple-touch-icon" href="%sicon-180.png">' % up)
-    A('<meta property="og:type" content="website">')
-    A('<meta property="og:site_name" content="Joy Taxi">')
-    A('<meta property="og:locale" content="%s">' % w['oglocale'])
-    A('<meta property="og:url" content="%s">' % canon)
-    A('<meta property="og:title" content="%s">' % esc(ogtitle))
-    A('<meta property="og:description" content="%s">' % esc(desc))
-    A('<meta property="og:image" content="%s/og.png">' % SITE)
-    A('<meta property="og:image:width" content="1200">')
-    A('<meta property="og:image:height" content="630">')
-    A('<meta name="twitter:card" content="summary_large_image">')
-    A('<link rel="stylesheet" href="%sarea.css">' % up)
-    A('<noscript><style>.rv{opacity:1;transform:none}</style></noscript>')
-    A('</head>')
-    A('<body>')
-    A('<a class="skip" href="#book">%s</a>' % esc(w['skip']))
-    A('')
-    A('<header id="top">')
-    A('  <div class="wrap bar">')
-    A('    <a class="mark" href="%s" aria-label="%s">' % (hup, esc(w['home'])))
-    A('      ' + MARK)
-    A('    </a>')
-    A('    <nav aria-label="Main">')
-    for label, href in w['nav']:
-        A('      <a href="%s%s">%s</a>' % (hup, href, esc(label)))
-    A('    </nav>')
-    A('    <div class="bar-end">')
-    A('      <button type="button" class="theme" id="theme" aria-label="%s">'
-      % ('Day or night' if lc == 'en' else 'نهار أو ليل'))
-    A('        ' + THEME_SVGS)
-    A('      </button>')
-    A('      <a class="lang" href="%s" hreflang="%s" lang="%s">%s</a>'
-      % ((('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)),
-         w['langcode'], w['langcode'], esc(w['langlink'])))
-    A('      <a class="btn btn-amber" href="tel:%s" style="padding:11px 18px;font-size:.88rem">'
-      % TEL1)
-    A('        ' + ICO_CALL)
-    A('        %s' % esc(w['call']))
-    A('      </a>')
-    A('    </div>')
-    A('  </div>')
-    A('</header>')
-    A('')
-    A('<main>')
-    A('')
-    A('<div class="wrap">')
-    A('  <nav class="crumb" aria-label="%s">' % ('Breadcrumb' if lc == 'en' else 'مسار'))
-    A('    <ol>')
-    A('      <li><a href="%s">%s</a></li>' % (hup, esc(w['crumb_home'])))
-    A('      <li><a href="%s#areas">%s</a></li>' % (hup, esc(w['areas'])))
-    A('      <li><span aria-current="page">%s</span></li>' % esc(h1))
-    A('    </ol>')
-    A('  </nav>')
-    A('</div>')
-    A('')
-    A('<section class="hero" id="book" style="padding-top:clamp(12px,2vw,20px)">')
-    A('  <div class="wrap">')
-    A('    <p class="kicker">%s</p>' % esc(w['kicker']))
-    A('    <h1 class="h1-area" style="margin:14px 0 0">%s</h1>' % esc(h1))
-    A('    <p class="lede">%s</p>' % esc(lede))
-    A('    <div class="cta-btns cta-start">')
-    A('      <a class="btn btn-wa btn-lg" href="%s" data-ev="whatsapp">' % esc(wa_href))
-    A('        ' + ICO_WA)
-    A('        %s' % esc(w['wa']))
-    A('      </a>')
-    A('      <a class="btn btn-ghost btn-lg" href="tel:%s" data-ev="call">%s</a>' % (TEL1, DSP1))
-    A('      <a class="btn btn-ghost btn-lg" href="tel:%s" data-ev="call">%s</a>' % (TEL2, DSP2))
-    A('    </div>')
-    A('    <div class="trust">')
-    for item in w['trust']:
-        A('      <span>%s</span>' % esc(item))
-    A('    </div>')
-    A('  </div>')
-    A('</section>')
-    A('')
-    A('<section>')
+    head(A, lc, title, desc, canon, en_url, ar_url, ogtitle, up)
+    header(A, lc, slug)
+    hero(A, lc, [(w['crumb_home'], hup), (w['areas'], hup + '#areas'), (h1, None)],
+         w['kicker'], esc(h1), lede, wa_href, w['trust'])
+
+    A('<section class="band light">')
     A('  <div class="wrap">')
     A('    <div class="head rv">')
     A('      <p class="kicker">%s</p>' % esc(w['hoods_k']))
@@ -440,119 +582,51 @@ def page(area, lc):
     A('    </div>')
     A('    <ul class="hoods rv">')
     for n, d in hoods:
-        A('      <li>%s <span>%s</span></li>' % (esc(n), esc(d)))
+        A('      <li><b>%s</b> <span>%s</span></li>' % (esc(n), esc(d)))
     A('    </ul>')
-    A('    <div class="prose rv" style="margin-top:28px">')
+    A('    <div class="prose rv">')
     for para in body.split('\n\n'):
         A('      <p>%s</p>' % esc(para))
     A('    </div>')
-    A('    <p style="margin:18px 0 0;font-size:.89rem;color:var(--muted-2)">%s</p>'
-      % esc(w['hoods_note']))
+    A('    <p class="aside-note rv">%s</p>' % esc(w['hoods_note']))
     A('  </div>')
     A('</section>')
     A('')
-    A('<section id="how" style="background:var(--ink-2);border-block:1px solid var(--line)">')
+    A('<section class="band dark" id="how">')
     A('  <div class="wrap">')
     A('    <div class="head rv">')
     A('      <p class="kicker">%s</p>' % esc(w['why_k']))
     A('      <h2 class="h2">%s</h2>' % esc(w['why_h']))
     A('    </div>')
-    A('    <div class="why">')
-    for t, p in w['why']:
-        A('      <div class="card rv"><h3 class="h3">%s</h3><p>%s</p></div>' % (esc(t), esc(p)))
+    A('    <div class="why three rv">')
+    nums = ['i.', 'ii.', 'iii.'] if lc == 'en' else ['١.', '٢.', '٣.']
+    for i, (t, p) in enumerate(w['why']):
+        A('      <div><span class="rn">%s</span><h3 class="h3">%s</h3><p>%s</p></div>' % (nums[i], esc(t), esc(p)))
     A('    </div>')
     A('  </div>')
     A('</section>')
     A('')
-    A('<section id="faq">')
-    A('  <div class="wrap">')
-    A('    <div class="head rv">')
-    A('      <p class="kicker">%s</p>' % esc(w['faq_k']))
-    A('      <h2 class="h2">%s</h2>' % esc(w['faq_h']))
-    A('    </div>')
-    A('    <div class="faq rv">')
-    for q, a in faqs:
-        A('      <details>')
-        A('        <summary>%s</summary>' % esc(q))
-        A('        <p>%s</p>' % a)
-        A('      </details>')
-    A('    </div>')
-    A('  </div>')
-    A('</section>')
-    A('')
-    A('<section id="areas" style="padding-top:0">')
+    faq_section(A, w['faq_k'], w['faq_h'], faqs, True)
+
+    A('<section class="band light" id="areas">')
     A('  <div class="wrap">')
     A('    <div class="head rv">')
     A('      <p class="kicker">%s</p>' % esc(w['others_k']))
     A('      <h2 class="h2">%s</h2>' % esc(w['others_h']))
     A('    </div>')
-    A('    <ul class="arealinks rv">')
-    for o in others:
-        oh = (w['h1_to'] if o.get('to') else w['h1']) % o[lc]
-        A('      <li><a href="../%s/">%s</a></li>' % (o['slug'], esc(oh)))
-    A('    </ul>')
+    A('    <ol class="route across rv">')
+    for o in ROUTE_ORDER:
+        oa = [a for a in AREAS if a['slug'] == o][0]
+        cur = ' aria-current="page"' if o == slug else ''
+        A('      <li><a href="../%s/"%s><span class="node" aria-hidden="true"></span><span class="nm">%s</span>'
+          '<span class="nt">%s</span>%s</a></li>'
+          % (o, cur, esc(oa[lc]), esc(ROUTE_NOTES[o][0 if lc == 'en' else 1]), ICO_GO))
+    A('    </ol>')
     A('  </div>')
     A('</section>')
     A('')
-    A('<section style="padding-top:0">')
-    A('  <div class="wrap" style="text-align:center">')
-    A('    <h2 class="h2">%s</h2>' % w['close_h'])
-    A('    <p class="lede" style="margin-inline:auto">%s</p>' % esc(w['close_p']))
-    A('    <div class="cta-btns">')
-    A('      <a class="btn btn-wa btn-lg" href="%s" data-ev="whatsapp">%s</a>'
-      % (esc(wa_href), esc(w['wa'])))
-    A('      <a class="btn btn-amber btn-lg" href="tel:%s" data-ev="call">%s</a>'
-      % (TEL1, esc(w['callnow'])))
-    A('    </div>')
-    A('    <a class="vcard" href="%sjoy-taxi.vcf" download>%s</a>'
-      % (up, 'Save to contacts' if lc == 'en' else 'خبّي بالأسماء'))
-    A('  </div>')
-    A('</section>')
-    A('')
-    A('</main>')
-    A('')
-    A('<footer>')
-    A('  <div class="wrap">')
-    A('    <div class="fgrid">')
-    A('      <div>')
-    A('        <a class="mark" href="%s" style="margin-bottom:16px" aria-label="%s">' % (hup, esc(w['home'])))
-    A('          <span class="lamp" aria-hidden="true"></span><b>JOY TAXI</b>')
-    A('        </a>')
-    A('        <p style="color:var(--muted);margin:0;max-width:34ch;font-size:.93rem">%s</p>'
-      % esc(w['foot_p']))
-    A('      </div>')
-    A('      <div>')
-    A('        <h4>%s</h4>' % esc(w['foot_call']))
-    A('        <ul>')
-    A('          <li><a class="tel" href="tel:%s">%s</a></li>' % (TEL1, DSP1))
-    A('          <li><a class="tel" href="tel:%s">%s</a></li>' % (TEL2, DSP2))
-    A('          <li><a href="%s">%s</a></li>' % (esc(wa_href), esc(w['wa'])))
-    A('        </ul>')
-    A('      </div>')
-    A('      <div>')
-    A('        <h4>%s</h4>' % esc(w['foot_areas']))
-    A('        <ul>')
-    for a in AREAS:
-        A('          <li><a href="../%s/">%s</a></li>' % (a['slug'], esc(a[lc])))
-    A('        </ul>')
-    A('      </div>')
-    A('    </div>')
-    A('    <div class="legal">')
-    A('      <span>&copy; <span id="yr">2026</span> %s &middot; %s</span>'
-      % (esc(w['home']), 'Lebanon' if lc == 'en' else 'لبنان'))
-    A('      <span><a href="%s" hreflang="%s" lang="%s">%s</a> &middot; %s</span>'
-      % ((('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)),
-         w['langcode'], w['langcode'], esc(w['langlink']), esc(w['open247'])))
-    A('    </div>')
-    A('  </div>')
-    A('</footer>')
-    A('')
-    A('<div class="dock" role="group" aria-label="%s">'
-      % ('Quick contact' if lc == 'en' else 'تواصل سريع'))
-    A('  <a class="btn btn-wa" href="%s" data-ev="whatsapp">%s</a>' % (esc(wa_href), esc(w['wa'])))
-    A('  <a class="btn btn-amber" href="tel:%s" data-ev="call">%s</a>' % (TEL1, esc(w['callnow'])))
-    A('</div>')
-    A('')
+    closing(A, lc, up, wa_href)
+    footer(A, lc, slug, wa_href)
 
     # ── Structured data: TaxiService + FAQPage + BreadcrumbList ──────────────
     faq_items = ',\n      '.join(
@@ -612,8 +686,19 @@ def page(area, lc):
     return '\n'.join(H) + '\n'
 
 
+# The route line runs south to north, the way the coast road does.
+ROUTE_ORDER = ['taxi-beirut-airport', 'taxi-beirut', 'taxi-metn', 'taxi-bsalim', 'taxi-jounieh', 'taxi-jbeil']
+ROUTE_NOTES = {
+ 'taxi-beirut-airport': ('Around the clock', 'على مدار الساعة'),
+ 'taxi-beirut': ('Hamra, Achrafieh, Downtown', 'الحمرا، الأشرفية، وسط البلد'),
+ 'taxi-metn': ('The coast and the hills', 'الساحل والجبل'),
+ 'taxi-bsalim': ('Home base · fastest pickups', 'مركزنا · أسرع وصول'),
+ 'taxi-jounieh': ('The bay, Kaslik, Maameltein', 'الخليج، الكسليك، المعاملتين'),
+ 'taxi-jbeil': ('Byblos, the old port', 'بيبلوس، المرفأ القديم'),
+}
+
+
 def build_sitemap():
-    urls = [(SITE + '/', SITE + '/ar/'), (SITE + '/ar/', SITE + '/')]
     rows = []
     def block(loc, en, ar, pri):
         return ('  <url>\n'
@@ -638,11 +723,13 @@ def build_sitemap():
     return len(rows)
 
 
-LASTMOD = os.environ.get('LASTMOD', '2026-09-27')
+LASTMOD = os.environ.get('LASTMOD', '2026-09-30')
 
 if __name__ == '__main__':
     n = build_css()
     print('area.css        %d chars' % n)
+    sync_ar_home()
+    print('ar/index.html   stylesheet and night scene synced from index.html')
     for a in AREAS:
         for lc in ('en', 'ar'):
             d = os.path.join(ROOT, a['slug']) if lc == 'en' else os.path.join(ROOT, 'ar', a['slug'])

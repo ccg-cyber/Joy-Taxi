@@ -11,7 +11,8 @@ rather than a paragraph on the homepage.
 
     python3 tools/build-services.py      # after build-areas.py
 
-Shares area.css and the page shape with the area pages; build-areas.py owns both.
+Shares area.css and the page chrome (header, hero, closing, footer) with the area
+pages; build-areas.py owns both.
 """
 import io, os, sys, importlib.util
 
@@ -180,34 +181,18 @@ SERVICES = [
 
 
 L = {
- 'en': dict(lang='en', dir='ltr', oglocale='en_US', up='../', base=SITE + '/',
-   skip='Skip to booking', nav=[('Book', '#book'), ('Areas', '#areas'),
-        ('How it works', '#how'), ('Questions', '#faq')],
-   call='Call', home='Joy Taxi', langlink='عربي', langcode='ar',
-   services='Services', faq_k='Before you book', faq_h='Straight answers.',
+ 'en': dict(up='../', base=SITE + '/', crumb_home='Joy Taxi',
+   faq_k='Before you book', faq_h='Straight answers.',
    others_k='Also from Joy Taxi', others_h='The other things we do.',
-   areas_link='All areas we cover',
-   close_h='Save the number<br>before you need it.',
-   close_p='One tap now is one less problem later.',
-   wa='WhatsApp', callnow='Call now', open247='Open 24/7',
-   foot_p='Taxi and private hire along the coast road. Twenty-four hours, every day of the year.',
-   foot_call='Call or message', foot_services='Services',
-   trust=['24 hours, every day', 'Up to 7 seats', 'Cash, dollars or lira'],
-   vcard='Save to contacts', crumb_home='Joy Taxi'),
- 'ar': dict(lang='ar', dir='rtl', oglocale='ar_LB', up='../../', base=SITE + '/ar/',
-   skip='روح عالحجز', nav=[('احجز', '#book'), ('المناطق', '#areas'),
-        ('كيف بتمشي', '#how'), ('أسئلة', '#faq')],
-   call='اتصل', home='جوي تاكسي', langlink='EN', langcode='en',
-   services='الخدمات', faq_k='قبل ما تحجز', faq_h='جواب مباشر.',
+   areas_t='The coast road', areas_d='Beirut, the airport, Metn, Bsalim, Jounieh and Jbeil — every area we cover.',
+   areas_k='Areas', explore='Explore',
+   trust=['24 hours, every day', 'Up to 7 seats', 'Cash, dollars or lira']),
+ 'ar': dict(up='../../', base=SITE + '/ar/', crumb_home='جوي تاكسي',
+   faq_k='قبل ما تحجز', faq_h='جواب مباشر.',
    others_k='كمان من جوي تاكسي', others_h='الأشيا التانية يلي منعملا.',
-   areas_link='كل المناطق يلي منغطّيا',
-   close_h='خبّي الرقم<br>قبل ما تحتاجو.',
-   close_p='ضغطة هلّق بتوفّر عليك مشكلة بعدين.',
-   wa='واتساب', callnow='اتصل هلّق', open247='فاتحين ٢٤/٧',
-   foot_p='تاكسي وتوصيلات خاصة على طريق الساحل. ٢٤ ساعة، كل يوم بالسنة.',
-   foot_call='اتصل أو ابعت', foot_services='الخدمات',
-   trust=['٢٤ ساعة، كل يوم', 'لغاية ٧ ركاب', 'كاش، دولار أو ليرة'],
-   vcard='خبّي بالأسماء', crumb_home='جوي تاكسي'),
+   areas_t='طريق الساحل', areas_d='بيروت، المطار، المتن، بصاليم، جونية وجبيل — كل المناطق يلي منغطّيا.',
+   areas_k='المناطق', explore='اكتشف',
+   trust=['٢٤ ساعة، كل يوم', 'لغاية ٧ ركاب', 'كاش، دولار أو ليرة']),
 }
 
 
@@ -219,143 +204,38 @@ def page(svc, lc):
     wa_href = 'https://wa.me/%s?text=%s' % (WA, urlenc(d['wa']))
     others = [s for s in SERVICES if s['slug'] != slug]
     H = []; A = H.append
-    A('<!DOCTYPE html>'); A('<html lang="%s" dir="%s">' % (w['lang'], w['dir'])); A('<head>')
-    A('<meta charset="utf-8">')
-    A('<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">')
-    A('<title>%s</title>' % esc(d['title']))
-    A('<meta name="description" content="%s">' % esc(d['desc']))
-    A('<meta name="theme-color" content="#08080A">')
-    A('<script>'); A(ba.THEME_BOOT); A('</script>')
-    A('<link rel="canonical" href="%s">' % canon)
-    A('<link rel="alternate" hreflang="en" href="%s">' % en_url)
-    A('<link rel="alternate" hreflang="ar" href="%s">' % ar_url)
-    A('<link rel="alternate" hreflang="x-default" href="%s">' % en_url)
-    A('<link rel="icon" href="%sfavicon.svg" type="image/svg+xml">' % up)
-    A('<link rel="apple-touch-icon" href="%sicon-180.png">' % up)
-    A('<meta property="og:type" content="website">')
-    A('<meta property="og:site_name" content="Joy Taxi">')
-    A('<meta property="og:locale" content="%s">' % w['oglocale'])
-    A('<meta property="og:url" content="%s">' % canon)
-    A('<meta property="og:title" content="%s">' % esc(d['title'].split(' — ')[0]))
-    A('<meta property="og:description" content="%s">' % esc(d['desc']))
-    A('<meta property="og:image" content="%s/og.png">' % SITE)
-    A('<meta property="og:image:width" content="1200">')
-    A('<meta property="og:image:height" content="630">')
-    A('<meta name="twitter:card" content="summary_large_image">')
-    A('<link rel="stylesheet" href="%sarea.css">' % up)
-    A('<noscript><style>.rv{opacity:1;transform:none}</style></noscript>')
-    A('</head>'); A('<body>')
-    A('<a class="skip" href="#book">%s</a>' % esc(w['skip']))
-    A('<header id="top">'); A('  <div class="wrap bar">')
-    A('    <a class="mark" href="%s" aria-label="%s">' % (hup, esc(w['home'])))
-    A('      ' + ba.MARK); A('    </a>')
-    A('    <nav aria-label="Main">')
-    for lbl, href in w['nav']:
-        A('      <a href="%s%s">%s</a>' % (hup, href, esc(lbl)))
-    A('    </nav>')
-    A('    <div class="bar-end">')
-    A('      <button type="button" class="theme" id="theme" aria-label="%s">'
-      % ('Day or night' if lc == 'en' else 'نهار أو ليل'))
-    A('        ' + ba.THEME_SVGS); A('      </button>')
-    A('      <a class="lang" href="%s" hreflang="%s" lang="%s">%s</a>'
-      % ((('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)),
-         w['langcode'], w['langcode'], esc(w['langlink'])))
-    A('      <a class="btn btn-amber" href="tel:%s" style="padding:11px 18px;font-size:.88rem">' % TEL1)
-    A('        ' + ba.ICO_CALL); A('        %s' % esc(w['call'])); A('      </a>')
-    A('    </div>'); A('  </div>'); A('</header>'); A('<main>')
-    A('<div class="wrap">')
-    A('  <nav class="crumb" aria-label="%s">' % ('Breadcrumb' if lc == 'en' else 'مسار'))
-    A('    <ol>')
-    A('      <li><a href="%s">%s</a></li>' % (hup, esc(w['crumb_home'])))
-    A('      <li><span aria-current="page">%s</span></li>' % esc(d['name']))
-    A('    </ol>'); A('  </nav>'); A('</div>')
-    A('<section class="hero" id="book" style="padding-top:clamp(12px,2vw,20px)">')
-    A('  <div class="wrap">')
-    A('    <p class="kicker">%s</p>' % esc(d['kicker']))
-    A('    <h1 class="h1-area" style="margin:14px 0 0">%s</h1>' % d['h1'])
-    A('    <p class="lede">%s</p>' % esc(d['lede']))
-    A('    <div class="cta-btns cta-start">')
-    A('      <a class="btn btn-wa btn-lg" href="%s" data-ev="whatsapp">' % esc(wa_href))
-    A('        ' + ba.ICO_WA); A('        %s' % esc(w['wa'])); A('      </a>')
-    A('      <a class="btn btn-ghost btn-lg" href="tel:%s" data-ev="call">%s</a>' % (TEL1, DSP1))
-    A('      <a class="btn btn-ghost btn-lg" href="tel:%s" data-ev="call">%s</a>' % (TEL2, DSP2))
-    A('    </div>')
-    A('    <div class="trust">')
-    for t in w['trust']:
-        A('      <span>%s</span>' % esc(t))
-    A('    </div>'); A('  </div>'); A('</section>')
-    A('<section>'); A('  <div class="wrap">')
+    ba.head(A, lc, d['title'], d['desc'], canon, en_url, ar_url, d['title'].split(' — ')[0], up)
+    ba.header(A, lc, slug)
+    ba.hero(A, lc, [(w['crumb_home'], hup), (d['name'], None)], d['kicker'], d['h1'], d['lede'],
+            wa_href, w['trust'])
+    A('<section class="band light">'); A('  <div class="wrap">')
     A('    <div class="head rv">')
     A('      <p class="kicker">%s</p>' % esc(d['rows_k']))
     A('      <h2 class="h2">%s</h2>' % esc(d['rows_h']))
     A('    </div>')
     A('    <ul class="hoods rv">')
     for n, note in d['rows']:
-        A('      <li>%s <span>%s</span></li>' % (esc(n), esc(note)))
+        A('      <li><b>%s</b> <span>%s</span></li>' % (esc(n), esc(note)))
     A('    </ul>')
-    A('    <div class="prose rv" style="margin-top:28px">')
+    A('    <div class="prose rv">')
     for para in d['body'].split('\n\n'):
         A('      <p>%s</p>' % esc(para))
-    A('    </div>'); A('  </div>'); A('</section>')
-    A('<section id="faq" style="background:var(--ink-2);border-block:1px solid var(--line)">')
-    A('  <div class="wrap">')
-    A('    <div class="head rv">')
-    A('      <p class="kicker">%s</p>' % esc(w['faq_k']))
-    A('      <h2 class="h2">%s</h2>' % esc(w['faq_h']))
-    A('    </div>')
-    A('    <div class="faq rv">')
-    for q, a in d['faqs']:
-        A('      <details>'); A('        <summary>%s</summary>' % esc(q))
-        A('        <p>%s</p>' % esc(a)); A('      </details>')
-    A('    </div>'); A('  </div>'); A('</section>')
-    A('<section id="areas">'); A('  <div class="wrap">')
+    A('    </div>'); A('  </div>'); A('</section>'); A('')
+    ba.faq_section(A, w['faq_k'], w['faq_h'], d['faqs'], False)
+    A('<section class="band dark" id="services">'); A('  <div class="wrap">')
     A('    <div class="head rv">')
     A('      <p class="kicker">%s</p>' % esc(w['others_k']))
     A('      <h2 class="h2">%s</h2>' % esc(w['others_h']))
     A('    </div>')
-    A('    <ul class="arealinks rv">')
-    for o in others:
-        A('      <li><a href="../%s/">%s</a></li>' % (o['slug'], esc(o[lc]['name'])))
-    A('      <li><a href="%s#areas">%s</a></li>' % (hup, esc(w['areas_link'])))
-    A('    </ul>'); A('  </div>'); A('</section>')
-    A('<section style="padding-top:0">')
-    A('  <div class="wrap" style="text-align:center">')
-    A('    <h2 class="h2">%s</h2>' % w['close_h'])
-    A('    <p class="lede" style="margin-inline:auto">%s</p>' % esc(w['close_p']))
-    A('    <div class="cta-btns">')
-    A('      <a class="btn btn-wa btn-lg" href="%s" data-ev="whatsapp">%s</a>' % (esc(wa_href), esc(w['wa'])))
-    A('      <a class="btn btn-amber btn-lg" href="tel:%s" data-ev="call">%s</a>' % (TEL1, esc(w['callnow'])))
-    A('    </div>')
-    A('    <a class="vcard" href="%sjoy-taxi.vcf" download>%s</a>' % (up, esc(w['vcard'])))
-    A('  </div>'); A('</section>'); A('</main>')
-    A('<footer>'); A('  <div class="wrap">'); A('    <div class="fgrid">')
-    A('      <div>')
-    A('        <a class="mark" href="%s" style="margin-bottom:16px" aria-label="%s">' % (hup, esc(w['home'])))
-    A('          <span class="lamp" aria-hidden="true"></span><b>JOY TAXI</b>')
-    A('        </a>')
-    A('        <p style="color:var(--muted);margin:0;max-width:34ch;font-size:.93rem">%s</p>' % esc(w['foot_p']))
-    A('      </div>')
-    A('      <div>'); A('        <h4>%s</h4>' % esc(w['foot_call'])); A('        <ul>')
-    A('          <li><a class="tel" href="tel:%s">%s</a></li>' % (TEL1, DSP1))
-    A('          <li><a class="tel" href="tel:%s">%s</a></li>' % (TEL2, DSP2))
-    A('          <li><a href="%s">%s</a></li>' % (esc(wa_href), esc(w['wa'])))
-    A('        </ul>'); A('      </div>')
-    A('      <div>'); A('        <h4>%s</h4>' % esc(w['foot_services'])); A('        <ul>')
-    for s2 in SERVICES:
-        A('          <li><a href="../%s/">%s</a></li>' % (s2['slug'], esc(s2[lc]['name'])))
-    A('        </ul>'); A('      </div>')
-    A('    </div>'); A('    <div class="legal">')
-    A('      <span>&copy; <span id="yr">2026</span> %s &middot; %s</span>'
-      % (esc(w['home']), 'Lebanon' if lc == 'en' else 'لبنان'))
-    A('      <span><a href="%s" hreflang="%s" lang="%s">%s</a> &middot; %s</span>'
-      % ((('../ar/%s/' % slug) if lc == 'en' else ('../../%s/' % slug)),
-         w['langcode'], w['langcode'], esc(w['langlink']), esc(w['open247'])))
-    A('    </div>'); A('  </div>'); A('</footer>')
-    A('<div class="dock" role="group" aria-label="%s">'
-      % ('Quick contact' if lc == 'en' else 'تواصل سريع'))
-    A('  <a class="btn btn-wa" href="%s" data-ev="whatsapp">%s</a>' % (esc(wa_href), esc(w['wa'])))
-    A('  <a class="btn btn-amber" href="tel:%s" data-ev="call">%s</a>' % (TEL1, esc(w['callnow'])))
-    A('</div>')
+    A('    <ul class="svc rv">')
+    rows = [(o[lc]['kicker'], o[lc]['name'], o[lc]['lede'], '../%s/' % o['slug']) for o in others]
+    rows.append((w['areas_k'], w['areas_t'], w['areas_d'], hup + '#areas'))
+    for k, t, dd, href in rows:
+        A('      <li><a href="%s"><span class="k">%s</span><span class="t">%s<span class="d">%s</span></span>'
+          '<span class="arrow">%s%s</span></a></li>' % (href, esc(k), esc(t), esc(dd), esc(w['explore']), ba.ICO_ARROW))
+    A('    </ul>'); A('  </div>'); A('</section>'); A('')
+    ba.closing(A, lc, up, wa_href)
+    ba.footer(A, lc, slug, wa_href)
     faq_items = ',\n      '.join(
         '{"@type":"Question","name":"%s","acceptedAnswer":{"@type":"Answer","text":"%s"}}'
         % (jesc(q), jesc(a)) for q, a in d['faqs'])
@@ -382,9 +262,8 @@ def page(svc, lc):
       % (jesc(w['crumb_home']), w['base']))
     A('        {"@type":"ListItem","position":2,"name":"%s","item":"%s"}' % (jesc(d['name']), canon))
     A('      ]'); A('    }'); A('  ]'); A('}'); A('</script>')
-    A('<script>'); A(ba.TAIL_JS); A('</script>'); A('</body>'); A('</html>')
+    A(''); A('<script>'); A(ba.TAIL_JS); A('</script>'); A('</body>'); A('</html>')
     return '\n'.join(H) + '\n'
-
 
 
 def build_sitemap():

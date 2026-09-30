@@ -2,11 +2,21 @@
 
 Live at **https://joytaxi.cierp.uk/** (Arabic: **/ar/**).
 
-Two hand-written HTML files, plus twelve generated area pages. No build step at
-serve time, no framework, no CDN, no trackers, no cookies, no backend. You can
-open `index.html` from a USB stick on a laptop with no internet and it works.
-That is deliberate: the person loading this is usually standing on a street at
-night on one bar of 3G.
+Two hand-written HTML files, plus eighteen generated area and service pages. No
+build step at serve time, no framework, no CDN, no trackers, no cookies, no backend.
+The only extra files are six self-hosted fonts in `fonts/` (about 190 KB in all, and
+a page only downloads the ones it uses).
+
+**The design.** A private driver on the coast road: midnight navy, warm ivory and
+one brushed gold, used sparingly. Bodoni Moda for display, Jost for reading; in
+Arabic, Amiri for display and IBM Plex Sans Arabic for reading. The hero is the
+coast road at night, drawn in SVG — no photograph — and the only thing that moves
+in it is the slow light trails, which stop for anyone who has reduced motion on.
+
+**The design lives in one place: the `<style>` block in `index.html`.** Change it
+there and run `python3 tools/build-areas.py` — that copies it into `ar/index.html`
+and `area.css`, together with the night-road hero (between `<!--night-->` markers),
+so every page on the site follows.
 
 ---
 
@@ -32,12 +42,17 @@ for `96171056677` and `96181686839` to change them everywhere.
 
 ## Adding the real photos
 
-Drop JPGs into `photos/` named `car-1.jpg`, `car-2.jpg`, `car-3.jpg`.
+Drop JPGs into `photos/` with any of these names:
+
+    car-1.jpg  car-2.jpg  car-3.jpg  interior.jpg  driver.jpg
+    coast.jpg  jounieh-bay.jpg  byblos-port.jpg
 
 That is the whole procedure. The gallery section is **hidden** until at least
 one of those files actually loads, so the page never shows a broken image and
 never shows a stranger's car. Add one photo, one section appears. Add none, the
 page is still complete — nothing about the design depends on photography.
+(The files are only looked for once a visitor scrolls towards that part of the
+page, so an empty folder costs the first screen nothing.)
 
 Want different filenames or more of them? Add them to `photos:` in `CFG`.
 
@@ -48,6 +63,8 @@ Good photos to take, roughly in order of how much they earn:
 2. The driver, outside the car, looking at the camera. A face beats a vehicle.
 3. The back seat, clean and empty. This is the thing passengers are actually
    deciding about.
+4. Scenery on the route — the coast road, Jounieh bay, Byblos port — only your
+   own shots, never stock.
 
 Shoot them on a phone, landscape, in the ten minutes after sunset. They will
 look better than anything a model can invent, because they are true.
@@ -127,13 +144,13 @@ Two things to confirm before sending the link to a customer:
 
 ## The three quotes
 
-There is a "What regulars say" section on the page, and it currently holds
-three **placeholders** — dashed outline, "First name", and a line underneath
-saying so. That is deliberate. Invented testimonials on a real business's site
-are illegal to publish as genuine in most places, and they are the one thing on
-this page a customer could act on and be wrong about.
+There is a "What regulars say" section on the page, and while its entries are
+still **placeholders** (`placeholder: true`) the section stays hidden — an empty
+testimonial does not belong on the live page. Invented testimonials on a real
+business's site are illegal to publish as genuine in most places, so nothing is
+written for them.
 
-Replacing them is one edit. In `CFG`, in both files:
+Switching it on is one edit. In `CFG`, in both files:
 
 ```js
 voices: [
@@ -142,11 +159,7 @@ voices: [
 ],
 ```
 
-Drop `placeholder: true` and the dashed styling and the note under the section
-both disappear on their own — the note only renders while *every* card is still
-a placeholder, so it cannot accidentally go live.
-
-Setting `voices: []` hides the section entirely.
+Any entry without `placeholder: true` is shown, and the section appears.
 
 Ask three regulars on WhatsApp tonight. It takes an evening, and it is the
 single highest-converting thing this page is missing.
@@ -186,8 +199,12 @@ no-build-step promise; the script is just how the files get written.
 
 `area.css` is generated too, extracted from `index.html`'s own `<style>` block
 plus a short addendum for the pieces only these pages use. That keeps
-`index.html` the single source of truth for the design tokens: change a colour
-there, re-run the script, and all twelve pages follow. The homepages keep their
+`index.html` the single source of truth for the design: change a colour there,
+re-run the scripts, and every page follows. The order is:
+
+    python3 tools/build-areas.py      # area.css, ar/index.html styles, 12 area pages
+    python3 tools/build-services.py   # 6 service pages and the full sitemap.xml
+    python3 tools/build-home-faq.py   # FAQ schema on both homepages The homepages keep their
 CSS inline (one request, instant first paint); the area pages share one cached
 stylesheet instead of carrying twelve copies of it.
 
