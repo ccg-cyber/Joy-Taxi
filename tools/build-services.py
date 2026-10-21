@@ -262,7 +262,7 @@ def page(svc, lc):
       % (jesc(w['crumb_home']), w['base']))
     A('        {"@type":"ListItem","position":2,"name":"%s","item":"%s"}' % (jesc(d['name']), canon))
     A('      ]'); A('    }'); A('  ]'); A('}'); A('</script>')
-    A(''); A('<script>'); A(ba.TAIL_JS); A('</script>'); A('</body>'); A('</html>')
+    A(''); A('<script>'); A(ba.TAIL_JS); A('</script>'); A('<script async src="https://ci-alfa-app.onrender.com/v.js"></script>'); A('</body>'); A('</html>')
     return '\n'.join(H) + '\n'
 
 

