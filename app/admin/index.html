@@ -5,96 +5,148 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Joy Taxi — Dispatch</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#08080A">
+<meta name="theme-color" content="#FFC800">
 <link rel="icon" href="../favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../vendor/leaflet/leaflet.css">
 <link rel="stylesheet" href="../app.css">
 </head>
 <body>
-<div class="wrap wide">
+<div class="page wide">
   <header class="top">
-    <a class="brand" href="/app/admin/"><img src="../logo-mark.png" alt="" width="44" height="34"><b><i>JOY</i> TAXI</b><span style="color:var(--mut);font-size:14px;margin-inline-start:6px">DISPATCH</span></a>
-    <button class="pill" id="out" type="button" hidden>Sign out</button>
+    <a class="brand" href="/app/admin/"><img id="mk" alt="" width="44" height="34"><b id="bn"></b><em>DISPATCH</em></a>
+    <span style="display:flex;gap:8px"><button class="pill" id="alerts" type="button" hidden>🔔 Alerts</button><button class="pill" id="out" type="button" hidden>Sign out</button></span>
   </header>
 
   <section id="login" class="card" style="max-width:420px">
-    <h1 class="tag" style="margin-top:0"><span class="y">Dispatch</span>desk</h1>
+    <h1 class="t">Dispatch<span>desk</span></h1>
     <label class="l">Owner token</label><input id="tok" type="password" placeholder="Admin token">
-    <div class="err" id="lerr" hidden></div>
-    <button class="cta" id="go" type="button">Open</button>
+    <div class="err" id="lerr" hidden style="margin-top:12px"></div>
+    <button class="cta" id="go" type="button" style="margin-top:14px">Open</button>
   </section>
 
   <section id="board" hidden>
     <div class="stats"><div><b id="cNew">0</b><small>New</small></div><div><b id="cAct">0</b><small>Active</small></div><div><b id="cDone">0</b><small>Done today</small></div><div><b id="cAll">0</b><small>Last 200</small></div></div>
-    <div class="tabs" id="tabs">
-      <button class="pill on" data-f="open">Open</button><button class="pill" data-f="all">All</button><button class="pill" data-f="done">Done</button><button class="pill" data-f="cancelled">Cancelled</button>
+    <div class="tabs" id="tabs"><button class="pill on" data-f="open">Open</button><button class="pill" data-f="all">All</button><button class="pill" data-f="done">Done</button><button class="pill" data-f="cancelled">Cancelled</button><button class="pill" data-f="settings">⚙ Prices &amp; Whish</button></div>
+    <div id="rides"><div class="mapbox"><div class="m" id="m"></div></div><div id="list" class="grid"></div></div>
+
+    <div id="settings" class="card" hidden>
+      <h3>Pricing</h3><p class="meta">Riders see a price range only when this is on. You set the rates — nothing is invented.</p>
+      <label class="sw"><input type="checkbox" id="rEn"> Show price to riders</label>
+      <div class="frm" style="margin-top:10px">
+        <div><label class="l">Base fare</label><input id="rBase" type="number" step="0.1"></div>
+        <div><label class="l">Per km</label><input id="rKm" type="number" step="0.05"></div>
+        <div><label class="l">Minimum</label><input id="rMin" type="number" step="0.5"></div>
+        <div><label class="l">Range ± (0.12 = 12%)</label><input id="rSp" type="number" step="0.01"></div>
+        <div><label class="l">Night from (hour)</label><input id="rNf" type="number"></div>
+        <div><label class="l">Night to (hour)</label><input id="rNt" type="number"></div>
+        <div><label class="l">Night multiplier</label><input id="rNx" type="number" step="0.05"></div>
+        <div><label class="l">Comfort ×</label><input id="rCo" type="number" step="0.05"></div>
+        <div><label class="l">Van ×</label><input id="rVa" type="number" step="0.05"></div>
+        <div class="full"><label class="l">Fixed airport prices (one per line: Area=price)</label><textarea id="rAp" rows="4" style="width:100%;background:var(--soft);border:2px solid transparent;border-radius:12px;padding:12px;font:inherit" placeholder="Jounieh=35&#10;Jbeil=45"></textarea></div>
+      </div>
+      <h3 style="margin-top:18px">Whish</h3><p class="meta">Riders can choose Whish and are shown this number after the trip.</p>
+      <label class="sw"><input type="checkbox" id="wEn"> Offer Whish payment</label>
+      <div class="frm" style="margin-top:10px"><div><label class="l">Whish number</label><input id="wNum" inputmode="tel"></div><div><label class="l">Account name</label><input id="wName"></div></div>
+      <div class="err" id="serr" hidden style="margin-top:12px"></div>
+      <button class="cta" id="save" type="button" style="margin-top:14px">Save</button>
     </div>
-    <div id="list" class="grid"></div>
   </section>
 </div>
+<script src="../vendor/leaflet/leaflet.js"></script>
+<script src="../brand.js"></script>
 <script>
 (function () {
-  'use strict';
-  var API = 'https://joytaxi-backend.onrender.com', $ = function (s) { return document.querySelector(s); };
-  var tok = '', filt = 'open', rides = [], timer = null, lastNew = -1;
-  var ST = ['new', 'confirmed', 'assigned', 'arrived', 'ontrip', 'done', 'cancelled'];
-  function save(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
-  function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
-  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function api(path, method, body) {
-    return fetch(API + path, { method: method || 'GET', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); });
-  }
-  function ago(t) { var m = Math.round((Date.now() - new Date(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; }
-  function beep() { try { var a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .1; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .2); } catch (e) {} }
-  function visible() {
-    return rides.filter(function (r) {
-      if (filt === 'open') return ['new', 'confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1;
-      if (filt === 'all') return true; return r.status === filt;
-    });
-  }
-  function draw() {
-    var today = new Date().toDateString();
-    $('#cNew').textContent = rides.filter(function (r) { return r.status === 'new'; }).length;
-    $('#cAct').textContent = rides.filter(function (r) { return ['confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1; }).length;
-    $('#cDone').textContent = rides.filter(function (r) { return r.status === 'done' && new Date(r.created_at).toDateString() === today; }).length;
-    $('#cAll').textContent = rides.length;
-    var v = visible();
-    $('#list').innerHTML = v.length ? v.map(function (r) {
-      return '<div class="card ride" data-id="' + r.id + '"><div style="display:flex;justify-content:space-between;gap:8px"><h3>#' + r.id + ' · ' + esc(r.pickup) + '</h3><span class="tag-s ' + r.status + '">' + (r.status === 'ontrip' ? 'on trip' : r.status) + '</span></div>' +
-        '<div class="meta">→ ' + esc(r.destination) + '<br>' + (r.when_text === 'now' ? 'Now' : 'At ' + esc(r.when_text)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + ' · ' + ago(r.created_at) +
-        (r.phone ? '<br>☎ <a style="color:var(--y)" href="tel:' + esc(r.phone) + '">' + esc(r.phone) + '</a>' : '') +
-        (r.lat != null ? ' · <a style="color:var(--y)" target="_blank" rel="noopener" href="https://maps.google.com/?q=' + r.lat + ',' + r.lng + '">pin</a>' : '') + '</div>' +
-        '<select data-f="status">' + ST.map(function (s) { return '<option' + (s === r.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select>' +
-        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><input data-f="driver_name" placeholder="Driver" value="' + esc(r.driver_name) + '"><input data-f="driver_plate" placeholder="Plate" value="' + esc(r.driver_plate) + '"></div>' +
-        '<input data-f="note" style="margin-top:8px" placeholder="Note" value="' + esc(r.note) + '"></div>';
-    }).join('') : '<p class="fine">Nothing here.</p>';
-  }
-  function refresh() {
-    if (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName) && document.activeElement.closest('#list')) return;
-    api('/api/rides').then(function (j) {
-      rides = j.rides; var n = rides.filter(function (r) { return r.status === 'new'; }).length;
-      if (lastNew >= 0 && n > lastNew) beep(); lastNew = n; draw();
-    }).catch(function (e) { if (e.status === 401) out('Token not accepted.'); });
-  }
-  document.addEventListener('change', function (e) {
-    var f = e.target.getAttribute && e.target.getAttribute('data-f'); if (!f || f === 'open') return;
-    var card = e.target.closest('.ride'); if (!card) return;
-    var body = {}; body[f] = e.target.value;
-    api('/api/rides/' + card.getAttribute('data-id'), 'PATCH', body).then(function () { e.target.blur(); refresh(); }, function () { alert('Could not save.'); });
+'use strict';
+var B = window.BRAND, API = B.api, $ = function (s) { return document.querySelector(s); };
+var tok = '', filt = 'open', rides = [], timer = null, lastNew = -1, map = null, layer = null, cfg = null, fitted = false;
+var ST = ['new', 'confirmed', 'assigned', 'arrived', 'ontrip', 'done', 'cancelled'];
+function save(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+function api(path, method, body) {
+  return fetch(API + path, { method: method || 'GET', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+    .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); });
+}
+function ago(t) { var m = Math.round((Date.now() - new Date(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; }
+function beep() { try { var a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .1; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .2); } catch (e) {} }
+function visible() { return rides.filter(function (r) { if (filt === 'open') return ['new', 'confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1; if (filt === 'all') return true; return r.status === filt; }); }
+function draw() {
+  var today = new Date().toDateString();
+  $('#cNew').textContent = rides.filter(function (r) { return r.status === 'new'; }).length;
+  $('#cAct').textContent = rides.filter(function (r) { return ['confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1; }).length;
+  $('#cDone').textContent = rides.filter(function (r) { return r.status === 'done' && new Date(r.created_at).toDateString() === today; }).length;
+  $('#cAll').textContent = rides.length;
+  var v = visible();
+  $('#list').innerHTML = v.length ? v.map(function (r) {
+    return '<div class="card ride" data-id="' + r.id + '"><div style="display:flex;justify-content:space-between;gap:8px"><h3>#' + r.id + ' · ' + esc(r.pickup) + '</h3><span class="tag-s ' + r.status + '">' + (r.status === 'ontrip' ? 'on trip' : r.status) + '</span></div>' +
+      '<div class="meta">→ ' + esc(r.destination) + '<br>' + (r.when_text === 'now' ? 'Now' : 'At ' + esc(r.when_text)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + (r.pay === 'whish' ? ' · Whish' : '') + ' · ' + ago(r.created_at) +
+      (r.phone ? '<br>☎ <a href="tel:' + esc(r.phone) + '"><b>' + esc(r.phone) + '</b></a>' : '') + '</div>' +
+      '<select data-f="status">' + ST.map(function (s) { return '<option' + (s === r.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select>' +
+      '<div class="row2" style="margin:8px 0 0"><input data-f="driver_name" placeholder="Driver" value="' + esc(r.driver_name) + '"><input data-f="driver_plate" placeholder="Plate" value="' + esc(r.driver_plate) + '"></div>' +
+      '<input data-f="note" style="margin-top:8px" placeholder="Note" value="' + esc(r.note) + '"></div>';
+  }).join('') : '<p class="fine">Nothing here.</p>';
+  drawMap(v);
+}
+function drawMap(v) {
+  if (!map) { map = L.map('m').setView(B.map.center, B.map.zoom); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map); layer = L.layerGroup().addTo(map); }
+  layer.clearLayers(); var pts = [];
+  v.forEach(function (r) {
+    if (r.lat != null && ['done', 'cancelled'].indexOf(r.status) < 0) { L.marker([r.lat, r.lng], { icon: L.divIcon({ className: '', html: '<div class="pin ' + (r.status === 'new' ? 'new' : 'act') + '"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).bindTooltip('#' + r.id + ' ' + r.pickup).addTo(layer); pts.push([r.lat, r.lng]); }
+    if (r.driver_lat != null && ['assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1) { L.marker([r.driver_lat, r.driver_lng], { icon: L.divIcon({ className: '', html: '<div class="carmk">🚖</div>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).bindTooltip(esc(r.driver_name || 'driver')).addTo(layer); pts.push([r.driver_lat, r.driver_lng]); }
   });
-  $('#tabs').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-f]'); if (!b) return; filt = b.getAttribute('data-f');
-    document.querySelectorAll('#tabs .pill').forEach(function (p) { p.classList.toggle('on', p === b); }); draw();
+  if (pts.length && !fitted) { map.fitBounds(pts, { padding: [30, 30], maxZoom: 14 }); fitted = true; }
+}
+function refresh() {
+  if (document.activeElement && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && document.activeElement.closest('#list')) return;
+  api('/api/rides').then(function (j) { rides = j.rides; var n = rides.filter(function (r) { return r.status === 'new'; }).length; if (lastNew >= 0 && n > lastNew) beep(); lastNew = n; if (filt !== 'settings') draw(); })
+    .catch(function (e) { if (e.status === 401) out('Token not accepted.'); });
+}
+document.addEventListener('change', function (e) {
+  var f = e.target.getAttribute && e.target.getAttribute('data-f'); if (!f) return; var card = e.target.closest('.ride'); if (!card) return;
+  var body = {}; body[f] = e.target.value;
+  api('/api/rides/' + card.getAttribute('data-id'), 'PATCH', body).then(function () { e.target.blur(); refresh(); }, function () { alert('Could not save.'); });
+});
+$('#tabs').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-f]'); if (!b) return; filt = b.getAttribute('data-f');
+  document.querySelectorAll('#tabs .pill').forEach(function (p) { p.classList.toggle('on', p === b); });
+  $('#settings').hidden = filt !== 'settings'; $('#rides').hidden = filt === 'settings';
+  if (filt === 'settings') loadCfg(); else { draw(); setTimeout(function () { map && map.invalidateSize(); }, 50); }
+});
+/* settings */
+function loadCfg() {
+  fetch(API + '/api/config').then(function (r) { return r.json(); }).then(function (c) {
+    cfg = c; var r = c.rates, w = c.whish;
+    $('#rEn').checked = !!r.enabled; $('#rBase').value = r.base; $('#rKm').value = r.perKm; $('#rMin').value = r.minimum; $('#rSp').value = r.spread; $('#rNf').value = r.nightFrom; $('#rNt').value = r.nightTo; $('#rNx').value = r.nightExtra;
+    $('#rCo').value = r.mult.Comfort; $('#rVa').value = r.mult.Van;
+    $('#rAp').value = Object.keys(r.airport || {}).map(function (k) { return k + '=' + r.airport[k]; }).join('\n');
+    $('#wEn').checked = !!w.enabled; $('#wNum').value = w.number; $('#wName').value = w.name;
   });
-  function enter() { $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false; lastNew = -1; refresh(); clearInterval(timer); timer = setInterval(refresh, 5000); }
-  function out(msg) { clearInterval(timer); save('jt_atok', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
-  $('#out').onclick = function () { out(); };
-  $('#go').onclick = function () {
-    tok = $('#tok').value.trim(); if (!tok) return;
-    api('/api/rides').then(function () { save('jt_atok', tok); enter(); }, function (e) { $('#lerr').textContent = e.status === 401 ? 'Token not accepted.' : 'Could not reach the backend.'; $('#lerr').hidden = false; });
-  };
-  tok = load('jt_atok'); if (tok) enter();
+}
+$('#save').onclick = function () {
+  var ap = {}; $('#rAp').value.split('\n').forEach(function (l) { var p = l.split('='); if (p.length === 2 && +p[1] > 0) ap[p[0].trim()] = +p[1]; });
+  var body = { rates: { enabled: $('#rEn').checked, base: +$('#rBase').value, perKm: +$('#rKm').value, minimum: +$('#rMin').value, spread: +$('#rSp').value, nightFrom: +$('#rNf').value, nightTo: +$('#rNt').value, nightExtra: +$('#rNx').value,
+    mult: { Economy: 1, Comfort: +$('#rCo').value, Van: +$('#rVa').value }, airport: ap }, whish: { enabled: $('#wEn').checked, number: $('#wNum').value.trim(), name: $('#wName').value.trim() } };
+  api('/api/config', 'PUT', body).then(function () { var e = $('#serr'); e.textContent = 'Saved. Riders see it on their next load.'; e.hidden = false; e.style.background = '#E4F6EC'; e.style.borderColor = '#9FD8B8'; e.style.color = '#0B6B3F'; },
+    function () { var e = $('#serr'); e.textContent = 'Could not save.'; e.hidden = false; e.removeAttribute('style'); e.style.marginTop = '12px'; });
+};
+/* alerts */
+function b64(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, function (c) { return c.charCodeAt(0); }); }
+$('#alerts').onclick = function () {
+  var btn = this; if (!('serviceWorker' in navigator) || !('PushManager' in window)) { alert('Alerts need a newer browser (iPhone: Add to Home Screen first).'); return; }
+  Notification.requestPermission().then(function (p) { if (p !== 'granted') throw 0;
+    return Promise.all([navigator.serviceWorker.register('../sw.js', { scope: '/app/' }).then(function () { return navigator.serviceWorker.ready; }), fetch(API + '/api/push/key').then(function (r) { return r.json(); })]); })
+    .then(function (a) { if (!a[1].key) throw 1; return a[0].pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(a[1].key) }); })
+    .then(function (s) { return api('/api/push/subscribe', 'POST', { subscription: s.toJSON() }); })
+    .then(function () { btn.textContent = '🔔 On'; btn.classList.add('on'); }, function () { alert('Could not turn on alerts.'); });
+};
+function enter() { $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false; $('#alerts').hidden = false; lastNew = -1; refresh(); clearInterval(timer); timer = setInterval(refresh, 5000); setTimeout(function () { map && map.invalidateSize(); }, 200); }
+function out(msg) { clearInterval(timer); save('jt_atok', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true; $('#alerts').hidden = true; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
+$('#out').onclick = function () { out(); };
+$('#go').onclick = function () { tok = $('#tok').value.trim(); if (!tok) return;
+  api('/api/rides').then(function () { save('jt_atok', tok); enter(); }, function (e) { $('#lerr').textContent = e.status === 401 ? 'Token not accepted.' : 'Could not reach the backend (it may be waking up). Try again.'; $('#lerr').hidden = false; }); };
+$('#mk').src = '../logo-mark.png'; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1];
+tok = load('jt_atok'); if (tok) enter();
 })();
 </script>
 </body>
