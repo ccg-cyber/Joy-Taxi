@@ -84,13 +84,16 @@ function drawMap(rides) {
   if (myPos) { if (!meMk) meMk = L.marker(myPos, { icon: L.divIcon({ className: '', html: '<div class="carmk">🚖</div>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(map); else meMk.setLatLng(myPos); pts.push(myPos); }
   if (pts.length && !drawMap.f) { map.fitBounds(pts, { padding: [30, 30], maxZoom: 14 }); drawMap.f = 1; }
 }
-function refresh() {
+function hb() { api('/api/driver/online', { name: me.name, plate: me.plate, lat: myPos ? myPos[0] : null, lng: myPos ? myPos[1] : null }).catch(function () {}); }
+var lastMine = -1;
+function refresh() { hb();
   api('/api/driver/rides').then(function (j) {
     $('#sOnT').textContent = 'Live'; $('#sAge').textContent = new Date().toTimeString().slice(0, 5);
     var mine = j.rides.filter(function (r) { return r.status !== 'new' && r.driver_name === me.name; });
     var open = j.rides.filter(function (r) { return r.status === 'new'; });
     activeIds = mine.filter(function (r) { return ['assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1; }).map(function (r) { return r.id; }); $('#sNew').textContent = open.length; $('#sMine').textContent = mine.length;
     if (lastNew >= 0 && open.length > lastNew) beep(); lastNew = open.length;
+    var assigned = mine.filter(function (r) { return r.status === 'assigned'; }).length; if (lastMine >= 0 && assigned > lastMine) beep(); lastMine = assigned;
     if (!document.activeElement || document.activeElement.tagName !== 'BUTTON') {
       $('#mine').innerHTML = mine.map(card).join(''); $('#open').innerHTML = open.map(card).join(''); $('#empty').hidden = open.length > 0 || mine.length > 0;
     }
@@ -133,9 +136,9 @@ $('#alerts').onclick = function () {
     .catch(function (e) { alert(e.message === 'denied' ? 'Notifications are blocked in your browser settings.' : 'Could not turn on alerts.'); });
 };
 
-function enter() { $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false; lastNew = -1; initMap(); setTimeout(function () { map.invalidateSize(); }, 200); startGps(); refresh(); clearInterval(timer); timer = setInterval(refresh, 4000);
+function enter() { $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false; lastNew = -1; lastMine = -1; initMap(); setTimeout(function () { map.invalidateSize(); }, 200); startGps(); refresh(); clearInterval(timer); timer = setInterval(refresh, 4000);
   if (ld('jt_dpush')) { $('#alerts').textContent = '🔔 Alerts on'; $('#alerts').classList.add('on'); } }
-function signOut(msg) { clearInterval(timer); if (watch != null) { navigator.geolocation.clearWatch(watch); watch = null; } sv('jt_dpin', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
+function signOut(msg) { try { api('/api/driver/online', { name: me.name, offline: true }); } catch (e) {} clearInterval(timer); if (watch != null) { navigator.geolocation.clearWatch(watch); watch = null; } sv('jt_dpin', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
 $('#out').onclick = function () { signOut(); };
 $('#start').onclick = function () {
   pin = $('#pin').value.trim(); me.name = $('#dname').value.trim(); me.plate = $('#plate').value.trim();
