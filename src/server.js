@@ -78,7 +78,20 @@ function cleanConfig(b) {
   out.whish = { enabled: !!w.enabled, number: clean(w.number, 24), name: clean(w.name, 60) };
   return out;
 }
+const TG_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '', TG_CHATS = (process.env.TELEGRAM_CHAT_IDS || '').split(',').map(x => x.trim()).filter(Boolean);
+async function notifyTelegram(ride) {
+  if (!TG_TOKEN || !TG_CHATS.length) return;
+  const lines = ['🚖 New ride #' + ride.id, ride.pickup + ' → ' + ride.destination,
+    [ride.when_text === 'now' ? 'Now' : 'At ' + ride.when_text, ride.vehicle, ride.est_text, ride.pay === 'whish' ? 'Whish' : 'Cash'].filter(Boolean).join(' · ')];
+  if (ride.note) lines.push('✨ ' + ride.note);
+  if (ride.phone) lines.push('☎ ' + ride.phone);
+  if (ride.lat != null) lines.push('📍 https://maps.google.com/?q=' + ride.lat + ',' + ride.lng);
+  lines.push('Dispatch: https://joytaxi.cierp.uk/app/admin/');
+  await Promise.all(TG_CHATS.map(id => fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chat_id: id, text: lines.join('\n'), disable_web_page_preview: true }) }).catch(e => console.error('tg', e.message))));
+}
 async function notifyNew(ride) {
+  notifyTelegram(ride).catch(() => {});
   if (!PUSH_ON) return;
   const subs = (await pool.query('SELECT endpoint, sub FROM push_subs')).rows;
   const payload = JSON.stringify({ title: 'New Joy Taxi ride #' + ride.id, body: ride.pickup + ' → ' + ride.destination + (ride.when_text !== 'now' ? ' · ' + ride.when_text : ''), url: '/app/driver/', tag: 'ride-' + ride.id });
@@ -154,7 +167,7 @@ const server = http.createServer(async (req, res) => {
          num(b.est_km, 0, 2000), clean(b.est_text, 120) || null, b.lang === 'ar' ? 'ar' : 'en', token,
          num(b.lat, -90, 90), num(b.lng, -180, 180), clean(b.phone, 24) || null, clean(b.vehicle, 24) || null,
          num(b.dest_lat, -90, 90), num(b.dest_lng, -180, 180), b.pay === 'whish' ? 'whish' : 'cash', clean(b.prefs, 120) || null]);
-      notifyNew({ id: r.rows[0].id, pickup: pickup || '—', destination: destination || '—', when_text: clean(b.when, 80) || 'now' }).catch(e => console.error('push', e.message));
+      notifyNew({ id: r.rows[0].id, pickup: pickup || '—', destination: destination || '—', when_text: clean(b.when, 80) || 'now', vehicle: clean(b.vehicle, 24), est_text: clean(b.est_text, 120), pay: b.pay === 'whish' ? 'whish' : 'cash', note: clean(b.prefs, 120), phone: clean(b.phone, 24), lat: num(b.lat, -90, 90), lng: num(b.lng, -180, 180) }).catch(e => console.error('push', e.message));
       return send(res, 201, { ok: true, id: r.rows[0].id, token });
     }
 
