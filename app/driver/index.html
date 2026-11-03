@@ -146,6 +146,8 @@ $('#start').onclick = function () {
 };
 $('#mk').src = '../logo-mark.png'; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1];
 $('#dname').value = ld('jt_dname'); $('#plate').value = ld('jt_dplate'); pin = ld('jt_dpin');
+var qp = new URLSearchParams(location.search).get('pin');
+if (qp) { pin = qp.trim(); sv('jt_dpin', pin); $('#pin').value = pin; $('#pin').style.display = 'none'; if ($('#pin').previousElementSibling) $('#pin').previousElementSibling.style.display = 'none'; try { history.replaceState(null, '', location.pathname); } catch (e) {} }
 if (pin && $('#dname').value) { me.name = $('#dname').value; me.plate = $('#plate').value; enter(); }
 })();
 </script>
