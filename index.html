@@ -110,6 +110,18 @@ footer a{color:inherit}
 [dir=rtl] .carbar span{transform:translateX(50%) scaleX(-1)}
 .sharebtn{margin-top:8px}
 .chat{font-style:italic;color:var(--mut);min-height:1.4em}
+
+.radio{grid-column:1/-1}.radio .seg{background:#2a2a30;max-width:360px}.radio .seg button{color:#fff}.radio .seg button.on{background:var(--y);color:var(--ink)}
+.radio input{background:#fff;color:var(--ink);border:2px solid var(--y);margin:10px 0;max-width:420px}
+.stl{display:grid;gap:8px;max-height:340px;overflow:auto;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+.st{display:flex;align-items:center;gap:10px;background:#1d1d22;border:2px solid #2f2f36;border-radius:14px;padding:8px 10px;color:#fff;font:inherit;text-align:start;cursor:pointer;width:100%}
+.st.on{border-color:var(--y);background:#2a2610}.st img{width:38px;height:38px;border-radius:10px;object-fit:contain;background:#fff;flex:none}
+.st b{display:block;font-weight:500;line-height:1.2}.st small{color:#aaa;display:block}
+.rbar{position:fixed;z-index:960;left:10px;right:10px;bottom:calc(70px + env(safe-area-inset-bottom));max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--y);border:2px solid var(--y);border-radius:99px;padding:6px 8px 6px 16px;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.rbar[hidden]{display:none}.rbar>span{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.rbar button{background:var(--y);color:var(--ink);border:0;border-radius:99px;width:36px;height:36px;font-size:16px;cursor:pointer}
+@media(min-width:860px){.rbar{bottom:16px;left:16px;right:auto;width:360px;margin:0}}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px;margin-inline-end:6px}.eq i{width:3px;background:var(--y);animation:eq .8s ease-in-out infinite}.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}@keyframes eq{0%,100%{height:3px}50%{height:14px}}
 </style>
 </head>
 <body>
@@ -205,6 +217,12 @@ footer a{color:inherit}
     <div class="cd p rv"><span class="e">🛂</span><h3><span class="en">Joy Passport</span><span class="ar">جواز جوي</span></h3>
       <p id="pp"></p><div class="stamps" id="stamps"></div>
       <p class="fine"><span class="en">Stamps are saved on your phone only. Ride somewhere new to collect them all.</span><span class="ar">الأختام محفوظة على هاتفك فقط. سافر إلى أماكن جديدة لتجمعها كلها.</span></p></div>
+    <div class="cd k2 radio rv" id="radio"><span class="e">📻</span><h3><span class="en">Joy Radio</span><span class="ar">راديو جوي</span></h3>
+      <p><span class="en">Free live radio while you wait or ride. Lebanese stations first, then the whole world.</span><span class="ar">راديو مباشر ومجاني وانت منتظر أو بالطريق. محطات لبنانية أولاً ثم العالم كله.</span></p>
+      <div class="seg" id="rtabs"><button type="button" data-m="lb" class="on">🇱🇧 <span class="en">Lebanon</span><span class="ar">لبنان</span></button><button type="button" data-m="world">🌍 <span class="en">World</span><span class="ar">العالم</span></button></div>
+      <input id="rq" type="search" placeholder="Search a station…" autocomplete="off">
+      <div class="stl" id="stl"></div>
+      <p class="fine" style="color:#aaa"><span class="en">Stations come from the open Radio Browser directory and stream straight from each station’s own public server. Not every station is always online.</span><span class="ar">المحطات من دليل Radio Browser المفتوح وتبث مباشرة من خادم كل محطة العام. قد لا تعمل كل محطة دائماً.</span></p></div>
   </div>
 </div></section>
 <section class="s"><div class="wrap">
@@ -249,6 +267,7 @@ footer a{color:inherit}
 <a href="/taxi-beirut/">Beirut</a> · <a href="/taxi-beirut-airport/">Airport</a> · <a href="/taxi-metn/">Metn</a> · <a href="/taxi-bsalim/">Bsalim</a> · <a href="/taxi-jounieh/">Jounieh</a> · <a href="/taxi-jbeil/">Jbeil</a><br>
 <span style="font-size:13px">© Joy Taxi · Map © OpenStreetMap contributors · Powered by <a href="https://ci-ccg.com">Ci</a></span></div></footer>
 
+<div class="rbar" id="rbar" hidden><span id="rname"></span><button id="rpp" type="button" aria-label="Play or pause">⏸</button><button id="rx" type="button" aria-label="Stop">✕</button></div>
 <div class="dock"><a class="btnx k" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a><button class="btnx" id="dockGo" type="button" style="background:var(--y)">🚖 <span class="en">Book</span><span class="ar">احجز</span></button><a class="btnx" id="waDock" href="#" target="_blank" rel="noopener">💬</a></div>
 
 <script type="application/ld+json">
@@ -567,6 +586,35 @@ function funTrack(r) { var s = r.status, pos = { new: 6, confirmed: 18, assigned
 function shareTrip() { var u = location.origin + '/?t=' + S.ride.id + '.' + S.ride.token, txt = (lang === 'ar' ? 'تابع رحلتي مع جوي تاكسي: ' : 'Follow my Joy Taxi ride: ') + u;
   if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); }
 var tapN = 0; $('#mk').onclick = function (e) { e.preventDefault(); if (++tapN >= 5) { tapN = 0; confetti(); honk(); } setTimeout(function () { tapN = 0; }, 3000); };
+
+/* ── Joy Radio (Radio Browser directory, public streams) ── */
+var RB = ['https://de1.api.radio-browser.info', 'https://nl1.api.radio-browser.info', 'https://at1.api.radio-browser.info'], rmode = 'lb', rtimer = null, au = new Audio(), curSt = null;
+au.preload = 'none';
+function rbGet(path, i) { i = i || 0; if (i >= RB.length) return Promise.reject(); return fetch(RB[i] + path).then(function (r) { if (!r.ok) throw 0; return r.json(); }).catch(function () { return rbGet(path, i + 1); }); }
+function noResp() { return lang === 'ar' ? 'هذه المحطة لا تستجيب — جرّب غيرها' : 'Station not responding — try another'; }
+function loadRadio() {
+  var q = $('#rq').value.trim(), base = '&hidebroken=true&is_https=true&order=votes&reverse=true&limit=60', p;
+  if (q) p = '/json/stations/search?name=' + encodeURIComponent(q) + (rmode === 'lb' ? '&countrycode=LB' : '') + base;
+  else p = rmode === 'lb' ? '/json/stations/search?countrycode=LB' + base : '/json/stations/search?' + base.slice(1);
+  $('#stl').innerHTML = '<p class="fine" style="color:#aaa">…</p>';
+  rbGet(p).then(function (d) {
+    d = d.filter(function (x) { return x.url_resolved && /^https:/.test(x.url_resolved) && !x.hls; });
+    $('#stl').innerHTML = d.length ? d.slice(0, 40).map(function (x, i) { return '<button type="button" class="st' + (curSt && curSt.stationuuid === x.stationuuid ? ' on' : '') + '" data-i="' + i + '">' + (x.favicon && /^https:/.test(x.favicon) ? '<img loading="lazy" alt="" src="' + esc(x.favicon) + '" onerror="this.style.visibility=\'hidden\'">' : '<img alt="" style="visibility:hidden">') + '<span><b>' + esc(x.name.trim()) + '</b><small>' + esc((x.country || '') + (x.tags ? ' · ' + x.tags.split(',').slice(0, 2).join(', ') : '')) + '</small></span></button>'; }).join('') : '<p class="fine" style="color:#aaa">' + (lang === 'ar' ? 'لا نتائج.' : 'No stations found.') + '</p>';
+    $('#stl')._d = d;
+  }).catch(function () { $('#stl').innerHTML = '<p class="fine" style="color:#aaa">' + (lang === 'ar' ? 'تعذر تحميل المحطات. حاول لاحقاً.' : 'Could not load stations right now. Try again in a moment.') + '</p>'; });
+}
+function playSt(x) {
+  curSt = x; au.src = x.url_resolved; $('#rname').innerHTML = '<span class="eq"><i></i><i></i><i></i></span>' + esc(x.name.trim()); $('#rbar').hidden = false; $('#rpp').textContent = '⏸';
+  au.play().catch(function () { $('#rname').textContent = noResp(); $('#rpp').textContent = '▶'; });
+  fetch(RB[0] + '/json/url/' + x.stationuuid).catch(function () {});
+}
+au.onerror = function () { if (curSt) { $('#rname').textContent = noResp(); $('#rpp').textContent = '▶'; } };
+$('#stl').onclick = function (e) { var b = e.target.closest('.st'); if (!b) return; document.querySelectorAll('#stl .st').forEach(function (n) { n.classList.remove('on'); }); playSt($('#stl')._d[+b.getAttribute('data-i')]); b.classList.add('on'); };
+$('#rtabs').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; rmode = b.getAttribute('data-m'); document.querySelectorAll('#rtabs button').forEach(function (x) { x.classList.toggle('on', x === b); }); loadRadio(); };
+$('#rq').oninput = function () { clearTimeout(rtimer); rtimer = setTimeout(loadRadio, 400); };
+$('#rpp').onclick = function () { if (au.paused) { au.play().catch(function () {}); this.textContent = '⏸'; } else { au.pause(); this.textContent = '▶'; } };
+$('#rx').onclick = function () { au.pause(); au.removeAttribute('src'); au.load(); curSt = null; $('#rbar').hidden = true; };
+(function () { var seen = false; if ('IntersectionObserver' in window) { new IntersectionObserver(function (es, o) { if (es[0].isIntersecting && !seen) { seen = true; loadRadio(); o.disconnect(); } }, { rootMargin: '400px' }).observe($('#radio')); } else loadRadio(); })();
 
 /* fun: rotating line, reveal on scroll */
 var ri = 0; setInterval(function () { var rot = T[lang].rot; ri = (ri + 1) % rot.length; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el) el.textContent = rot[ri]; }, 2400);
