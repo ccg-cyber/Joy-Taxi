@@ -17,6 +17,7 @@ body{margin:0;min-height:100vh;background:var(--bk);color:var(--fg);font-family:
 .top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 6px}
 .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--fg)}
 .brand svg{width:44px;height:30px}
+.brand img{height:34px;width:auto}
 .brand b{font-weight:600;font-size:26px;letter-spacing:.01em;font-style:italic;line-height:1}
 .brand b i{color:var(--y);font-style:italic}
 .pill{background:var(--c2);border:1px solid var(--line);color:var(--fg);border-radius:99px;padding:8px 14px;font:inherit;font-size:15px;cursor:pointer}
