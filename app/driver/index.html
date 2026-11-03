@@ -62,7 +62,7 @@ function hav(a, b) { var R = 6371, r = Math.PI / 180, dl = (b[0] - a[0]) * r, dn
 function card(r) {
   var s = r.status, away = (myPos && r.lat != null) ? ' · ' + hav(myPos, [r.lat, r.lng]).toFixed(1) + ' km away' : '';
   var h = '<div class="card ride"><div style="display:flex;justify-content:space-between;gap:8px"><h3>#' + r.id + ' · ' + esc(r.pickup) + '</h3><span class="tag-s ' + s + '">' + (s === 'ontrip' ? 'on trip' : s) + '</span></div>' +
-    '<div class="meta">→ ' + esc(r.destination) + '<br>' + (r.when_text === 'now' ? 'Now' : 'At ' + esc(r.when_text)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + (r.pay === 'whish' ? ' · Whish' : r.pay ? ' · Cash' : '') + away + ' · ' + ago(r.created_at) + '</div><div class="btns">';
+    '<div class="meta">→ ' + esc(r.destination) + '<br>' + (r.when_text === 'now' ? 'Now' : 'At ' + esc(r.when_text)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + (r.pay === 'whish' ? ' · Whish' : r.pay ? ' · Cash' : '') + away + ' · ' + ago(r.created_at) + (r.note ? '<br>✨ ' + esc(r.note) : '') + '</div><div class="btns">';
   if (s === 'new') h += '<button class="btn y" data-a="accept" data-id="' + r.id + '">Accept</button><a class="btn" target="_blank" rel="noopener" href="' + nav(r.lat, r.lng, r.pickup) + '">Map</a>';
   else {
     if (s === 'assigned') h += '<button class="btn y" data-a="arrived" data-id="' + r.id + '">I have arrived</button>';

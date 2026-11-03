@@ -96,6 +96,20 @@ footer a{color:inherit}
 .rv{opacity:0;transform:translateY(22px);transition:opacity .5s,transform .5s}.rv.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.cab,.float1,.float2,.float3,.tick div,.road:before{animation:none!important}.rv{opacity:1;transform:none}}
 .sr{position:absolute;left:-9999px}
+
+.vibes{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.vibes .chip{padding:5px 11px;font-size:14px}.vibes .chip.on{background:var(--y);color:var(--ink);border-color:var(--ink)}
+.lab{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.lab .cd h3{font-size:22px}.lab input{margin:6px 0;border:2px solid var(--ink);background:#fff}
+.big2{font-size:34px;font-weight:700;line-height:1.1;margin:6px 0}
+.idea{background:var(--ink);color:#fff;border-radius:16px;padding:12px;margin:10px 0;min-height:96px}.idea b{color:var(--y);font-size:20px}
+.stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:10px 0}
+.stamp{aspect-ratio:1;border:2px dashed #b8b8c0;border-radius:14px;display:grid;place-items:center;font-size:26px;filter:grayscale(1);opacity:.45;text-align:center;line-height:1}
+.stamp.on{border:2px solid var(--ink);filter:none;opacity:1;background:var(--y);transform:rotate(-4deg)}
+.mini{display:flex;gap:8px;align-items:center}.mini input{flex:1;min-width:0}
+.carbar{position:relative;height:30px;margin:2px 0 4px}.carbar span{position:absolute;top:0;font-size:26px;transition:left .8s ease;transform:translateX(-50%)}
+[dir=rtl] .carbar span{transform:translateX(50%) scaleX(-1)}
+.sharebtn{margin-top:8px}
+.chat{font-style:italic;color:var(--mut);min-height:1.4em}
 </style>
 </head>
 <body>
@@ -132,6 +146,7 @@ footer a{color:inherit}
         <div class="seg" id="when" style="margin-bottom:10px"><button type="button" data-w="now" class="on" data-t="now"></button><button type="button" data-w="later" data-t="later"></button></div>
         <input id="time" type="time" hidden style="margin-bottom:10px">
         <div class="cars" id="cars"></div>
+        <label class="l" style="margin:4px 0 6px"><span class="en">Ride vibe (optional)</span><span class="ar">أجواء المشوار (اختياري)</span></label><div class="vibes" id="vibes"></div>
         <div class="row2"><input id="phone" type="tel" inputmode="tel" autocomplete="tel" data-p="phone"><select id="pay"></select></div>
         <div class="sum"><span id="sumL"></span><b id="sumP"></b></div>
         <div class="err" id="err" hidden></div>
@@ -141,7 +156,7 @@ footer a{color:inherit}
       <!-- TRACK -->
       <div id="track" hidden>
         <p class="big" id="tT"></p><p class="sub" id="tS"></p>
-        <div class="steps" id="steps"><i></i><i></i><i></i><i></i></div>
+        <div class="carbar" id="carbar"><span id="carbarCar">🚖</span></div><div class="steps" id="steps"><i></i><i></i><i></i><i></i></div><p class="chat" id="chat"></p>
         <div class="drv" id="drv" hidden><div class="av" id="av"></div><div><b id="dn"></b><div class="sub" id="dc" style="margin:0"></div></div><span class="plate" id="dp"></span></div>
         <div class="pay" id="payBox" hidden></div>
         <div id="kv"></div>
@@ -169,6 +184,29 @@ footer a{color:inherit}
   <p style="margin-top:14px;font-weight:500"><span class="en">Going somewhere just off this road? Ask anyway — most of the time the answer is yes.</span><span class="ar">وجهتك خارج هذا الخط؟ اسأل — غالباً الجواب نعم.</span></p>
 </div></section>
 
+
+<section class="s" id="lab"><div class="wrap">
+  <span class="k"><span class="en">Joy Lab · free perks</span><span class="ar">مختبر جوي · مزايا مجانية</span></span>
+  <h2 class="t2"><span class="en">Little extras, on the house.</span><span class="ar">إضافات صغيرة… على حسابنا.</span></h2>
+  <div class="lab">
+    <div class="cd y rv"><span class="e">🎲</span><h3><span class="en">Surprise me</span><span class="ar">فاجئني</span></h3>
+      <p id="sunset"></p>
+      <div class="idea" id="idea"></div>
+      <div class="btns"><button class="btn" id="roll" type="button">🎲 <span class="en">Another</span><span class="ar">غيرها</span></button><button class="btn" id="takeme" type="button" style="background:var(--ink);color:var(--y)">🚖 <span class="en">Take me there</span><span class="ar">خذني إلى هناك</span></button></div></div>
+    <div class="cd rv"><span class="e">💱</span><h3><span class="en">Dollar ⇄ Lira</span><span class="ar">دولار ⇄ ليرة</span></h3>
+      <p><span class="en">Quick cash-ride math. Set today’s rate once — we remember it.</span><span class="ar">حساب سريع للدفع نقداً. حدّد سعر اليوم مرة ونحفظه.</span></p>
+      <div class="mini"><input id="cUsd" type="number" inputmode="decimal" placeholder="USD"><span>$</span></div>
+      <div class="mini"><input id="cLbp" type="number" inputmode="numeric" placeholder="LBP"><span>LBP</span></div>
+      <label class="l" style="margin:6px 0 0"><span class="en">Rate (LBP per $1)</span><span class="ar">السعر (ليرة لكل ١$)</span></label><input id="cRate" type="number" inputmode="numeric"></div>
+    <div class="cd g rv"><span class="e">🍕</span><h3><span class="en">Split the fare</span><span class="ar">قسّم الأجرة</span></h3>
+      <p><span class="en">Going out as a gang? Everyone pays their bit.</span><span class="ar">رايحين شلّة؟ كل واحد بيدفع حصته.</span></p>
+      <div class="mini"><input id="sTot" type="number" inputmode="decimal" placeholder="Fare $"><input id="sPpl" type="number" value="3" min="1" max="7" style="max-width:80px"></div>
+      <div class="big2" id="sOut">—</div></div>
+    <div class="cd p rv"><span class="e">🛂</span><h3><span class="en">Joy Passport</span><span class="ar">جواز جوي</span></h3>
+      <p id="pp"></p><div class="stamps" id="stamps"></div>
+      <p class="fine"><span class="en">Stamps are saved on your phone only. Ride somewhere new to collect them all.</span><span class="ar">الأختام محفوظة على هاتفك فقط. سافر إلى أماكن جديدة لتجمعها كلها.</span></p></div>
+  </div>
+</div></section>
 <section class="s"><div class="wrap">
   <span class="k"><span class="en">How it works</span><span class="ar">كيف يعمل</span></span>
   <h2 class="t2"><span class="en">Three taps. Done.</span><span class="ar">ثلاث لمسات. خلص.</span></h2>
@@ -393,6 +431,7 @@ function draw() {
   $('#sumP').textContent = p ? B.currency + p.lo + (p.hi > p.lo ? '–' + p.hi : '') : (km ? t('noPrice') : ''); $('#sumP').style.fontSize = p ? '' : '14px';
   $('#areaCards').innerHTML = B.areas.map(function (a, i) { var cls = ['y', '', 'g', 'p'][i % 4]; return '<button class="cd ' + (cls === 'y' ? '' : cls) + '" style="' + (cls === 'y' ? 'background:#fff' : '') + '" data-ac="' + i + '" type="button"><span class="e">' + (a.airport ? '✈️' : ['🏙️', '', '☕', '🎨', '🌲', '🏡', '⛵', '🏛️'][i] || '📍') + '</span><h3>' + esc(a[lang]) + '</h3><p>' + (lang === 'ar' ? 'المس لتحديد وجهتك' : 'Tap to go here') + '</p></button>'; }).join('');
   var rot = T[lang].rot; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el && !el.textContent) el.textContent = rot[0];
+  if (typeof drawVibes === 'function') { drawVibes(); drawIdea(); split(); drawPass(); }
   $('#tick').innerHTML = (B.areas.map(function (a) { return a[lang].toUpperCase(); }).join(' ★ ') + ' ★ 24/7 ★ ').repeat(4);
 }
 $('#fP').onclick = function () { S.field = 'P'; draw(); };
@@ -417,10 +456,10 @@ $('#go').onclick = function () {
   var er = $('#err'); er.hidden = true; if (!S.P || !S.D) { er.textContent = t('errBoth'); er.hidden = false; return; }
   var p = priceFor(S.car), km = dist(), btn = this; btn.disabled = true;
   var body = { pickup: S.P.name, destination: S.D.name, when: S.later && $('#time').value ? $('#time').value : 'now', lat: S.P.lat, lng: S.P.lng, dest_lat: S.D.lat, dest_lng: S.D.lng,
-    est_km: km ? +km.toFixed(1) : null, est_text: p ? B.currency + p.lo + (p.hi > p.lo ? '-' + p.hi : '') : (km ? km.toFixed(1) + ' km' : null), vehicle: S.car, phone: $('#phone').value.trim() || null, pay: S.pay, lang: lang };
+    est_km: km ? +km.toFixed(1) : null, est_text: p ? B.currency + p.lo + (p.hi > p.lo ? '-' + p.hi : '') : (km ? km.toFixed(1) + ' km' : null), vehicle: S.car, phone: $('#phone').value.trim() || null, pay: S.pay, lang: lang, prefs: vibeText() };
   fetch(B.api + '/api/rides', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(body) })
     .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
-    .then(function (j) { S.ride = { id: j.id, token: j.token, status: 'new', pickup: body.pickup, destination: body.destination, est_text: body.est_text, vehicle: body.vehicle, pay: body.pay, lat: body.lat, lng: body.lng, dest_lat: body.dest_lat, dest_lng: body.dest_lng };
+    .then(function (j) { S.mine = 1; S.ride = { id: j.id, token: j.token, status: 'new', pickup: body.pickup, destination: body.destination, est_text: body.est_text, vehicle: body.vehicle, pay: body.pay, lat: body.lat, lng: body.lng, dest_lat: body.dest_lat, dest_lng: body.dest_lng };
       sv('jt_ride', JSON.stringify({ id: j.id, token: j.token })); sv('jt_phone', body.phone); confetti(); start(); })
     .catch(function () { er.innerHTML = esc(t('errNet')) + ' <a href="tel:' + B.tel + '">' + B.phones[0] + '</a>'; er.hidden = false; })
     .then(function () { btn.disabled = false; });
@@ -447,6 +486,7 @@ function showTrack() {
   if (r.lat != null && !mkP) mkP = L.marker([+r.lat, +r.lng], { icon: icon('from') }).addTo(map);
   if (r.dest_lat != null && !mkD) mkD = L.marker([+r.dest_lat, +r.dest_lng], { icon: icon('to') }).addTo(map);
   if (!S.fitted && r.lat != null) { S.fitted = 1; var pts = [[+r.lat, +r.lng]]; if (r.dest_lat != null) pts.push([+r.dest_lat, +r.dest_lng]); map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 }); }
+  funTrack(r);
   var w = S.cfg && S.cfg.whish, pb = $('#payBox');
   if (s === 'done' && r.pay === 'whish' && w && w.enabled && w.number) { pb.hidden = false; pb.innerHTML = esc(t('payTo')) + '<b dir="ltr">' + esc(w.number) + '</b>' + esc(w.name || '') + (r.est_text ? ' · ' + esc(r.est_text) : ''); } else pb.hidden = true;
   $('#kv').innerHTML = '<div class="kv"><span>' + t('pickup') + '</span><b>' + esc(r.pickup) + '</b></div><div class="kv"><span>' + t('dest') + '</span><b>' + esc(r.destination) + '</b></div>' + (r.vehicle ? '<div class="kv"><span>' + t('ride') + '</span><b>' + esc(r.vehicle) + '</b></div>' : '');
@@ -462,6 +502,72 @@ function reset() { clearInterval(S.poll); sv('jt_ride', null); S.ride = null; S.
   [mkP, mkD, line, S.drvMk].forEach(function (m) { if (m) map.removeLayer(m); }); mkP = mkD = line = S.drvMk = null; S.P = S.D = null; S.field = 'P'; S.lastDrv = null;
   $('#track').hidden = true; $('#plan').hidden = false; $('#deck').classList.remove('tracking'); map.setView(B.map.center, B.map.zoom); draw(); setTimeout(function () { map.invalidateSize(); }, 100); }
 
+
+/* ── vibes ── */
+var VIBES = [['music', '🎵', 'Music on', 'موسيقى'], ['quiet', '🤫', 'Quiet ride', 'هدوء'], ['cool', '❄️', 'Extra cool', 'تكييف قوي'], ['bags', '🧳', 'Luggage', 'حقائب'], ['kid', '👶', 'Child seat', 'كرسي طفل'], ['pet', '🐾', 'Pet', 'حيوان أليف']];
+S.vibes = {};
+function drawVibes() { $('#vibes').innerHTML = VIBES.map(function (v) { return '<button type="button" class="chip' + (S.vibes[v[0]] ? ' on' : '') + '" data-v="' + v[0] + '">' + v[1] + ' ' + (lang === 'ar' ? v[3] : v[2]) + '</button>'; }).join(''); }
+$('#vibes').onclick = function (e) { var b = e.target.closest('[data-v]'); if (!b) return; var k = b.getAttribute('data-v'); S.vibes[k] = !S.vibes[k]; drawVibes(); };
+function vibeText() { return VIBES.filter(function (v) { return S.vibes[v[0]]; }).map(function (v) { return v[2]; }).join(', '); }
+
+/* ── sound: friendly double honk ── */
+var _ac = null;
+function honk() { try { _ac = _ac || new (window.AudioContext || window.webkitAudioContext)(); [0, .22].forEach(function (d) { var o = _ac.createOscillator(), g = _ac.createGain(); o.type = 'square'; o.frequency.value = 520; g.gain.value = .05; o.connect(g); g.connect(_ac.destination); o.start(_ac.currentTime + d); o.stop(_ac.currentTime + d + .14); }); if (navigator.vibrate) navigator.vibrate([120, 80, 120]); } catch (e) {} }
+
+/* ── Joy Lab ── */
+var IDEAS = [
+  { id: 'harissa', e: '🙏', ll: [33.9897, 35.6458], en: 'Harissa', ar: 'حريصا', ben: 'Our Lady of Lebanon — the best view over Jounieh bay.', bar: 'سيدة لبنان — أجمل إطلالة على خليج جونية.' },
+  { id: 'jeita', e: '🦇', ll: [33.9440, 35.6403], en: 'Jeita Grotto', ar: 'مغارة جعيتا', ben: 'Cool caves, boat ride underground. Perfect on a hot day.', bar: 'كهوف باردة ورحلة بالقارب تحت الأرض.' },
+  { id: 'byblos', e: '⚓', ll: [34.1230, 35.6519], en: 'Byblos old port', ar: 'مرفأ جبيل القديم', ben: 'Stone souk, fishing boats, sunset by the sea.', bar: 'سوق حجري، مراكب صيد وغروب على البحر.' },
+  { id: 'raouche', e: '🌅', ll: [33.8903, 35.4709], en: 'Raouche Rocks', ar: 'صخرة الروشة', ben: 'The Pigeon Rocks. Sunset spot number one.', bar: 'صخرة الروشة. أفضل مكان للغروب.' },
+  { id: 'zaitunay', e: '⛵', ll: [33.9015, 35.4975], en: 'Zaitunay Bay', ar: 'خليج الزيتونة', ben: 'Marina walk, coffee and yachts.', bar: 'مشي على المرسى، قهوة ويخوت.' },
+  { id: 'faraya', e: '⛷️', ll: [34.0087, 35.8186], en: 'Faraya', ar: 'فاريا', ben: 'Mountain air — and snow in winter.', bar: 'هواء الجبل… وثلج في الشتاء.' },
+  { id: 'batroun', e: '🍋', ll: [34.2553, 35.6586], en: 'Batroun', ar: 'البترون', ben: 'Lemonade, old town, and the sea wall.', bar: 'ليموناضة وبلدة قديمة وسور البحر.' },
+  { id: 'manara', e: '🌊', ll: [33.9018, 35.4753], en: 'Manara & Corniche', ar: 'المنارة والكورنيش', ben: 'Walk the seaside, grab a manoushe.', bar: 'مشي على الكورنيش وطلعة مناقيش.' }
+];
+var cur = 0;
+function sunsetTime(ll) {
+  var d = new Date(), n = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5), r = Math.PI / 180, B2 = 360 / 364 * (n - 81) * r;
+  var eot = 9.87 * Math.sin(2 * B2) - 7.53 * Math.cos(B2) - 1.5 * Math.sin(B2), dec = 23.45 * Math.sin(360 / 365 * (284 + n) * r) * r, lat = ll[0] * r;
+  var c = -Math.tan(lat) * Math.tan(dec); c = Math.max(-1, Math.min(1, c)); var w0 = Math.acos(c) / r / 15;
+  var utc = 12 - ll[1] / 15 - eot / 60 + w0, t0 = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) + utc * 36e5);
+  return t0.toLocaleTimeString(lang === 'ar' ? 'ar-LB' : 'en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Beirut' });
+}
+function drawIdea() {
+  var i = IDEAS[cur], from = S.P ? [S.P.lat, S.P.lng] : B.areas[0].ll, km = Math.round(hav(from, i.ll) * 1.3);
+  $('#idea').innerHTML = '<div style="font-size:34px">' + i.e + '</div><b>' + esc(lang === 'ar' ? i.ar : i.en) + '</b><div style="opacity:.85">' + esc(lang === 'ar' ? i.bar : i.ben) + '</div><div style="margin-top:4px;color:var(--y)">≈ ' + km + ' ' + t('km') + '</div>';
+  $('#sunset').innerHTML = (lang === 'ar' ? 'غروب الشمس اليوم في بيروت حوالي <b>' : 'Sunset in Beirut today is around <b>') + sunsetTime([33.89, 35.5]) + '</b> 🌇';
+}
+$('#roll').onclick = function () { var n; do { n = Math.floor(Math.random() * IDEAS.length); } while (n === cur); cur = n; drawIdea(); };
+$('#takeme').onclick = function () { var i = IDEAS[cur]; if (S.ride) return; S.field = 'D'; setPlace('D', { lat: i.ll[0], lng: i.ll[1], name: lang === 'ar' ? i.ar : i.en }); $('#book').scrollIntoView({ behavior: 'smooth' }); };
+// converter
+var rate = +ld('jt_rate') || 89500; $('#cRate').value = rate;
+$('#cRate').oninput = function () { rate = +this.value || 89500; sv('jt_rate', rate); $('#cUsd').oninput(); };
+$('#cUsd').oninput = function () { var v = +$('#cUsd').value; if (v) $('#cLbp').value = Math.round(v * rate); };
+$('#cLbp').oninput = function () { var v = +$('#cLbp').value; if (v) $('#cUsd').value = (v / rate).toFixed(2); };
+// splitter
+function split() { var tot = +$('#sTot').value, p = Math.max(1, +$('#sPpl').value || 1); $('#sOut').textContent = tot ? B.currency + (tot / p).toFixed(2) + (lang === 'ar' ? ' للشخص' : ' each') : '—'; }
+$('#sTot').oninput = split; $('#sPpl').oninput = split;
+// passport
+function stampList() { return IDEAS.map(function (i) { return { k: i.id, e: i.e, ll: i.ll, n: lang === 'ar' ? i.ar : i.en }; }).concat(B.areas.filter(function (a) { return !a.airport && ['Beirut', 'Hamra', 'Achrafieh'].indexOf(a.en) < 0; }).map(function (a, j) { return { k: 'a' + a.en, e: ['🏡', '🌲', '🏖️', '🏛️'][j % 4], ll: a.ll, n: a[lang] }; })).concat([{ k: 'air', e: '✈️', ll: B.areas[1].ll, n: B.areas[1][lang] }]); }
+function stamped() { try { return JSON.parse(ld('jt_pass') || '{}'); } catch (e) { return {}; } }
+function drawPass() { var st = stamped(), L2 = stampList(), n = L2.filter(function (x) { return st[x.k]; }).length;
+  $('#pp').textContent = (lang === 'ar' ? 'جمعت ' : 'Collected ') + n + ' / ' + L2.length + (lang === 'ar' ? ' ختماً' : ' stamps');
+  $('#stamps').innerHTML = L2.map(function (x) { return '<div class="stamp' + (st[x.k] ? ' on' : '') + '" title="' + esc(x.n) + '">' + x.e + '</div>'; }).join(''); }
+function addStamp(lat, lng) { var st = stamped(), best = null, bd = 4; stampList().forEach(function (x) { var d = hav([lat, lng], x.ll); if (d < bd) { bd = d; best = x; } }); if (best && !st[best.k]) { st[best.k] = 1; sv('jt_pass', JSON.stringify(st)); drawPass(); S.newStamp = best; } }
+
+/* ── tracking fun ── */
+var CHAT = { en: ['Warming up the engine… 🔧', 'Finding the shortest road… 🛣️', 'Our driver is on it… ☕', 'Checking the traffic on the coast road… 🚦', 'Almost there, hang tight! ✨'], ar: ['عم نسخّن المحرك… 🔧', 'عم نلاقي أقصر طريق… 🛣️', 'السائق عم يجهّز… ☕', 'عم نشوف زحمة الأوتوستراد… 🚦', 'قربنا، دقيقة! ✨'] };
+var ci = 0; setInterval(function () { if (!S.ride || ['new', 'confirmed'].indexOf(S.ride.status) < 0) { $('#chat').textContent = ''; return; } ci = (ci + 1) % 5; $('#chat').textContent = CHAT[lang][ci]; }, 3000);
+var lastSt = '';
+function funTrack(r) { var s = r.status, pos = { new: 6, confirmed: 18, assigned: 45, arrived: 70, ontrip: 85, done: 96, cancelled: 6 }[s] || 6; $('#carbarCar').style.left = pos + '%';
+  if (s !== lastSt) { if (s === 'assigned' || s === 'arrived') honk(); if (s === 'done' && r.dest_lat != null) addStamp(+r.dest_lat, +r.dest_lng); lastSt = s; }
+  var sh = document.getElementById('shareBtn'); if (!sh && ['assigned', 'arrived', 'ontrip'].indexOf(s) > -1 && S.mine) { var b = document.createElement('button'); b.id = 'shareBtn'; b.className = 'btn sharebtn'; b.type = 'button'; b.textContent = lang === 'ar' ? '👨‍👩‍👧 شارك رحلتي مع العائلة' : '👨‍👩‍👧 Share my trip with family'; b.style.width = '100%'; b.onclick = shareTrip; $('#track').insertBefore(b, $('#tb')); }
+  if (s === 'done' && S.newStamp && !S.stampShown) { S.stampShown = 1; $('#tS').textContent = (lang === 'ar' ? 'ختم جديد: ' : 'New stamp: ') + S.newStamp.e + ' ' + S.newStamp.n + '!'; } }
+function shareTrip() { var u = location.origin + '/?t=' + S.ride.id + '.' + S.ride.token, txt = (lang === 'ar' ? 'تابع رحلتي مع جوي تاكسي: ' : 'Follow my Joy Taxi ride: ') + u;
+  if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); }
+var tapN = 0; $('#mk').onclick = function (e) { e.preventDefault(); if (++tapN >= 5) { tapN = 0; confetti(); honk(); } setTimeout(function () { tapN = 0; }, 3000); };
+
 /* fun: rotating line, reveal on scroll */
 var ri = 0; setInterval(function () { var rot = T[lang].rot; ri = (ri + 1) % rot.length; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el) el.textContent = rot[ri]; }, 2400);
 if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .15 }); document.querySelectorAll('.rv').forEach(function (n) { io.observe(n); }); } else document.querySelectorAll('.rv').forEach(function (n) { n.classList.add('in'); });
@@ -470,7 +576,9 @@ if ('IntersectionObserver' in window) { var io = new IntersectionObserver(functi
 $('#mk').src = B.mark; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1]; $('#phone').value = ld('jt_phone');
 draw();
 fetch(B.api + '/api/config').then(function (r) { return r.json(); }).then(function (c) { S.cfg = c.config || c; draw(); }).catch(function () {});
-var saved = ld('jt_ride'); if (saved) { try { var o = JSON.parse(saved); S.ride = { id: o.id, token: o.token, status: 'new', pickup: '…', destination: '' }; start(); } catch (e) { sv('jt_ride', null); } }
+var shared = /[?&]t=(\d+)\.([0-9a-f]+)/.exec(location.search);
+if (shared) { S.ride = { id: shared[1], token: shared[2], status: 'new', pickup: '…', destination: '' }; start(); }
+var saved = shared ? '' : ld('jt_ride'); if (saved) { S.mine = 1; try { var o = JSON.parse(saved); S.ride = { id: o.id, token: o.token, status: 'new', pickup: '…', destination: '' }; start(); } catch (e) { sv('jt_ride', null); } }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(function () {});
 setTimeout(function () { map.invalidateSize(); }, 400);
 })();
