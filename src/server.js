@@ -148,12 +148,12 @@ const server = http.createServer(async (req, res) => {
       if (!pickup && !destination) return send(res, 400, { error: 'pickup or destination required' });
       const token = crypto.randomBytes(16).toString('hex');
       const r = await pool.query(
-        `INSERT INTO rides (pickup,destination,when_text,est_km,est_text,lang,token,lat,lng,phone,vehicle,dest_lat,dest_lng,pay)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
+        `INSERT INTO rides (pickup,destination,when_text,est_km,est_text,lang,token,lat,lng,phone,vehicle,dest_lat,dest_lng,pay,note)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING id`,
         [pickup || '—', destination || '—', clean(b.when, 80) || 'now',
          num(b.est_km, 0, 2000), clean(b.est_text, 120) || null, b.lang === 'ar' ? 'ar' : 'en', token,
          num(b.lat, -90, 90), num(b.lng, -180, 180), clean(b.phone, 24) || null, clean(b.vehicle, 24) || null,
-         num(b.dest_lat, -90, 90), num(b.dest_lng, -180, 180), b.pay === 'whish' ? 'whish' : 'cash']);
+         num(b.dest_lat, -90, 90), num(b.dest_lng, -180, 180), b.pay === 'whish' ? 'whish' : 'cash', clean(b.prefs, 120) || null]);
       notifyNew({ id: r.rows[0].id, pickup: pickup || '—', destination: destination || '—', when_text: clean(b.when, 80) || 'now' }).catch(e => console.error('push', e.message));
       return send(res, 201, { ok: true, id: r.rows[0].id, token });
     }
