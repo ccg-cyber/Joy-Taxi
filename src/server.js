@@ -55,6 +55,8 @@ async function migrate() {
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_lat NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_lng NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_ts TIMESTAMPTZ;
+    ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_key TEXT;
+    ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_phone TEXT;
     CREATE TABLE IF NOT EXISTS push_subs (
       endpoint TEXT PRIMARY KEY, sub JSONB NOT NULL, role TEXT NOT NULL DEFAULT 'driver',
       created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -243,15 +245,47 @@ const server = http.createServer(async (req, res) => {
       return send(res, 404, { error: 'not found' });
     }
 
+    // ── Driver by private link (no PIN, no install): /api/d/:id?k=KEY ─────
+    m = path.match(/^\/api\/d\/(\d+)(?:\/(status|pos))?$/);
+    if (m) {
+      const body = req.method === 'POST' ? await readJson(req) : {};
+      const k = String(req.method === 'POST' ? body.k : url.searchParams.get('k') || '');
+      if (!/^[0-9a-f]{32}$/.test(k)) return send(res, 401, { error: 'unauthorized' });
+      const row = (await pool.query('SELECT driver_key, status, pickup, destination, when_text, est_text, vehicle, note, pay, lat, lng, dest_lat, dest_lng, phone, driver_name FROM rides WHERE id=$1', [m[1]])).rows[0];
+      if (!row || !row.driver_key || !safeEq(k, row.driver_key)) return send(res, 401, { error: 'unauthorized' });
+      if (req.method === 'GET' && !m[2]) { delete row.driver_key; return send(res, 200, { ride: row }); }
+      if (req.method === 'POST' && m[2] === 'status') {
+        const FROM = { arrived: ['assigned'], ontrip: ['assigned', 'arrived'], done: ['assigned', 'arrived', 'ontrip'] };
+        if (!FROM[body.status] || !FROM[body.status].includes(row.status)) return send(res, 409, { error: 'bad transition' });
+        await pool.query('UPDATE rides SET status=$2 WHERE id=$1', [m[1], body.status]);
+        return send(res, 200, { ok: true });
+      }
+      if (req.method === 'POST' && m[2] === 'pos') {
+        const la = num(body.lat, -90, 90), lo = num(body.lng, -180, 180);
+        if (la == null || lo == null) return send(res, 400, { error: 'bad position' });
+        const q = await pool.query(`UPDATE rides SET driver_lat=$2, driver_lng=$3, driver_ts=now() WHERE id=$1 AND status IN ('assigned','arrived','ontrip')`, [m[1], la, lo]);
+        return send(res, 200, { ok: q.rowCount === 1 });
+      }
+    }
+
     // ── Owner / dispatcher ────────────────────────────────────────────────
     if (path.startsWith('/api/rides')) {
       if (!isAdmin(req)) return send(res, 401, { error: 'unauthorized' });
       if (req.method === 'GET' && path === '/api/rides') {
         const status = url.searchParams.get('status');
         const q = STATUSES.includes(status)
-          ? await pool.query(`SELECT ${COLS} FROM rides WHERE status=$1 ORDER BY created_at DESC LIMIT 200`, [status])
-          : await pool.query(`SELECT ${COLS} FROM rides ORDER BY created_at DESC LIMIT 200`);
+          ? await pool.query(`SELECT ${COLS}, driver_phone FROM rides WHERE status=$1 ORDER BY created_at DESC LIMIT 200`, [status])
+          : await pool.query(`SELECT ${COLS}, driver_phone FROM rides ORDER BY created_at DESC LIMIT 200`);
         return send(res, 200, { rides: q.rows });
+      }
+      m = path.match(/^\/api\/rides\/(\d+)\/dispatch$/);
+      if (req.method === 'POST' && m) {
+        const b = await readJson(req), name = clean(b.driver_name, 60), phone = clean(b.driver_phone, 24);
+        if (!name) return send(res, 400, { error: 'driver_name required' });
+        const key = crypto.randomBytes(16).toString('hex');
+        const q = await pool.query(`UPDATE rides SET driver_key=$2, driver_name=$3, driver_phone=$4, driver_plate=COALESCE(NULLIF($5,''), driver_plate),
+            status='assigned', accepted_at=now() WHERE id=$1 AND status NOT IN ('done','cancelled') RETURNING id`, [m[1], key, name, phone || null, clean(b.plate, 20)]);
+        return q.rowCount ? send(res, 200, { ok: true, id: m[1], key }) : send(res, 409, { error: 'ride not open' });
       }
       m = path.match(/^\/api\/rides\/(\d+)$/);
       if (req.method === 'PATCH' && m) {
