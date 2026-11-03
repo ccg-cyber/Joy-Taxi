@@ -84,7 +84,7 @@ function draw() {
       (r.phone ? '<br>☎ <a href="tel:' + esc(r.phone) + '"><b>' + esc(r.phone) + '</b></a>' : '') + '</div>' +
       '<select data-f="status">' + ST.map(function (s) { return '<option' + (s === r.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select>' +
       '<div class="row2" style="margin:8px 0 0"><input data-f="driver_name" placeholder="Driver" value="' + esc(r.driver_name) + '"><input data-f="driver_plate" placeholder="Plate" value="' + esc(r.driver_plate) + '"></div>' +
-      '<input data-f="note" style="margin-top:8px" placeholder="Note" value="' + esc(r.note) + '"></div>';
+      '<input data-f="note" style="margin-top:8px" placeholder="Note" value="' + esc(r.note) + '">' + fwBlock(r) + '</div>';
   }).join('') : '<p class="fine">Nothing here.</p>';
   drawMap(v);
 }

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joy Taxi — Your ride</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFC800">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="stylesheet" href="../vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="../app.css">
+<style>[hidden]{display:none!important}.big{font-size:24px}.bb{display:block;width:100%;text-align:center;margin-top:10px;font-size:19px;padding:15px}.m{height:230px;border-radius:16px;overflow:hidden;border:2px solid var(--ink);margin:10px 0}</style>
+</head>
+<body>
+<div class="page">
+  <header class="top"><a class="brand" href="#"><img id="mk" alt="" width="44" height="34"><b id="bn"></b><em>DRIVER</em></a><button class="pill" id="lang" type="button">العربية</button></header>
+  <div class="err" id="bad" hidden></div>
+  <section id="ride" hidden>
+    <div class="card ride">
+      <div style="display:flex;justify-content:space-between;gap:8px"><h3 id="hid"></h3><span class="tag-s" id="hst"></span></div>
+      <div class="meta" id="hmeta"></div>
+      <div class="kv"><span id="lFrom"></span><b id="vFrom"></b></div>
+      <div class="kv"><span id="lTo"></span><b id="vTo"></b></div>
+      <div class="kv" id="kvNote" hidden><span>✨</span><b id="vNote"></b></div>
+    </div>
+    <div class="m" id="m"></div>
+    <div id="acts"></div>
+    <p class="fine" id="gps"></p>
+  </section>
+</div>
+<script src="../vendor/leaflet/leaflet.js"></script>
+<script src="../brand.js"></script>
+<script>
+(function () {
+'use strict';
+var B = window.BRAND, $ = function (s) { return document.querySelector(s); };
+var T = { en: { from: 'Pickup', to: 'To', nav: 'Navigate to pickup', navD: 'Navigate to destination', arr: 'I have arrived', start: 'Start trip', done: 'Complete trip', call: 'Call rider', bad: 'This link is not valid or the ride was closed.', gps: 'Sharing your live location with the rider.', gpsOff: 'Turn on location so the rider can see your car.', thanks: 'Trip complete — thank you! 💛', cancelled: 'This ride was cancelled.', st: { assigned: 'On the way', arrived: 'Arrived', ontrip: 'On trip', done: 'Done', cancelled: 'Cancelled', new: 'New', confirmed: 'Confirmed' } },
+  ar: { from: 'من', to: 'إلى', nav: 'التوجه إلى الزبون', navD: 'التوجه إلى الوجهة', arr: 'وصلت', start: 'بدء الرحلة', done: 'إنهاء الرحلة', call: 'اتصل بالزبون', bad: 'الرابط غير صالح أو أُغلق الطلب.', gps: 'نشارك موقعك المباشر مع الزبون.', gpsOff: 'فعّل الموقع ليرى الزبون سيارتك.', thanks: 'انتهت الرحلة — شكراً! 💛', cancelled: 'تم إلغاء هذا الطلب.', st: { assigned: 'في الطريق', arrived: 'وصلت', ontrip: 'في الرحلة', done: 'انتهت', cancelled: 'ملغاة', new: 'جديد', confirmed: 'مؤكد' } } };
+var q = new URLSearchParams(location.search), id = (q.get('r') || '').replace(/\D/g, ''), key = q.get('k') || '';
+var lang = (function () { try { return localStorage.getItem('jt_lang') || ''; } catch (e) { return ''; } })() || 'ar';
+function t(k) { return T[lang][k]; }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+var R = null, map, mkP, mkD, me, mkMe, watch, lastPost = 0, timer;
+function call(path, body) { return fetch(B.api + '/api/d/' + id + path + (body ? '' : '?k=' + key), body ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ k: key }, body)) } : {}).then(function (r) { return r.json().then(function (j) { if (!r.ok) { var e = new Error(j.error); e.status = r.status; throw e; } return j; }); }); }
+function nav(lat, lng, txt) { return lat != null ? 'https://www.google.com/maps/dir/?api=1&destination=' + lat + ',' + lng + '&travelmode=driving' : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(txt + ', Lebanon'); }
+function draw() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; $('#lang').textContent = lang === 'ar' ? 'English' : 'العربية';
+  if (!R) return; var s = R.status;
+  $('#hid').textContent = '#' + id; $('#hst').textContent = t('st')[s] || s; $('#hst').className = 'tag-s ' + s;
+  $('#hmeta').textContent = [R.when_text === 'now' ? '' : R.when_text, R.vehicle, R.est_text, R.pay === 'whish' ? 'Whish' : 'Cash'].filter(Boolean).join(' · ');
+  $('#lFrom').textContent = t('from'); $('#lTo').textContent = t('to'); $('#vFrom').textContent = R.pickup; $('#vTo').textContent = R.destination;
+  $('#kvNote').hidden = !R.note; $('#vNote').textContent = R.note || '';
+  var h = '';
+  if (s === 'assigned') h += '<a class="btn bb" target="_blank" rel="noopener" href="' + nav(R.lat, R.lng, R.pickup) + '">🧭 ' + t('nav') + '</a><button class="btn y bb" data-a="arrived" type="button">✅ ' + t('arr') + '</button>';
+  if (s === 'arrived') h += '<button class="btn y bb" data-a="ontrip" type="button">🚖 ' + t('start') + '</button>';
+  if (s === 'ontrip') h += '<a class="btn bb" target="_blank" rel="noopener" href="' + nav(R.dest_lat, R.dest_lng, R.destination) + '">🧭 ' + t('navD') + '</a><button class="btn y bb" data-a="done" type="button">🏁 ' + t('done') + '</button>';
+  if (s === 'done') h += '<p class="big" style="text-align:center">' + t('thanks') + '</p>';
+  if (s === 'cancelled') h += '<p class="big" style="text-align:center">' + t('cancelled') + '</p>';
+  if (R.phone && s !== 'done' && s !== 'cancelled') h += '<a class="btn bb" href="tel:' + esc(R.phone) + '">📞 ' + t('call') + ' · ' + esc(R.phone) + '</a>';
+  $('#acts').innerHTML = h; $('#gps').textContent = ['assigned', 'arrived', 'ontrip'].indexOf(s) > -1 ? (me ? t('gps') : t('gpsOff')) : '';
+  if (!map) { map = L.map('m', { zoomControl: false }).setView(B.map.center, B.map.zoom); L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map); }
+  var pts = [];
+  if (R.lat != null && !mkP) { mkP = L.marker([+R.lat, +R.lng], { icon: L.divIcon({ className: '', html: '<div class="pin from"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(map); }
+  if (R.dest_lat != null && !mkD) { mkD = L.marker([+R.dest_lat, +R.dest_lng], { icon: L.divIcon({ className: '', html: '<div class="pin to"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }) }).addTo(map); }
+  if (R.lat != null) pts.push([+R.lat, +R.lng]); if (R.dest_lat != null) pts.push([+R.dest_lat, +R.dest_lng]); if (me) pts.push(me);
+  if (pts.length && !draw.f) { draw.f = 1; setTimeout(function () { map.invalidateSize(); map.fitBounds(pts, { padding: [30, 30], maxZoom: 15 }); }, 100); }
+}
+function load() { call('').then(function (j) { R = j.ride; $('#bad').hidden = true; $('#ride').hidden = false; draw(); startGps(); }).catch(function (e) { if (e.status === 401) { $('#ride').hidden = true; $('#bad').textContent = t('bad'); $('#bad').hidden = false; clearInterval(timer); } }); }
+function startGps() {
+  if (watch != null || !navigator.geolocation) return;
+  watch = navigator.geolocation.watchPosition(function (g) { me = [g.coords.latitude, g.coords.longitude];
+    if (!mkMe && map) mkMe = L.marker(me, { icon: L.divIcon({ className: '', html: '<div class="carmk">🚖</div>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(map); else if (mkMe) mkMe.setLatLng(me);
+    var now = Date.now(); if (now - lastPost > 4000 && R && ['assigned', 'arrived', 'ontrip'].indexOf(R.status) > -1) { lastPost = now; call('/pos', { lat: me[0], lng: me[1] }).catch(function () {}); } draw(); },
+    function () { me = null; draw(); }, { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 });
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function () {}); } catch (e) {}
+}
+document.addEventListener('click', function (e) { var b = e.target.closest('button[data-a]'); if (!b) return; b.disabled = true; call('/status', { status: b.getAttribute('data-a') }).then(load, load); });
+$('#lang').onclick = function () { lang = lang === 'ar' ? 'en' : 'ar'; try { localStorage.setItem('jt_lang', lang); } catch (e) {} draw(); };
+$('#mk').src = '../logo-mark.png'; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1];
+if (!id || !key) { $('#bad').textContent = t('bad'); $('#bad').hidden = false; } else { load(); timer = setInterval(load, 6000); }
+draw();
+})();
+</script>
+</body>
+</html>
