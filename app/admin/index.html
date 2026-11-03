@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joy Taxi — Dispatch</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#08080A">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../app.css">
+</head>
+<body>
+<div class="wrap wide">
+  <header class="top">
+    <a class="brand" href="/app/admin/"><b><i>JOY</i> TAXI</b><span style="color:var(--mut);font-size:14px;margin-inline-start:6px">DISPATCH</span></a>
+    <button class="pill" id="out" type="button" hidden>Sign out</button>
+  </header>
+
+  <section id="login" class="card" style="max-width:420px">
+    <h1 class="tag" style="margin-top:0"><span class="y">Dispatch</span>desk</h1>
+    <label class="l">Owner token</label><input id="tok" type="password" placeholder="Admin token">
+    <div class="err" id="lerr" hidden></div>
+    <button class="cta" id="go" type="button">Open</button>
+  </section>
+
+  <section id="board" hidden>
+    <div class="stats"><div><b id="cNew">0</b><small>New</small></div><div><b id="cAct">0</b><small>Active</small></div><div><b id="cDone">0</b><small>Done today</small></div><div><b id="cAll">0</b><small>Last 200</small></div></div>
+    <div class="tabs" id="tabs">
+      <button class="pill on" data-f="open">Open</button><button class="pill" data-f="all">All</button><button class="pill" data-f="done">Done</button><button class="pill" data-f="cancelled">Cancelled</button>
+    </div>
+    <div id="list" class="grid"></div>
+  </section>
+</div>
+<script>
+(function () {
+  'use strict';
+  var API = 'https://joytaxi-backend.onrender.com', $ = function (s) { return document.querySelector(s); };
+  var tok = '', filt = 'open', rides = [], timer = null, lastNew = -1;
+  var ST = ['new', 'confirmed', 'assigned', 'arrived', 'ontrip', 'done', 'cancelled'];
+  function save(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function api(path, method, body) {
+    return fetch(API + path, { method: method || 'GET', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); });
+  }
+  function ago(t) { var m = Math.round((Date.now() - new Date(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; }
+  function beep() { try { var a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .1; o.connect(g); g.connect(a.destination); o.start(); o.stop(a.currentTime + .2); } catch (e) {} }
+  function visible() {
+    return rides.filter(function (r) {
+      if (filt === 'open') return ['new', 'confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1;
+      if (filt === 'all') return true; return r.status === filt;
+    });
+  }
+  function draw() {
+    var today = new Date().toDateString();
+    $('#cNew').textContent = rides.filter(function (r) { return r.status === 'new'; }).length;
+    $('#cAct').textContent = rides.filter(function (r) { return ['confirmed', 'assigned', 'arrived', 'ontrip'].indexOf(r.status) > -1; }).length;
+    $('#cDone').textContent = rides.filter(function (r) { return r.status === 'done' && new Date(r.created_at).toDateString() === today; }).length;
+    $('#cAll').textContent = rides.length;
+    var v = visible();
+    $('#list').innerHTML = v.length ? v.map(function (r) {
+      return '<div class="card ride" data-id="' + r.id + '"><div style="display:flex;justify-content:space-between;gap:8px"><h3>#' + r.id + ' · ' + esc(r.pickup) + '</h3><span class="tag-s ' + r.status + '">' + (r.status === 'ontrip' ? 'on trip' : r.status) + '</span></div>' +
+        '<div class="meta">→ ' + esc(r.destination) + '<br>' + (r.when_text === 'now' ? 'Now' : 'At ' + esc(r.when_text)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + ' · ' + ago(r.created_at) +
+        (r.phone ? '<br>☎ <a style="color:var(--y)" href="tel:' + esc(r.phone) + '">' + esc(r.phone) + '</a>' : '') +
+        (r.lat != null ? ' · <a style="color:var(--y)" target="_blank" rel="noopener" href="https://maps.google.com/?q=' + r.lat + ',' + r.lng + '">pin</a>' : '') + '</div>' +
+        '<select data-f="status">' + ST.map(function (s) { return '<option' + (s === r.status ? ' selected' : '') + '>' + s + '</option>'; }).join('') + '</select>' +
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><input data-f="driver_name" placeholder="Driver" value="' + esc(r.driver_name) + '"><input data-f="driver_plate" placeholder="Plate" value="' + esc(r.driver_plate) + '"></div>' +
+        '<input data-f="note" style="margin-top:8px" placeholder="Note" value="' + esc(r.note) + '"></div>';
+    }).join('') : '<p class="fine">Nothing here.</p>';
+  }
+  function refresh() {
+    if (document.activeElement && /INPUT|SELECT/.test(document.activeElement.tagName) && document.activeElement.closest('#list')) return;
+    api('/api/rides').then(function (j) {
+      rides = j.rides; var n = rides.filter(function (r) { return r.status === 'new'; }).length;
+      if (lastNew >= 0 && n > lastNew) beep(); lastNew = n; draw();
+    }).catch(function (e) { if (e.status === 401) out('Token not accepted.'); });
+  }
+  document.addEventListener('change', function (e) {
+    var f = e.target.getAttribute && e.target.getAttribute('data-f'); if (!f || f === 'open') return;
+    var card = e.target.closest('.ride'); if (!card) return;
+    var body = {}; body[f] = e.target.value;
+    api('/api/rides/' + card.getAttribute('data-id'), 'PATCH', body).then(function () { e.target.blur(); refresh(); }, function () { alert('Could not save.'); });
+  });
+  $('#tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-f]'); if (!b) return; filt = b.getAttribute('data-f');
+    document.querySelectorAll('#tabs .pill').forEach(function (p) { p.classList.toggle('on', p === b); }); draw();
+  });
+  function enter() { $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false; lastNew = -1; refresh(); clearInterval(timer); timer = setInterval(refresh, 5000); }
+  function out(msg) { clearInterval(timer); save('jt_atok', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
+  $('#out').onclick = function () { out(); };
+  $('#go').onclick = function () {
+    tok = $('#tok').value.trim(); if (!tok) return;
+    api('/api/rides').then(function () { save('jt_atok', tok); enter(); }, function (e) { $('#lerr').textContent = e.status === 401 ? 'Token not accepted.' : 'Could not reach the backend.'; $('#lerr').hidden = false; });
+  };
+  tok = load('jt_atok'); if (tok) enter();
+})();
+</script>
+</body>
+</html>

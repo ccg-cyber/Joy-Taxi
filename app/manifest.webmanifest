@@ -1,0 +1,11 @@
+{
+  "name": "Joy Taxi",
+  "short_name": "Joy Taxi",
+  "description": "Request a Joy Taxi and watch your driver come. 24/7.",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "background_color": "#08080A",
+  "theme_color": "#08080A",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

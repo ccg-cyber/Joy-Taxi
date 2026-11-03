@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joy Taxi — Driver</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#08080A">
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../app.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="/app/driver/"><b><i>JOY</i> TAXI</b><span style="color:var(--mut);font-size:14px;margin-inline-start:6px">DRIVER</span></a>
+    <button class="pill" id="out" type="button" hidden>Sign out</button>
+  </header>
+
+  <section id="login" class="card">
+    <h1 class="tag" style="margin-top:0"><span class="y">Ready</span>to drive?</h1>
+    <label class="l">Driver PIN</label><input id="pin" type="password" autocomplete="current-password" placeholder="PIN from Joy Taxi">
+    <label class="l">Your name</label><input id="dname" placeholder="e.g. Georges">
+    <label class="l">Plate</label><input id="plate" placeholder="e.g. B 123456">
+    <div class="err" id="lerr" hidden></div>
+    <button class="cta" id="start" type="button">Go online</button>
+  </section>
+
+  <section id="board" hidden>
+    <div class="stats"><div><b id="sNew">0</b><small>New requests</small></div><div><b id="sMine">0</b><small>My rides</small></div><div><b id="sOn" style="font-size:18px;padding-top:6px">●</b><small id="sOnT">Live</small></div><div><b id="sAge" style="font-size:18px;padding-top:6px">—</b><small>Updated</small></div></div>
+    <div id="mine"></div>
+    <h2 style="font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--y);margin:18px 0 8px">Open requests</h2>
+    <div id="open" class="grid"></div>
+    <p class="fine" id="empty" hidden>No open requests. This screen refreshes by itself — keep it open and you will hear a beep when one arrives.</p>
+  </section>
+</div>
+<script>
+(function () {
+  'use strict';
+  var API = 'https://joytaxi-backend.onrender.com', $ = function (s) { return document.querySelector(s); };
+  var pin = '', me = { name: '', plate: '' }, timer = null, lastNew = -1, lastOk = 0, ac = null;
+  function save(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+  function load(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function api(path, body) {
+    return fetch(API + path, { method: body ? 'POST' : 'GET', headers: { Authorization: 'Bearer ' + pin, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); });
+  }
+  function beep() {
+    try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); var o = ac.createOscillator(), g = ac.createGain();
+      o.frequency.value = 880; g.gain.value = .12; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + .18);
+      setTimeout(function () { var o2 = ac.createOscillator(); o2.frequency.value = 1175; o2.connect(g); o2.start(); o2.stop(ac.currentTime + .18); }, 220);
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
+  }
+  function ago(t) { var m = Math.round((Date.now() - new Date(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : Math.round(m / 60) + ' h ago'; }
+  function whenT(r) { return r.when_text === 'now' ? 'Now' : 'At ' + r.when_text; }
+  function mapLink(r) { return r.lat != null ? 'https://maps.google.com/?q=' + r.lat + ',' + r.lng : 'https://maps.google.com/?q=' + encodeURIComponent(r.pickup + ', Lebanon'); }
+
+  function card(r, mine) {
+    var s = r.status, h = '<div class="card ride"><div style="display:flex;justify-content:space-between;gap:8px"><h3>#' + r.id + ' · ' + esc(r.pickup) + '</h3><span class="tag-s ' + s + '">' + (s === 'ontrip' ? 'on trip' : s) + '</span></div>' +
+      '<div class="meta">→ ' + esc(r.destination) + '<br>' + esc(whenT(r)) + (r.est_text ? ' · ' + esc(r.est_text) : '') + (r.vehicle ? ' · ' + esc(r.vehicle) : '') + ' · ' + ago(r.created_at) + '</div><div class="btns">';
+    if (s === 'new') h += '<button class="btn" data-a="accept" data-id="' + r.id + '">Accept</button><a class="btn sec" target="_blank" rel="noopener" href="' + mapLink(r) + '">Map</a>';
+    else {
+      if (s === 'assigned') h += '<button class="btn" data-a="arrived" data-id="' + r.id + '">I have arrived</button>';
+      if (s === 'arrived') h += '<button class="btn" data-a="ontrip" data-id="' + r.id + '">Start trip</button>';
+      if (s === 'ontrip') h += '<button class="btn" data-a="done" data-id="' + r.id + '">Complete trip</button>';
+      h += '<a class="btn sec" target="_blank" rel="noopener" href="' + mapLink(r) + '">Pickup map</a>';
+      if (r.phone) { var d = r.phone.replace(/[^\d+]/g, ''); h += '<a class="btn sec" href="tel:' + esc(d) + '">Call rider</a>'; }
+    }
+    return h + '</div></div>';
+  }
+
+  function refresh() {
+    api('/api/driver/rides').then(function (j) {
+      lastOk = Date.now(); $('#sOn').style.color = 'var(--ok)'; $('#sOnT').textContent = 'Live';
+      var mine = j.rides.filter(function (r) { return r.status !== 'new' && r.driver_name === me.name; });
+      var open = j.rides.filter(function (r) { return r.status === 'new'; });
+      $('#sNew').textContent = open.length; $('#sMine').textContent = mine.length; $('#sAge').textContent = new Date().toTimeString().slice(0, 5);
+      if (lastNew >= 0 && open.length > lastNew) beep(); lastNew = open.length;
+      if (!document.activeElement || document.activeElement.tagName !== 'BUTTON') {
+        $('#mine').innerHTML = mine.map(function (r) { return card(r, true); }).join('');
+        $('#open').innerHTML = open.map(function (r) { return card(r, false); }).join('');
+        $('#empty').hidden = open.length > 0 || mine.length > 0;
+      }
+    }).catch(function (e) {
+      if (e.status === 401) return signOut('PIN not accepted.');
+      $('#sOn').style.color = 'var(--bad)'; $('#sOnT').textContent = 'Offline';
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-a]'); if (!b) return;
+    var id = b.getAttribute('data-id'), a = b.getAttribute('data-a'); b.disabled = true;
+    var p = a === 'accept' ? api('/api/driver/rides/' + id + '/accept', { driver_name: me.name, plate: me.plate }) : api('/api/driver/rides/' + id + '/status', { status: a });
+    p.then(refresh, function (er) { if (er.status === 409) alert(a === 'accept' ? 'Another driver took this ride.' : 'That ride changed — refreshed.'); refresh(); });
+  });
+  function enter() {
+    $('#login').hidden = true; $('#board').hidden = false; $('#out').hidden = false;
+    lastNew = -1; refresh(); clearInterval(timer); timer = setInterval(refresh, 4000);
+  }
+  function signOut(msg) {
+    clearInterval(timer); save('jt_dpin', null); $('#board').hidden = true; $('#login').hidden = false; $('#out').hidden = true;
+    if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; }
+  }
+  $('#out').onclick = function () { signOut(); };
+  $('#start').onclick = function () {
+    pin = $('#pin').value.trim(); me.name = $('#dname').value.trim(); me.plate = $('#plate').value.trim();
+    if (!pin || !me.name) { $('#lerr').textContent = 'Enter the PIN and your name.'; $('#lerr').hidden = false; return; }
+    $('#lerr').hidden = true; beep();
+    api('/api/driver/rides').then(function () { save('jt_dpin', pin); save('jt_dname', me.name); save('jt_dplate', me.plate); enter(); },
+      function (e) { $('#lerr').textContent = e.status === 401 ? 'PIN not accepted.' : 'Could not reach dispatch. Try again.'; $('#lerr').hidden = false; });
+  };
+  $('#dname').value = load('jt_dname'); $('#plate').value = load('jt_dplate'); pin = load('jt_dpin');
+  if (pin && $('#dname').value) { me.name = $('#dname').value; me.plate = $('#plate').value; enter(); }
+})();
+</script>
+</body>
+</html>
