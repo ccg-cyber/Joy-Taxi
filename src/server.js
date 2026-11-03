@@ -55,6 +55,7 @@ async function migrate() {
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_lat NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_lng NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_ts TIMESTAMPTZ;
+    CREATE TABLE IF NOT EXISTS drivers (name TEXT PRIMARY KEY, plate TEXT, last_seen TIMESTAMPTZ DEFAULT now(), lat NUMERIC, lng NUMERIC);
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_key TEXT;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_phone TEXT;
     CREATE TABLE IF NOT EXISTS push_subs (
@@ -209,6 +210,15 @@ const server = http.createServer(async (req, res) => {
     // ── Driver: list open + own rides, accept, progress ───────────────────
     if (path.startsWith('/api/driver/')) {
       if (!isDriver(req)) return send(res, 401, { error: 'unauthorized' });
+      if (req.method === 'POST' && path === '/api/driver/online') {
+        const b = await readJson(req), name = clean(b.name, 60);
+        if (!name) return send(res, 400, { error: 'name required' });
+        if (b.offline) { await pool.query('DELETE FROM drivers WHERE name=$1', [name]); return send(res, 200, { ok: true }); }
+        await pool.query(`INSERT INTO drivers (name, plate, last_seen, lat, lng) VALUES ($1,$2,now(),$3,$4)
+          ON CONFLICT (name) DO UPDATE SET plate=COALESCE(NULLIF($2,''), drivers.plate), last_seen=now(), lat=COALESCE($3, drivers.lat), lng=COALESCE($4, drivers.lng)`,
+          [name, clean(b.plate, 20), num(b.lat, -90, 90), num(b.lng, -180, 180)]);
+        return send(res, 200, { ok: true });
+      }
       if (req.method === 'GET' && path === '/api/driver/rides') {
         const q = await pool.query(
           `SELECT ${COLS} FROM rides
@@ -266,6 +276,12 @@ const server = http.createServer(async (req, res) => {
         const q = await pool.query(`UPDATE rides SET driver_lat=$2, driver_lng=$3, driver_ts=now() WHERE id=$1 AND status IN ('assigned','arrived','ontrip')`, [m[1], la, lo]);
         return send(res, 200, { ok: q.rowCount === 1 });
       }
+    }
+
+    if (req.method === 'GET' && path === '/api/drivers') {
+      if (!isAdmin(req)) return send(res, 401, { error: 'unauthorized' });
+      const q = await pool.query("SELECT name, plate, lat, lng, last_seen, (last_seen > now() - interval '90 seconds') AS online FROM drivers WHERE last_seen > now() - interval '12 hours' ORDER BY last_seen DESC LIMIT 60");
+      return send(res, 200, { drivers: q.rows });
     }
 
     // ── Owner / dispatcher ────────────────────────────────────────────────
