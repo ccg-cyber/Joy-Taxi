@@ -1,0 +1,10 @@
+{
+  "name": "joytaxi-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Booking-request backend for joytaxi.cierp.uk",
+  "main": "src/server.js",
+  "scripts": { "start": "node src/server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "pg": "^8.13.0" }
+}
