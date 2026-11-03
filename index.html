@@ -6,6 +6,7 @@
 <title>Joy Taxi — Book a taxi in Lebanon, 24/7. Beirut, Metn, Bsalim, Jounieh, Jbeil.</title>
 <meta name="description" content="Book a Joy Taxi in seconds: pick your spot on the map, see your driver arrive live. Beirut, Metn, Bsalim, Jounieh and Jbeil — 24/7, from $7, cash or Whish.">
 <meta name="theme-color" content="#FFC800">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Joy Taxi">
 <link rel="canonical" href="https://joytaxi.cierp.uk/">
 <link rel="manifest" href="/app/manifest.webmanifest">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -122,6 +123,32 @@ footer a{color:inherit}
 .rbar button{background:var(--y);color:var(--ink);border:0;border-radius:99px;width:36px;height:36px;font-size:16px;cursor:pointer}
 @media(min-width:860px){.rbar{bottom:16px;left:16px;right:auto;width:360px;margin:0}}
 .eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px;margin-inline-end:6px}.eq i{width:3px;background:var(--y);animation:eq .8s ease-in-out infinite}.eq i:nth-child(2){animation-delay:.2s}.eq i:nth-child(3){animation-delay:.4s}@keyframes eq{0%,100%{height:3px}50%{height:14px}}
+
+/* ── app mode (phones / installed): map + sheet + tab bar instead of a long page ── */
+.tabbar{display:none}
+body.app{padding-bottom:0}
+body.app .tabbar{display:flex;position:fixed;z-index:970;left:0;right:0;bottom:0;background:#fff;border-top:3px solid var(--ink);padding:5px 6px calc(5px + env(safe-area-inset-bottom))}
+.tabbar button{flex:1;border:0;background:none;font:inherit;display:grid;justify-items:center;padding:3px;border-radius:14px;font-size:12px;font-weight:600;color:#55555d;cursor:pointer}
+.tabbar button i{font-style:normal;font-size:24px;line-height:1.15}.tabbar button.on{background:var(--y);color:var(--ink)}
+body.app .dock{display:none}
+body.app #hero,body.app #tickbar,body.app main>section,body.app #book,body.app footer{display:none}
+body.app[data-tab=ride] #book{display:block}
+body.app[data-tab=more] #hero,body.app[data-tab=more] #tickbar,body.app[data-tab=more] #why,body.app[data-tab=more] #areas,body.app[data-tab=more] #how,body.app[data-tab=more] #faq,body.app[data-tab=more] #contact,body.app[data-tab=more] #ci,body.app[data-tab=more] footer{display:block}
+body.app[data-tab=more] #hero{padding-bottom:96px}body.app[data-tab=more] footer{padding-bottom:90px}
+body.app[data-tab=radio] #lab,body.app[data-tab=perks] #lab{display:block}
+body.app[data-tab=radio] #lab .lab>.cd:not(.radio),body.app[data-tab=radio] #lab>.wrap>.k,body.app[data-tab=radio] #lab>.wrap>.t2{display:none}
+body.app[data-tab=perks] #lab .radio{display:none}
+body.app #lab{padding-bottom:96px;min-height:calc(100vh - 61px)}
+body.app[data-tab=ride]{overflow:hidden}
+body.app #book{position:fixed;left:0;right:0;top:61px;bottom:68px;margin:0;padding:0;max-width:none;z-index:1}
+body.app .deck{position:absolute;inset:0;display:block;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+body.app #mapwrap{position:absolute;inset:0;min-height:0}
+body.app .deck .panel{position:absolute;left:0;right:0;bottom:0;max-height:58%;overflow:auto;background:#fff;border-radius:22px 22px 0 0;border-top:3px solid var(--ink);box-shadow:0 -10px 30px rgba(0,0,0,.22);z-index:600;max-width:560px;margin:0 auto;padding-top:8px}
+body.app #go{position:sticky;bottom:0;z-index:5;box-shadow:0 -8px 12px #fff}body.app .deck .panel .fine{display:none}
+body.app .deck.tracking .panel{max-height:54%}
+body.app .rbar{top:68px;bottom:auto}
+body.app .nav{display:none}
+#installBtn{display:none}
 </style>
 </head>
 <body>
@@ -130,10 +157,10 @@ footer a{color:inherit}
   <nav class="nav"><a href="#book"><span class="en">Book</span><span class="ar">احجز</span></a><a href="#why"><span class="en">Why Joy</span><span class="ar">لماذا جوي</span></a><a href="#areas"><span class="en">Areas</span><span class="ar">المناطق</span></a><a href="#faq"><span class="en">Questions</span><span class="ar">أسئلة</span></a></nav>
   <span class="sp"></span>
   <button class="btnx" id="lang" type="button">العربية</button>
-  <a class="btnx k" id="callTop" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a>
+  <button class="btnx" id="installBtn" type="button">📲</button><a class="btnx k" id="callTop" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a>
 </div></header>
 
-<section class="hero"><div class="wrap">
+<section class="hero" id="hero"><div class="wrap">
   <span class="sticker"><span class="en">★ OPEN 24/7 · EVERY DAY ★</span><span class="ar">★ مفتوح ٢٤/٧ · كل يوم ★</span></span>
   <h1 class="h"><span class="en">Your Ride,<br><mark>Our Priority</mark></span><span class="ar">مشوارك،<br><mark>أولويتنا</mark></span></h1>
   <p class="lead"><span class="en">Pick your spot on the map. See your driver come to you.<br><span class="rot" id="rot"></span></span><span class="ar">حدّد مكانك على الخريطة وشاهد السائق قادماً إليك.<br><span class="rot" id="rotA"></span></span></p>
@@ -142,7 +169,7 @@ footer a{color:inherit}
   <div class="float1">🌴</div><div class="float2">⭐</div><div class="float3">🌊</div>
 </div>
 <div class="road"><div class="cab">🚖</div><div class="cab b">🚕</div></div></section>
-<div class="tick"><div id="tick"></div></div>
+<div class="tick" id="tickbar"><div id="tick"></div></div>
 
 <main>
 <div class="wrap" id="book">
@@ -158,8 +185,10 @@ footer a{color:inherit}
         <div class="seg" id="when" style="margin-bottom:10px"><button type="button" data-w="now" class="on" data-t="now"></button><button type="button" data-w="later" data-t="later"></button></div>
         <input id="time" type="time" hidden style="margin-bottom:10px">
         <div class="cars" id="cars"></div>
+        <button class="link" id="optBtn" type="button" style="display:block;margin:0 0 6px">⚙ <span class="en">Options: vibe, phone, payment</span><span class="ar">خيارات: أجواء، هاتف، دفع</span></button>
+        <div id="opts" hidden>
         <label class="l" style="margin:4px 0 6px"><span class="en">Ride vibe (optional)</span><span class="ar">أجواء المشوار (اختياري)</span></label><div class="vibes" id="vibes"></div>
-        <div class="row2"><input id="phone" type="tel" inputmode="tel" autocomplete="tel" data-p="phone"><select id="pay"></select></div>
+        <div class="row2"><input id="phone" type="tel" inputmode="tel" autocomplete="tel" data-p="phone"><select id="pay"></select></div></div>
         <div class="sum"><span id="sumL"></span><b id="sumP"></b></div>
         <div class="err" id="err" hidden></div>
         <button class="cta" id="go" type="button" data-t="book"></button>
@@ -225,7 +254,7 @@ footer a{color:inherit}
       <p class="fine" style="color:#aaa"><span class="en">Stations come from the open Radio Browser directory and stream straight from each station’s own public server. Not every station is always online.</span><span class="ar">المحطات من دليل Radio Browser المفتوح وتبث مباشرة من خادم كل محطة العام. قد لا تعمل كل محطة دائماً.</span></p></div>
   </div>
 </div></section>
-<section class="s"><div class="wrap">
+<section class="s" id="how"><div class="wrap">
   <span class="k"><span class="en">How it works</span><span class="ar">كيف يعمل</span></span>
   <h2 class="t2"><span class="en">Three taps. Done.</span><span class="ar">ثلاث لمسات. خلص.</span></h2>
   <div class="steps3">
@@ -252,13 +281,13 @@ footer a{color:inherit}
   <details><summary><span class="en">What do you store about me?</span><span class="ar">ماذا تحفظون عني؟</span></summary><p><span class="en">Only what is needed to run the ride: pickup, destination, time, and the phone number if you choose to add one. No account needed.</span><span class="ar">فقط ما يلزم للمشوار: نقطة الانطلاق والوجهة والوقت ورقم الهاتف إن أضفته. لا حساب مطلوب.</span></p></details>
 </div></section>
 
-<section class="s dark" style="text-align:center"><div class="wrap">
+<section class="s dark" id="contact" style="text-align:center"><div class="wrap">
   <h2 class="t2" style="color:var(--y)"><span class="en">Save the number before you need it.</span><span class="ar">احفظ الرقم قبل أن تحتاجه.</span></h2>
   <div class="ctas" style="justify-content:center"><a class="btnx" id="waBot" href="#" target="_blank" rel="noopener">💬 WhatsApp</a><a class="btnx k" href="tel:+96171056677" style="background:var(--y);color:var(--ink)">📞 71 056 677</a><a class="btnx k" href="tel:+96181686839" style="background:var(--y);color:var(--ink)">📞 81 686 839</a></div>
   <p style="margin-top:14px"><a href="/joy-taxi.vcf" style="color:var(--y)"><span class="en">Add Joy Taxi to your contacts</span><span class="ar">أضف جوي تاكسي إلى جهات الاتصال</span></a></p>
 </div></section>
 
-<section class="ci"><div class="wrap"><div class="sticker" style="transform:none">⚡ POWERED BY Ci</div>
+<section class="ci" id="ci"><div class="wrap"><div class="sticker" style="transform:none">⚡ POWERED BY Ci</div>
   <h2 class="t2" style="color:#fff;margin:12px 0 4px"><span class="en">Run a taxi company? Get an app like this — with your brand.</span><span class="ar">عندك شركة تاكسي؟ احصل على تطبيق مثل هذا بعلامتك.</span></h2>
   <p style="color:#bbb;margin:0"><span class="en">Map booking, live driver tracking, alerts, your prices. Built by Crispin intelligence · CCG.</span><span class="ar">حجز على الخريطة، تتبع السائق، تنبيهات، أسعارك. من Crispin intelligence · CCG.</span></p>
   <a class="btnx" href="https://ci-ccg.com" target="_blank" rel="noopener">🚀 <span class="en">Build my taxi app</span><span class="ar">اطلب تطبيق شركتي</span></a></div></section>
@@ -267,6 +296,7 @@ footer a{color:inherit}
 <a href="/taxi-beirut/">Beirut</a> · <a href="/taxi-beirut-airport/">Airport</a> · <a href="/taxi-metn/">Metn</a> · <a href="/taxi-bsalim/">Bsalim</a> · <a href="/taxi-jounieh/">Jounieh</a> · <a href="/taxi-jbeil/">Jbeil</a><br>
 <span style="font-size:13px">© Joy Taxi · Map © OpenStreetMap contributors · Powered by <a href="https://ci-ccg.com">Ci</a></span></div></footer>
 
+<nav class="tabbar" id="tabbar" aria-label="App"><button type="button" data-tab="ride" class="on"><i>🚖</i><span class="en">Ride</span><span class="ar">مشوار</span></button><button type="button" data-tab="radio"><i>📻</i><span class="en">Radio</span><span class="ar">راديو</span></button><button type="button" data-tab="perks"><i>🎁</i><span class="en">Perks</span><span class="ar">مزايا</span></button><button type="button" data-tab="more"><i>☰</i><span class="en">More</span><span class="ar">المزيد</span></button></nav>
 <div class="rbar" id="rbar" hidden><span id="rname"></span><button id="rpp" type="button" aria-label="Play or pause">⏸</button><button id="rx" type="button" aria-label="Stop">✕</button></div>
 <div class="dock"><a class="btnx k" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a><button class="btnx" id="dockGo" type="button" style="background:var(--y)">🚖 <span class="en">Book</span><span class="ar">احجز</span></button><a class="btnx" id="waDock" href="#" target="_blank" rel="noopener">💬</a></div>
 
@@ -379,7 +409,7 @@ var T = {
     s_new: 'Finding your driver…', s_new2: 'Dispatch has your request. Hang tight!', s_confirmed: 'Confirmed ✅', s_confirmed2: 'A driver is being assigned.',
     s_assigned: 'Your driver is on the way 🚖', s_arrived: 'Your driver has arrived 🎉', s_ontrip: 'Enjoy the ride ✨', s_done: 'Trip complete — thank you! 💛', s_cancelled: 'Ride cancelled',
     cancel: 'Cancel ride', again: 'Book another', call: 'Call driver', callUs: 'Call dispatch', payTo: 'Pay with Whish to', ride: 'Ride', pickup: 'Pickup', dest: 'To',
-    errBoth: 'Pick your pickup and destination first.', errNet: 'Could not reach dispatch (the server may be waking up). Try again or call us.', eta: 'About {m} min away', fixed: 'Fixed price', badge: '🗺️ Tap the map', sent: 'Request sent!',
+    sending: 'Sending… 🚀', wake: 'Waking the engine… one moment ⏳', waFb: 'Send on WhatsApp instead', errBoth: 'Pick your pickup and destination first.', errNet: 'Could not reach dispatch (the server may be waking up). Try again or call us.', eta: 'About {m} min away', fixed: 'Fixed price', badge: '🗺️ Tap the map', sent: 'Request sent!',
     rot: ['Beirut → Airport at 3am ✈️', 'Jounieh nights 🌙', 'Byblos old port ⚓', 'Bsalim to anywhere 🛣️', 'School run, sorted 🎒', 'Hamra coffee run ☕'] },
   ar: { from: 'الانطلاق', to: 'الوجهة', now: 'الآن', later: 'لاحقاً', book: 'اطلب مشوارك 🚖', phone: 'الهاتف (اختياري)',
     fine: 'طلبك يصل مباشرة إلى المركز. الهاتف اختياري ليتصل بك السائق. نحتفظ فقط بما يلزم للمشوار.',
@@ -388,7 +418,7 @@ var T = {
     s_new: 'نبحث عن سائق…', s_new2: 'وصل طلبك إلى المركز. لحظات!', s_confirmed: 'تم التأكيد ✅', s_confirmed2: 'يتم تعيين سائق.',
     s_assigned: 'السائق في الطريق 🚖', s_arrived: 'وصل السائق 🎉', s_ontrip: 'رحلة سعيدة ✨', s_done: 'انتهى المشوار — شكراً! 💛', s_cancelled: 'تم إلغاء الطلب',
     cancel: 'إلغاء الطلب', again: 'طلب جديد', call: 'اتصل بالسائق', callUs: 'اتصل بالمركز', payTo: 'ادفع عبر ويش إلى', ride: 'مشوار', pickup: 'من', dest: 'إلى',
-    errBoth: 'حدد نقطة الانطلاق والوجهة أولاً.', errNet: 'تعذر الوصول إلى المركز (قد يكون الخادم يستيقظ). حاول مجدداً أو اتصل بنا.', eta: 'على بعد {m} دقيقة تقريباً', fixed: 'سعر ثابت', badge: '🗺️ المس الخريطة', sent: 'تم إرسال الطلب!',
+    sending: 'جارٍ الإرسال… 🚀', wake: 'عم نسخّن المحرك… لحظة ⏳', waFb: 'أرسل عبر واتساب بدلاً', errBoth: 'حدد نقطة الانطلاق والوجهة أولاً.', errNet: 'تعذر الوصول إلى المركز (قد يكون الخادم يستيقظ). حاول مجدداً أو اتصل بنا.', eta: 'على بعد {m} دقيقة تقريباً', fixed: 'سعر ثابت', badge: '🗺️ المس الخريطة', sent: 'تم إرسال الطلب!',
     rot: ['بيروت ← المطار الساعة ٣ فجراً ✈️', 'سهرات جونية 🌙', 'مرفأ جبيل القديم ⚓', 'من بصاليم لأي مكان 🛣️', 'المدرسة؟ مرتبة 🎒', 'قهوة الحمرا ☕'] }
 };
 function ld(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
@@ -406,7 +436,7 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, att
 function icon(c) { return L.divIcon({ className: '', html: '<div class="pin ' + c + '"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }); }
 var mkP = null, mkD = null, line = null;
 function fit() { var pts = []; if (S.P) pts.push([S.P.lat, S.P.lng]); if (S.D) pts.push([S.D.lat, S.D.lng]); if (S.lastDrv) pts.push(S.lastDrv);
-  if (pts.length > 1) map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 }); else if (pts.length) map.setView(pts[0], Math.max(map.getZoom(), 13)); }
+  if (pts.length > 1) map.fitBounds(pts, fitOpts()); else if (pts.length) map.setView(pts[0], Math.max(map.getZoom(), 13)); }
 function hav(a, b) { var R = 6371, r = Math.PI / 180, dl = (b[0] - a[0]) * r, dn = (b[1] - a[1]) * r, x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dn / 2) * Math.sin(dn / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
 function nearName(ll) { var best = null, bd = 1e9; B.areas.forEach(function (a) { var d = hav(ll, a.ll); if (d < bd) { bd = d; best = a; } }); return best ? { a: best, d: bd } : null; }
 function labelFor(ll) { var n = nearName(ll); if (!n) return t('pin'); return n.d < 1.5 ? n.a[lang] : t('near') + n.a[lang]; }
@@ -419,6 +449,8 @@ function setPlace(which, p) {
 }
 map.on('click', function (e) { if (S.ride) return; var ll = [e.latlng.lat, e.latlng.lng]; setPlace(S.field, { lat: ll[0], lng: ll[1], name: labelFor(ll) }); });
 
+function fitOpts() { if (!document.body.classList.contains('app')) return { padding: [40, 40], maxZoom: 15 }; var p = document.querySelector('.deck .panel'); return { paddingTopLeft: [30, 50], paddingBottomRight: [30, (p ? p.offsetHeight : 300) + 20], maxZoom: 15 }; }
+function goBook() { if (document.body.classList.contains('app')) setTab('ride'); else $('#book').scrollIntoView({ behavior: 'smooth' }); }
 /* plan UI */
 function dist() { return S.P && S.D ? hav([S.P.lat, S.P.lng], [S.D.lat, S.D.lng]) * 1.3 : 0; }
 function priceFor(car) {
@@ -459,13 +491,14 @@ $('#chips').onclick = function (e) { var b = e.target.closest('button'); if (!b)
   if (b.getAttribute('data-loc')) { if (!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(function (g) { var ll = [g.coords.latitude, g.coords.longitude]; setPlace(S.field, { lat: ll[0], lng: ll[1], name: labelFor(ll) }); }, function () {}, { enableHighAccuracy: true, timeout: 10000 }); return; }
   var a = B.areas[+b.getAttribute('data-a')]; setPlace(S.field, { lat: a.ll[0], lng: a.ll[1], name: a[lang] }); };
 $('#areaCards').onclick = function (e) { var b = e.target.closest('[data-ac]'); if (!b || S.ride) return; var a = B.areas[+b.getAttribute('data-ac')];
-  S.field = 'D'; setPlace('D', { lat: a.ll[0], lng: a.ll[1], name: a[lang] }); $('#book').scrollIntoView({ behavior: 'smooth' }); };
+  S.field = 'D'; setPlace('D', { lat: a.ll[0], lng: a.ll[1], name: a[lang] }); goBook(); };
+$('#optBtn').onclick = function () { $('#opts').hidden = !$('#opts').hidden; };
 $('#cars').onclick = function (e) { var c = e.target.closest('.car'); if (c) { S.car = c.getAttribute('data-c'); draw(); } };
 $('#when').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; S.later = b.getAttribute('data-w') === 'later';
   document.querySelectorAll('#when button').forEach(function (x) { x.classList.toggle('on', x === b); }); $('#time').hidden = !S.later; };
 $('#pay').onchange = function () { S.pay = this.value; };
 $('#lang').onclick = function () { lang = lang === 'ar' ? 'en' : 'ar'; sv('jt_lang', lang); if (S.P) S.P.name = labelFor([S.P.lat, S.P.lng]); if (S.D) S.D.name = labelFor([S.D.lat, S.D.lng]); draw(); if (S.ride) showTrack(); };
-$('#dockGo').onclick = function () { $('#book').scrollIntoView({ behavior: 'smooth' }); };
+$('#dockGo').onclick = function () { goBook(); };
 $('#callTop').href = 'tel:' + B.tel; ['#waTop', '#waBot', '#waDock'].forEach(function (s) { $(s).href = WA; });
 
 function confetti() { var em = ['🎉', '💛', '⭐', '🚖', '✨', '🌴']; for (var i = 0; i < 26; i++) { var s = document.createElement('span'); s.className = 'conf'; s.textContent = em[i % em.length]; s.style.left = Math.random() * 100 + 'vw'; s.style.animationDelay = Math.random() * .6 + 's'; s.style.fontSize = 18 + Math.random() * 22 + 'px'; document.body.appendChild(s); setTimeout(function (n) { n.remove(); }, 3600, s); } }
@@ -476,16 +509,21 @@ $('#go').onclick = function () {
   var p = priceFor(S.car), km = dist(), btn = this; btn.disabled = true;
   var body = { pickup: S.P.name, destination: S.D.name, when: S.later && $('#time').value ? $('#time').value : 'now', lat: S.P.lat, lng: S.P.lng, dest_lat: S.D.lat, dest_lng: S.D.lng,
     est_km: km ? +km.toFixed(1) : null, est_text: p ? B.currency + p.lo + (p.hi > p.lo ? '-' + p.hi : '') : (km ? km.toFixed(1) + ' km' : null), vehicle: S.car, phone: $('#phone').value.trim() || null, pay: S.pay, lang: lang, prefs: vibeText() };
-  fetch(B.api + '/api/rides', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(body) })
-    .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
+  btn.textContent = t('sending'); var tw = setTimeout(function () { btn.textContent = t('wake'); }, 5000);
+  function attempt(n) { var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 25000);
+    return fetch(B.api + '/api/rides', { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(body) })
+      .then(function (r) { clearTimeout(to); return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
+      .catch(function (e) { clearTimeout(to); if (n < 2 && !(e && e.message === 'slow down')) return attempt(n + 1); throw e; }); }
+  attempt(0)
     .then(function (j) { S.mine = 1; S.ride = { id: j.id, token: j.token, status: 'new', pickup: body.pickup, destination: body.destination, est_text: body.est_text, vehicle: body.vehicle, pay: body.pay, lat: body.lat, lng: body.lng, dest_lat: body.dest_lat, dest_lng: body.dest_lng };
       sv('jt_ride', JSON.stringify({ id: j.id, token: j.token })); sv('jt_phone', body.phone); confetti(); start(); })
-    .catch(function () { er.innerHTML = esc(t('errNet')) + ' <a href="tel:' + B.tel + '">' + B.phones[0] + '</a>'; er.hidden = false; })
-    .then(function () { btn.disabled = false; });
+    .catch(function () { var msg = 'Hi Joy Taxi, I need a ride.\nFrom: ' + body.pickup + (S.P ? ' https://maps.google.com/?q=' + S.P.lat + ',' + S.P.lng : '') + '\nTo: ' + body.destination; 
+      er.innerHTML = esc(t('errNet')) + '<br><a href="https://wa.me/' + B.wa + '?text=' + encodeURIComponent(msg) + '" target="_blank" rel="noopener"><b>💬 ' + esc(t('waFb')) + '</b></a> · <a href="tel:' + B.tel + '">' + B.phones[0] + '</a>'; er.hidden = false; })
+    .then(function () { clearTimeout(tw); btn.disabled = false; btn.textContent = t('book'); });
 };
 
 /* tracking */
-function start() { $('#plan').hidden = true; $('#track').hidden = false; $('#deck').classList.add('tracking'); map.scrollWheelZoom.enable(); showTrack(); clearInterval(S.poll); poll(); S.poll = setInterval(poll, 4000); setTimeout(function () { map.invalidateSize(); $('#book').scrollIntoView({ behavior: 'smooth' }); }, 150); }
+function start() { $('#plan').hidden = true; $('#track').hidden = false; $('#deck').classList.add('tracking'); map.scrollWheelZoom.enable(); showTrack(); clearInterval(S.poll); poll(); S.poll = setInterval(poll, 4000); setTimeout(function () { map.invalidateSize(); goBook(); }, 150); }
 function poll() { if (!S.ride) return;
   fetch(B.api + '/api/rides/' + S.ride.id + '/status?token=' + encodeURIComponent(S.ride.token)).then(function (r) { if (r.status === 404 || r.status === 403) { reset(); throw 0; } return r.json(); })
     .then(function (j) { var r = j.ride || j; for (var k in r) S.ride[k] = r[k]; showTrack(); }).catch(function () {}); }
@@ -504,7 +542,7 @@ function showTrack() {
   } else if (S.drvMk) { map.removeLayer(S.drvMk); S.drvMk = null; S.lastDrv = null; }
   if (r.lat != null && !mkP) mkP = L.marker([+r.lat, +r.lng], { icon: icon('from') }).addTo(map);
   if (r.dest_lat != null && !mkD) mkD = L.marker([+r.dest_lat, +r.dest_lng], { icon: icon('to') }).addTo(map);
-  if (!S.fitted && r.lat != null) { S.fitted = 1; var pts = [[+r.lat, +r.lng]]; if (r.dest_lat != null) pts.push([+r.dest_lat, +r.dest_lng]); map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 }); }
+  if (!S.fitted && r.lat != null) { S.fitted = 1; var pts = [[+r.lat, +r.lng]]; if (r.dest_lat != null) pts.push([+r.dest_lat, +r.dest_lng]); map.fitBounds(pts, fitOpts()); }
   funTrack(r);
   var w = S.cfg && S.cfg.whish, pb = $('#payBox');
   if (s === 'done' && r.pay === 'whish' && w && w.enabled && w.number) { pb.hidden = false; pb.innerHTML = esc(t('payTo')) + '<b dir="ltr">' + esc(w.number) + '</b>' + esc(w.name || '') + (r.est_text ? ' · ' + esc(r.est_text) : ''); } else pb.hidden = true;
@@ -558,7 +596,7 @@ function drawIdea() {
   $('#sunset').innerHTML = (lang === 'ar' ? 'غروب الشمس اليوم في بيروت حوالي <b>' : 'Sunset in Beirut today is around <b>') + sunsetTime([33.89, 35.5]) + '</b> 🌇';
 }
 $('#roll').onclick = function () { var n; do { n = Math.floor(Math.random() * IDEAS.length); } while (n === cur); cur = n; drawIdea(); };
-$('#takeme').onclick = function () { var i = IDEAS[cur]; if (S.ride) return; S.field = 'D'; setPlace('D', { lat: i.ll[0], lng: i.ll[1], name: lang === 'ar' ? i.ar : i.en }); $('#book').scrollIntoView({ behavior: 'smooth' }); };
+$('#takeme').onclick = function () { var i = IDEAS[cur]; if (S.ride) return; S.field = 'D'; setPlace('D', { lat: i.ll[0], lng: i.ll[1], name: lang === 'ar' ? i.ar : i.en }); goBook(); };
 // converter
 var rate = +ld('jt_rate') || 89500; $('#cRate').value = rate;
 $('#cRate').oninput = function () { rate = +this.value || 89500; sv('jt_rate', rate); $('#cUsd').oninput(); };
@@ -620,13 +658,29 @@ $('#rx').onclick = function () { au.pause(); au.removeAttribute('src'); au.load(
 var ri = 0; setInterval(function () { var rot = T[lang].rot; ri = (ri + 1) % rot.length; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el) el.textContent = rot[ri]; }, 2400);
 if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .15 }); document.querySelectorAll('.rv').forEach(function (n) { io.observe(n); }); } else document.querySelectorAll('.rv').forEach(function (n) { n.classList.add('in'); });
 
+
+/* ── app shell ── */
+var radioLoaded = false;
+function setTab(k) { document.body.setAttribute('data-tab', k); sv('jt_tab', k); document.querySelectorAll('#tabbar button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === k); }); window.scrollTo(0, 0);
+  if (k === 'ride') setTimeout(function () { map.invalidateSize(); if (S.P || S.D || S.ride) fit(); else map.fitBounds([[33.8, 35.42], [34.14, 35.68]], fitOpts()); }, 80);
+  if (k === 'radio' && !radioLoaded) { radioLoaded = true; loadRadio(); } }
+function setApp() { var on = window.matchMedia('(max-width:859px)').matches || window.matchMedia('(display-mode: standalone)').matches; var was = document.body.classList.contains('app'); document.body.classList.toggle('app', on);
+  if (on && !was) setTab(ld('jt_tab') === 'more' || ld('jt_tab') === 'perks' ? ld('jt_tab') : 'ride'); setTimeout(function () { map.invalidateSize(); }, 100); }
+$('#tabbar').onclick = function (e) { var b = e.target.closest('button'); if (b) setTab(b.getAttribute('data-tab')); };
+document.addEventListener('click', function (e) { var a = e.target.closest('a[href="#book"]'); if (a && document.body.classList.contains('app')) { e.preventDefault(); setTab('ride'); } });
+window.addEventListener('resize', setApp);
+var dip = null; window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); dip = e; $('#installBtn').style.display = 'inline-flex'; });
+$('#installBtn').onclick = function () { if (dip) { dip.prompt(); dip = null; this.style.display = 'none'; } };
+fetch(B.api + '/health', { mode: 'no-cors' }).catch(function () {});
+
 /* init */
 $('#mk').src = B.mark; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1]; $('#phone').value = ld('jt_phone');
+setApp();
 draw();
 fetch(B.api + '/api/config').then(function (r) { return r.json(); }).then(function (c) { S.cfg = c.config || c; draw(); }).catch(function () {});
 var shared = /[?&]t=(\d+)\.([0-9a-f]+)/.exec(location.search);
 if (shared) { S.ride = { id: shared[1], token: shared[2], status: 'new', pickup: '…', destination: '' }; start(); }
-var saved = shared ? '' : ld('jt_ride'); if (saved) { S.mine = 1; try { var o = JSON.parse(saved); S.ride = { id: o.id, token: o.token, status: 'new', pickup: '…', destination: '' }; start(); } catch (e) { sv('jt_ride', null); } }
+var saved = shared ? '' : ld('jt_ride'); if (saved) { S.mine = 1; try { var o = JSON.parse(saved); S.ride = { id: o.id, token: o.token, status: 'new', pickup: '…', destination: '' }; setTab('ride'); start(); } catch (e) { sv('jt_ride', null); } }
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(function () {});
 setTimeout(function () { map.invalidateSize(); }, 400);
 })();
