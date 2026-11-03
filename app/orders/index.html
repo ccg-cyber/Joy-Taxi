@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>طلبات جوي تاكسي</title>
+<title>Joy Taxi orders</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#FFC800">
 <link rel="icon" href="../favicon.png" type="image/png">
@@ -53,7 +53,7 @@ var T = { ar: { title: 'طلبات جوي تاكسي', login: 'دخول', loginS
     none: 'لا توجد طلبات الآن', noneS: 'أول ما يطلب أحد مشواراً بيظهر هنا مع صوت تنبيه.', st: { new: 'جديد', confirmed: 'مؤكد', assigned: 'مع السائق', arrived: 'السائق وصل', ontrip: 'في الرحلة', done: 'منتهي', cancelled: 'ملغي' }, from: 'من', to: 'إلى', now: 'الآن', send: '📲 ابعته لـ ', other: '➕ سائق آخر…', call: '📞 اتصل بالزبون', cancel: '✕ إلغاء الطلب', sure: 'إلغاء هذا الطلب؟', withd: 'السائق: ', needDr: 'أضف سائقاً أولاً من «سائقيني».', pickN: 'اسم السائق؟', pickP: 'رقم موبايله؟', fail: 'تعذّر الإرسال.', sent: 'تم الإرسال إلى ', lateAgo: 'قبل ', min: ' د' },
   en: { title: 'Joy Taxi orders', login: 'Sign in', loginS: 'Enter your private code.', go: 'Sign in', bad: 'Code not accepted.', alerts: '🔔 Turn on alerts', alertsOn: '🔔 Alerts on', mydr: '👥 My drivers', drT: 'My drivers', drS: 'Add your drivers once, then send any order to a driver in one tap.', dn: 'Name', dp: 'Mobile number', add: 'Add driver', rm: 'Remove',
     none: 'No orders right now', noneS: 'When someone books a ride it shows up here with a sound.', st: { new: 'New', confirmed: 'Confirmed', assigned: 'With driver', arrived: 'Driver arrived', ontrip: 'On trip', done: 'Done', cancelled: 'Cancelled' }, from: 'From', to: 'To', now: 'Now', send: '📲 Send to ', other: '➕ Another driver…', call: '📞 Call rider', cancel: '✕ Cancel order', sure: 'Cancel this order?', withd: 'Driver: ', needDr: 'Add a driver first under “My drivers”.', pickN: 'Driver name?', pickP: 'His mobile number?', fail: 'Could not send.', sent: 'Sent to ', lateAgo: '', min: ' min ago' } };
-var lang = (function () { try { return localStorage.getItem('jt_olang') || 'ar'; } catch (e) { return 'ar'; } })();
+var lang = (function () { try { return localStorage.getItem('jt_olang') || 'en'; } catch (e) { return 'en'; } })();
 function t(k) { return T[lang][k]; }
 function ld(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
 function sv(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
