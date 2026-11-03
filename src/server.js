@@ -12,7 +12,7 @@ const DRIVER_TOKEN = process.env.DRIVER_TOKEN || '';
 const PUSH_ON = !!(process.env.VAPID_PUBLIC && process.env.VAPID_PRIVATE);
 if (PUSH_ON) webpush.setVapidDetails(process.env.VAPID_SUBJECT || 'mailto:joytaxi@cierp.uk', process.env.VAPID_PUBLIC, process.env.VAPID_PRIVATE);
 const DEFAULT_CONFIG = {
-  rates: { enabled: false, base: 5, perKm: 0.9, minimum: 7, nightFrom: 23, nightTo: 5, nightExtra: 1.25, spread: 0.12, airport: {} },
+  rates: { enabled: false, base: 5, perKm: 0.9, minimum: 7, nightFrom: 23, nightTo: 5, nightExtra: 1.25, spread: 0.12, mult: { Economy: 1, Comfort: 1.25, Van: 1.6 }, airport: {} },
   whish: { enabled: false, number: '', name: '' },
 };
 const ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://joytaxi.cierp.uk')
@@ -27,7 +27,7 @@ const pool = new Pool({
 const STATUSES = ['new', 'confirmed', 'assigned', 'arrived', 'ontrip', 'done', 'cancelled'];
 // token is never returned by list/driver endpoints
 const COLS = `id, created_at, pickup, destination, when_text, est_km, est_text, lang, status, note,
-  lat, lng, dest_lat, dest_lng, phone, vehicle, driver_name, driver_plate, driver_lat, driver_lng, driver_ts, accepted_at`;
+  lat, lng, dest_lat, dest_lng, phone, vehicle, pay, driver_name, driver_plate, driver_lat, driver_lng, driver_ts, accepted_at`;
 
 async function migrate() {
   await pool.query(`
@@ -49,6 +49,7 @@ async function migrate() {
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_name TEXT;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_plate TEXT;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ;
+    ALTER TABLE rides ADD COLUMN IF NOT EXISTS pay TEXT;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS dest_lat NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS dest_lng NUMERIC;
     ALTER TABLE rides ADD COLUMN IF NOT EXISTS driver_lat NUMERIC;
@@ -71,7 +72,8 @@ function cleanConfig(b) {
   const r = b.rates || {}, w = b.whish || {}, out = { rates: {}, whish: {} };
   const n = (x, lo, hi, d) => (Number.isFinite(+x) && +x >= lo && +x <= hi ? +x : d);
   out.rates = { enabled: !!r.enabled, base: n(r.base, 0, 500, 5), perKm: n(r.perKm, 0, 50, 0.9), minimum: n(r.minimum, 0, 500, 7),
-    nightFrom: n(r.nightFrom, 0, 23, 23), nightTo: n(r.nightTo, 0, 23, 5), nightExtra: n(r.nightExtra, 1, 5, 1.25), spread: n(r.spread, 0, 0.5, 0.12), airport: {} };
+    nightFrom: n(r.nightFrom, 0, 23, 23), nightTo: n(r.nightTo, 0, 23, 5), nightExtra: n(r.nightExtra, 1, 5, 1.25), spread: n(r.spread, 0, 0.5, 0.12), mult: {}, airport: {} };
+  for (const k of ['Economy', 'Comfort', 'Van']) out.rates.mult[k] = n((r.mult || {})[k], 0.5, 5, DEFAULT_CONFIG.rates.mult[k]);
   for (const [k, v] of Object.entries(r.airport || {})) if (Number.isFinite(+v) && +v > 0 && +v < 1000) out.rates.airport[clean(k, 40)] = +v;
   out.whish = { enabled: !!w.enabled, number: clean(w.number, 24), name: clean(w.name, 60) };
   return out;
@@ -146,12 +148,12 @@ const server = http.createServer(async (req, res) => {
       if (!pickup && !destination) return send(res, 400, { error: 'pickup or destination required' });
       const token = crypto.randomBytes(16).toString('hex');
       const r = await pool.query(
-        `INSERT INTO rides (pickup,destination,when_text,est_km,est_text,lang,token,lat,lng,phone,vehicle,dest_lat,dest_lng)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
+        `INSERT INTO rides (pickup,destination,when_text,est_km,est_text,lang,token,lat,lng,phone,vehicle,dest_lat,dest_lng,pay)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING id`,
         [pickup || '—', destination || '—', clean(b.when, 80) || 'now',
          num(b.est_km, 0, 2000), clean(b.est_text, 120) || null, b.lang === 'ar' ? 'ar' : 'en', token,
          num(b.lat, -90, 90), num(b.lng, -180, 180), clean(b.phone, 24) || null, clean(b.vehicle, 24) || null,
-         num(b.dest_lat, -90, 90), num(b.dest_lng, -180, 180)]);
+         num(b.dest_lat, -90, 90), num(b.dest_lng, -180, 180), b.pay === 'whish' ? 'whish' : 'cash']);
       notifyNew({ id: r.rows[0].id, pickup: pickup || '—', destination: destination || '—', when_text: clean(b.when, 80) || 'now' }).catch(e => console.error('push', e.message));
       return send(res, 201, { ok: true, id: r.rows[0].id, token });
     }
@@ -161,12 +163,12 @@ const server = http.createServer(async (req, res) => {
     if (m) {
       const id = m[1];
       const tok = m[2] === 'status' ? (url.searchParams.get('token') || '') : (await readJson(req)).token || '';
-      const q = await pool.query('SELECT token,status,pickup,destination,driver_name,driver_plate,vehicle,est_text,lat,lng,dest_lat,dest_lng,driver_lat,driver_lng,driver_ts FROM rides WHERE id=$1', [id]);
+      const q = await pool.query('SELECT token,status,pickup,destination,driver_name,driver_plate,vehicle,est_text,pay,lat,lng,dest_lat,dest_lng,driver_lat,driver_lng,driver_ts FROM rides WHERE id=$1', [id]);
       if (!q.rowCount || !q.rows[0].token || !safeEq(tok, q.rows[0].token)) return send(res, 404, { error: 'not found' });
       let r = q.rows[0];
       if (m[2] === 'cancel') {
         if (!['new', 'assigned'].includes(r.status)) return send(res, 409, { error: 'cannot cancel now' });
-        r = (await pool.query(`UPDATE rides SET status='cancelled' WHERE id=$1 RETURNING token,status,pickup,destination,driver_name,driver_plate,vehicle,est_text,lat,lng,dest_lat,dest_lng,driver_lat,driver_lng,driver_ts`, [id])).rows[0];
+        r = (await pool.query(`UPDATE rides SET status='cancelled' WHERE id=$1 RETURNING token,status,pickup,destination,driver_name,driver_plate,vehicle,est_text,pay,lat,lng,dest_lat,dest_lng,driver_lat,driver_lng,driver_ts`, [id])).rows[0];
       }
       delete r.token;
       return send(res, 200, r);
