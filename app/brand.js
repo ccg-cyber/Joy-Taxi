@@ -8,6 +8,7 @@ window.BRAND = {
   api: 'https://joytaxi-backend.onrender.com',
   wa: '96171056677',
   phones: ['71 056 677', '81 686 839'],
+  tel: '+96171056677', tel2: '+96181686839',
   colors: { primary: '#FFC800', primaryDark: '#E4B000', ink: '#111114' },
   map: { center: [33.96, 35.58], zoom: 10 },
   currency: '$',

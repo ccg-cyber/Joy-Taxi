@@ -1,779 +1,217 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Joy Taxi — 24/7 rides. Beirut, Metn, Bsalim, Jounieh, Jbeil.</title>
-<meta name="description" content="A taxi in Lebanon — Beirut, Metn, Bsalim, Jounieh and Jbeil, any hour of the night. Send your pin on WhatsApp and a car is on the way. From $7.">
-<meta name="theme-color" content="#070B15">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Joy Taxi — Book a taxi in Lebanon, 24/7. Beirut, Metn, Bsalim, Jounieh, Jbeil.</title>
+<meta name="description" content="Book a Joy Taxi in seconds: pick your spot on the map, see your driver arrive live. Beirut, Metn, Bsalim, Jounieh and Jbeil — 24/7, from $7, cash or Whish.">
+<meta name="theme-color" content="#FFC800">
 <link rel="canonical" href="https://joytaxi.cierp.uk/">
-<link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/">
-<link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/">
-<link rel="alternate" hreflang="x-default" href="https://joytaxi.cierp.uk/">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon-180.png">
-<link rel="preload" href="/fonts/bodoni.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="manifest" href="/app/manifest.webmanifest">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Joy Taxi">
+<meta property="og:title" content="Joy Taxi — your ride, our priority"><meta property="og:description" content="Book on the map, watch your driver arrive. 24/7 along Lebanon's coast.">
+<meta property="og:url" content="https://joytaxi.cierp.uk/"><meta property="og:image" content="https://joytaxi.cierp.uk/og.png">
 <link rel="preload" href="/fonts/jost.woff2" as="font" type="font/woff2" crossorigin>
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Joy Taxi">
-<meta property="og:locale" content="en_US">
-<meta property="og:locale:alternate" content="ar_LB">
-<meta property="og:url" content="https://joytaxi.cierp.uk/">
-<meta property="og:title" content="Joy Taxi — 24/7 rides across the coast">
-<meta property="og:description" content="Beirut, Metn, Bsalim, Jounieh, Jbeil. Send your pin on WhatsApp, a car is on the way. From $7.">
-<meta property="og:image" content="https://joytaxi.cierp.uk/og.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<script>document.documentElement.className+=' js'</script>
+<link rel="stylesheet" href="/app/vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="/app/app.css">
 <style>
-/* ── Joy Taxi ───────────────────────────────────────────────────────────────
-   A private driver on the coast road: midnight navy, warm ivory, one brushed
-   gold used sparingly. This block is the single source of the design —
-   tools/build-areas.py copies it into ar/index.html and area.css, so every
-   page on the site follows whatever is written here.
-   ───────────────────────────────────────────────────────────────────────── */
-
-@font-face{font-family:"Bodoni Moda";src:url(/fonts/bodoni.woff2) format("woff2");font-weight:400 700;font-style:normal;font-display:swap}
-@font-face{font-family:"Bodoni Moda";src:url(/fonts/bodoni-italic.woff2) format("woff2");font-weight:400 700;font-style:italic;font-display:swap}
-@font-face{font-family:"Jost";src:url(/fonts/jost.woff2) format("woff2");font-weight:300 600;font-display:swap}
-@font-face{font-family:"Amiri";src:url(/fonts/amiri-700.woff2) format("woff2");font-weight:700;font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
-@font-face{font-family:"Plex Arabic";src:url(/fonts/plex-arabic-400.woff2) format("woff2");font-weight:300 400;font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
-@font-face{font-family:"Plex Arabic";src:url(/fonts/plex-arabic-500.woff2) format("woff2");font-weight:500 700;font-display:swap;
-  unicode-range:U+0600-06FF,U+200C-200F,U+FB50-FDFF,U+FE70-FEFF}
-
-:root{
-  --night:#070B15; --navy:#0B1324; --navy-2:#111B31; --navy-3:#1A2641;
-  --ivory:#F3EEE4; --ivory-2:#ECE5D7; --paper:#FBF8F2;
-  --ink:#0D1424; --ink-2:#454B5A; --ink-3:#5E6371;
-  --moon:#ECE5D6; --moon-2:#A3A9B6; --moon-3:#8990A0;
-  --gold:#B89A5E; --gold-hi:#D3B881; --gold-ink:#7A5F2A;
-  --serif:"Bodoni Moda","Bodoni 72",Didot,"Times New Roman",serif;
-  --sans:"Jost","Avenir Next",Avenir,"Segoe UI",system-ui,sans-serif;
-  --wrap:1200px; --pad:clamp(20px,5vw,56px);
-  --ease:cubic-bezier(.2,.7,.2,1);
-  color-scheme:light;
-}
-:lang(ar){--serif:"Amiri","Bodoni Moda",serif;--sans:"Plex Arabic","Jost",system-ui,sans-serif}
-
-/* Each band declares its own palette; every component reads these. */
-.light{--bg:var(--ivory);--fg:var(--ink);--fg-2:var(--ink-2);--fg-3:var(--ink-3);
-  --hair:rgba(13,20,36,.13);--accent:var(--gold-ink);--card:var(--paper);background:var(--bg);color:var(--fg)}
-.paper{--bg:var(--paper);--card:#fff;background:var(--bg)}
-.dark{--bg:var(--navy);--fg:var(--moon);--fg-2:var(--moon-2);--fg-3:var(--moon-3);
-  --hair:rgba(236,229,214,.13);--accent:var(--gold-hi);--card:var(--navy-2);background:var(--bg);color:var(--fg);color-scheme:dark}
-.darker{--bg:var(--night);background:var(--bg)}
-
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;interpolate-size:allow-keywords}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{margin:0;font-family:var(--sans);font-size:17px;line-height:1.65;font-weight:400;
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;
-  background:var(--night);color:var(--ink)}
-@media(max-width:879px){body{padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}}
-img{max-width:100%;display:block}
-a{color:inherit}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
-[id]{scroll-margin-top:84px}
-.wrap{max-width:var(--wrap);margin:0 auto;padding-inline:var(--pad)}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-/* Hidden upwards, not sideways: a negative inline offset widens an RTL page. */
-.skip{position:absolute;inset-inline-start:12px;top:-80px;z-index:99;background:var(--gold-hi);color:var(--navy);
-  padding:10px 16px;font-weight:500;transition:top .15s}
-.skip:focus{top:calc(10px + env(safe-area-inset-top,0px))}
-.num{font-variant-numeric:lining-nums tabular-nums}
-
-/* ── Type ── */
-h1,h2,h3{margin:0;font-family:var(--serif);font-weight:500;letter-spacing:-.012em;line-height:1.04;font-optical-sizing:auto}
-.h1{font-size:clamp(2.75rem,8.6vw,6.2rem);font-weight:450;letter-spacing:-.02em}
-.h2{font-size:clamp(2.05rem,5.2vw,3.7rem)}
-.h3{font-size:clamp(1.35rem,2.4vw,1.7rem);letter-spacing:-.005em}
-h1 em,h2 em{font-style:italic;font-weight:400;color:var(--accent)}
-.kicker{display:flex;align-items:center;gap:14px;margin:0 0 22px;font-size:.72rem;font-weight:500;
-  letter-spacing:.26em;text-transform:uppercase;color:var(--accent)}
-.kicker::before{content:"";width:34px;height:1px;background:currentColor;opacity:.7;flex:0 0 auto}
-.lede{font-size:clamp(1.06rem,1.9vw,1.24rem);font-weight:300;line-height:1.6;color:var(--fg-2);max-width:48ch;margin:22px 0 0}
-.muted{color:var(--fg-3)}
-.gold-rule{height:1px;border:0;margin:0;background:linear-gradient(90deg,transparent,var(--gold) 18%,var(--gold) 82%,transparent);opacity:.55}
-
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:11px;min-height:54px;padding:0 26px;
-  border-radius:2px;font-family:var(--sans);font-size:.98rem;font-weight:500;letter-spacing:.02em;line-height:1.2;
-  text-decoration:none;white-space:nowrap;position:relative;
-  transition:transform .2s var(--ease),box-shadow .3s var(--ease),background-color .3s,border-color .3s,color .3s,filter .3s}
-.btn:active{transform:translateY(1px)}
-.btn .ico{width:18px;height:18px;flex:0 0 auto}
-.btn-gold{color:#0B1324;background:linear-gradient(180deg,#E2CC9A 0%,#C9AC72 46%,#AE8F55 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(0,0,0,.12),0 14px 34px -18px rgba(184,154,94,.9)}
-.btn-gold:hover{filter:brightness(1.06) saturate(1.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -1px 0 rgba(0,0,0,.12),0 18px 40px -16px rgba(184,154,94,.95)}
-.btn-line{color:var(--fg);border:1px solid color-mix(in srgb,var(--fg) 30%,transparent);background:transparent}
-.btn-line:hover{border-color:var(--gold);color:var(--fg)}
-.btn-navy{color:var(--moon);background:var(--navy);box-shadow:0 14px 30px -20px rgba(11,19,36,.9)}
-.btn-navy:hover{background:var(--navy-3)}
-.btn-block{display:flex;width:100%}
-.btn-sm{min-height:42px;padding:0 18px;font-size:.9rem}
-
-/* ── Header ── */
-.top{position:fixed;inset:0 0 auto;z-index:40;padding-top:env(safe-area-inset-top,0px);color:var(--moon);
-  transition:background-color .4s,backdrop-filter .4s,border-color .4s;border-bottom:1px solid transparent}
-.top.stuck{background:rgba(7,11,21,.86);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);
-  border-bottom-color:rgba(236,229,214,.1)}
-.bar{display:flex;align-items:center;gap:24px;height:68px}
-@media(min-width:880px){.bar{height:80px}}
-.wm{display:inline-flex;direction:ltr;align-items:center;gap:13px;text-decoration:none;color:var(--moon);flex:0 0 auto}
-.wm-j{font-family:"Bodoni Moda",Didot,serif;font-size:1.32rem;font-weight:500;letter-spacing:.24em;line-height:1;margin-inline-end:-.24em}
-.wm-bar{width:1px;height:18px;background:var(--gold);opacity:.8}
-.wm-t{font-family:"Jost",system-ui,sans-serif;font-size:.64rem;font-weight:500;letter-spacing:.38em;line-height:1;color:var(--moon-2)}
-.nav{display:none;margin-inline-start:auto;gap:34px;font-size:.84rem;letter-spacing:.06em}
-.nav a{text-decoration:none;color:var(--moon-2);transition:color .25s;padding-block:6px}
-.nav a:hover{color:var(--moon)}
-@media(min-width:960px){.nav{display:flex}}
-.bar-end{margin-inline-start:auto;display:flex;align-items:center;gap:12px}
-@media(min-width:960px){.bar-end{margin-inline-start:30px}}
-.lang{font-size:.82rem;text-decoration:none;color:var(--moon-2);padding:8px 4px;transition:color .25s}
-.lang:hover{color:var(--moon)}
-.top .btn-line{--fg:var(--moon);min-height:40px;padding:0 16px;font-size:.86rem}
-.call-lbl{display:none}
-@media(min-width:560px){.call-lbl{display:inline}}
-
-/* ── Hero: the coast road at night, drawn not photographed ── */
-.hero{position:relative;min-height:max(640px,100svh);display:flex;align-items:flex-end;overflow:hidden;
-  background:var(--night);isolation:isolate}
-@supports not (min-height:100svh){.hero{min-height:max(640px,100vh)}}
-.night{position:absolute;inset:0;width:100%;height:100%;z-index:-2;display:block}
-.hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(180deg,rgba(4,7,15,.82) 0%,rgba(4,7,15,.35) 46%,rgba(4,7,15,0) 64%,rgba(4,7,15,.55) 100%)}
-@media(min-width:960px){.hero::before{background:
-  linear-gradient(90deg,rgba(4,7,15,.9) 0%,rgba(4,7,15,.55) 38%,rgba(4,7,15,0) 62%),
-  linear-gradient(0deg,rgba(4,7,15,.6) 0%,rgba(4,7,15,0) 30%)}}
-.moon{display:none}
-.scene{transform:translateY(130px)}
-@media(min-width:960px){.scene{transform:translateX(420px)}.moon{display:inline}}
-.hero-in{position:relative;width:100%;padding-top:calc(110px + env(safe-area-inset-top,0px));padding-bottom:clamp(34px,6vh,64px)}
-@media(max-width:959px){.hero{align-items:flex-start}.hero-in{padding-top:calc(104px + env(safe-area-inset-top,0px))}}
-.hero .h1{max-width:11ch;color:var(--moon)}
-.hero .lede{color:#C6CAD3;max-width:40ch}
-.clock{display:flex;align-items:center;gap:12px;margin:0 0 26px;font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-hi)}
-.clock::before{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
-.clock time{letter-spacing:.08em;color:var(--moon)}
-.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
-@media(max-width:519px){.hero-cta .btn{flex:1 1 100%}}
-.facts{display:flex;flex-wrap:wrap;gap:10px 0;margin:clamp(40px,8vh,84px) 0 0;padding:20px 0 0;list-style:none;
-  border-top:1px solid rgba(236,229,214,.14);font-size:.84rem;letter-spacing:.06em;color:var(--moon-2)}
-.facts li{display:flex;align-items:center}
-.facts li+li::before{content:"";width:1px;height:14px;background:var(--gold);opacity:.6;margin-inline:18px}
-.facts b{font-weight:500;color:var(--moon)}
-@media(max-width:519px){.facts{font-size:.8rem}.facts li+li::before{margin-inline:12px}}
-
-/* The one motion: light trails along the road. Nothing else in the hero moves. */
-.trail{fill:none;stroke-linecap:round;stroke-dasharray:150 550}
-.trail.glow{stroke-width:8;opacity:.18}
-.trail.core{stroke-width:1.6;opacity:.9}
-.trail.away{stroke:#E0554A;animation:away 11s linear infinite}
-.trail.come{stroke:#F6E7C3;animation:come 8.5s linear infinite}
-.trail.d2{animation-delay:-4.2s}.trail.d3{animation-delay:-7.1s}
-@keyframes away{to{stroke-dashoffset:-700}}
-@keyframes come{from{stroke-dashoffset:-700}to{stroke-dashoffset:0}}
-@media(prefers-reduced-motion:reduce){
-  .trail{animation:none!important;stroke-dasharray:none}
-  .trail.core{opacity:.45}.trail.glow{opacity:.08}}
-
-/* ── Sections ── */
-.band{padding-block:clamp(76px,11vw,140px)}
-.band.tight{padding-block:clamp(56px,8vw,96px)}
-.head{max-width:44rem;margin-bottom:clamp(40px,6vw,72px)}
-.head.center{margin-inline:auto;text-align:center}
-.head.center .kicker{justify-content:center}
-.head.center .kicker::after{content:"";width:34px;height:1px;background:currentColor;opacity:.7}
-.head .lede{margin-top:20px}
-.split{display:grid;gap:clamp(40px,6vw,88px)}
-@media(min-width:980px){.split{grid-template-columns:.9fr 1.1fr;align-items:start}}
-
-/* ── Booking ── */
-.book-copy .lede{max-width:34ch}
-.notes{list-style:none;margin:36px 0 0;padding:0;border-top:1px solid var(--hair)}
-.notes li{display:grid;grid-template-columns:7.5rem 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--hair);font-size:.95rem;color:var(--fg-2)}
-.notes li b{font-weight:500;color:var(--fg)}
-:lang(ar) .notes li{grid-template-columns:6.5rem 1fr}
-.booker{background:var(--card);border:1px solid var(--hair);border-radius:3px;padding:clamp(22px,4vw,40px);
-  box-shadow:0 1px 0 rgba(255,255,255,.7) inset,0 40px 80px -56px rgba(13,20,36,.45)}
-.booker h3{font-size:1.6rem}
-.hint{font-size:.9rem;color:var(--fg-3);margin:8px 0 0}
-.field{border:0;margin:28px 0 0;padding:0}
-.leg{display:block;padding:0;margin:0 0 12px;font-size:.7rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--fg-3)}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--hair);background:transparent;
-  font-size:.9rem;color:var(--fg-2);transition:background-color .2s,border-color .2s,color .2s;line-height:1.2}
-.chip:hover{border-color:var(--gold);color:var(--fg)}
-.chip[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:var(--moon)}
-.chip-gps{display:inline-flex;align-items:center;gap:8px;border-color:color-mix(in srgb,var(--gold) 70%,transparent);color:var(--gold-ink)}
-.chip-gps svg{width:15px;height:15px}
-.chip-gps[data-state="on"]{background:color-mix(in srgb,var(--gold) 16%,transparent);border-color:var(--gold);color:var(--ink)}
-.chip-gps[data-state="busy"]{opacity:.6}
-input[type=text],input[type=time]{width:100%;margin-top:10px;min-height:48px;padding:0 14px;border-radius:2px;
-  background:#fff;border:1px solid var(--hair);color:var(--ink);font:inherit;font-size:.95rem}
-input::placeholder{color:#8A8E99}
-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 22%,transparent)}
-.when{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.when input[type=time]{width:auto;margin-top:0;flex:1 1 140px;min-height:40px}
-.fare{margin-top:24px;padding:14px 0;border-block:1px solid var(--hair);display:flex;align-items:baseline;
-  justify-content:space-between;gap:12px;flex-wrap:wrap}
-.fare .d{font-size:.84rem;letter-spacing:.04em;color:var(--fg-3)}
-.fare .p{font-family:var(--serif);font-size:1.5rem;color:var(--ink);line-height:1}
-.fare .p.soft{font-family:var(--sans);font-size:.9rem;color:var(--gold-ink)}
-.fare[hidden]{display:none!important}
-.preview{margin:20px 0 0;padding:14px 16px;border-inline-start:2px solid var(--gold);background:color-mix(in srgb,var(--ivory) 70%,transparent);
-  font-size:.86rem;line-height:1.7;color:var(--fg-2);white-space:pre-wrap;word-break:break-word;max-height:170px;overflow:auto}
-.go{display:grid;gap:10px;margin-top:22px}
-.calls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.calls .btn{padding:0 10px;font-size:.95rem}
-.fineprint{font-size:.78rem;color:var(--fg-3);margin:16px 0 0;text-align:center;line-height:1.6}
-
-/* ── Fares ── */
-.fares{display:grid;gap:clamp(40px,6vw,96px);align-items:center}
-@media(min-width:900px){.fares{grid-template-columns:auto 1fr}}
-.from{display:flex;flex-direction:column}
-.from .lbl{font-size:.72rem;letter-spacing:.26em;text-transform:uppercase;color:var(--gold-hi)}
-.from .n{font-family:"Bodoni Moda",Didot,serif;font-size:clamp(6rem,19vw,11rem);font-weight:400;line-height:.9;color:var(--moon);letter-spacing:-.04em;margin-top:10px}
-.from .n sup{font-size:.36em;vertical-align:.95em;margin-inline-end:.06em;color:var(--gold-hi)}
-.from p{margin:14px 0 0;color:var(--fg-2);max-width:26ch}
-.lines{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
-.lines li{display:grid;gap:4px 28px;padding:20px 0;border-bottom:1px solid var(--hair)}
-@media(min-width:640px){.lines li{grid-template-columns:11rem 1fr}}
-.lines b{font-family:var(--serif);font-weight:500;font-size:1.2rem;color:var(--fg)}
-.lines span{color:var(--fg-2);font-size:.97rem}
-
-/* ── Route line: the areas, south to north ── */
-.route{list-style:none;margin:0;padding:0;position:relative;counter-reset:stop}
-.route::before{content:"";position:absolute;inset-block:14px 14px;inset-inline-start:7px;width:1px;
-  background:linear-gradient(180deg,transparent,var(--gold) 6%,var(--gold) 94%,transparent)}
-.route li{position:relative}
-.route a{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:6px 22px;padding:18px 0;
-  text-decoration:none;border-bottom:1px solid var(--hair);transition:padding .3s var(--ease)}
-.route li:last-child a{border-bottom:0}
-.route .node{width:15px;height:15px;border-radius:50%;border:1px solid var(--gold);background:var(--bg);position:relative;z-index:1;
-  display:grid;place-items:center;transition:background-color .3s}
-.route .node::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--gold)}
-.route .nm{font-family:var(--serif);font-size:clamp(1.45rem,3vw,2rem);line-height:1.1;color:var(--fg)}
-.route .nt{grid-column:2;font-size:.86rem;color:var(--fg-3);letter-spacing:.02em;margin-top:-2px}
-.route .go-ico{grid-row:1/span 2;grid-column:3;width:20px;height:20px;color:var(--gold-ink);opacity:.5;transition:transform .3s var(--ease),opacity .3s}
-:lang(ar) .route .go-ico{transform:scaleX(-1)}
-.route a:hover .go-ico{opacity:1;transform:translateX(4px)}
-:lang(ar) .route a:hover .go-ico{transform:scaleX(-1) translateX(4px)}
-.route a:hover .node{background:var(--gold)}
-.route [aria-current] .node{background:var(--gold)}
-.route [aria-current] .nm{color:var(--accent)}
-@media(min-width:1000px){
-  .route.across{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
-  .route.across::before{inset-block:auto;top:36px;inset-inline:0;width:auto;height:1px;
-    background:linear-gradient(90deg,transparent,var(--gold) 4%,var(--gold) 96%,transparent)}
-  .route.across a{grid-template-columns:1fr;grid-template-rows:auto auto auto;gap:0;padding:29px 18px 0 0;border:0;align-content:start}
-  :lang(ar) .route.across a{padding:29px 0 0 18px}
-  .route.across .node{margin-bottom:26px}
-  .route.across .nm{min-height:2.2em;display:flex;align-items:flex-end}
-  .route.across .nt{grid-column:1;margin-top:8px}
-  .route.across .go-ico{grid-row:auto;grid-column:1;margin-top:18px}
-}
-.aside-note{margin:34px 0 0;font-size:.92rem;color:var(--fg-3)}
-
-/* ── Why ── */
-.why{display:grid;border-top:1px solid var(--hair)}
-@media(min-width:760px){.why{grid-template-columns:1fr 1fr}}
-@media(min-width:1100px){.why.four{grid-template-columns:repeat(4,1fr)}.why.three{grid-template-columns:repeat(3,1fr)}}
-.why > div{padding:34px 0 38px;border-bottom:1px solid var(--hair)}
-@media(min-width:760px){.why > div{padding-inline-end:36px}.why > div + div{padding-inline-start:0}}
-.why .rn{display:block;font-family:"Bodoni Moda",Didot,serif;font-style:italic;font-size:1.1rem;color:var(--accent);margin-bottom:22px}
-.why h3{margin-bottom:12px}
-.why p{margin:0;color:var(--fg-2);font-size:.98rem}
-
-/* ── Services ── */
-.svc{list-style:none;margin:0;padding:0;border-top:1px solid var(--hair)}
-.svc a{display:grid;gap:10px 40px;padding:clamp(28px,4vw,44px) 0;border-bottom:1px solid var(--hair);text-decoration:none;
-  align-items:center;transition:padding .35s var(--ease)}
-@media(min-width:900px){.svc a{grid-template-columns:16rem 1fr auto}}
-.svc .k{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
-.svc .t{font-family:var(--serif);font-size:clamp(1.8rem,4vw,2.7rem);line-height:1.08;color:var(--fg)}
-.svc .d{display:block;margin-top:10px;color:var(--fg-2);font-size:.98rem;max-width:52ch;font-family:var(--sans)}
-.svc .arrow{display:inline-flex;align-items:center;gap:10px;font-size:.86rem;letter-spacing:.08em;color:var(--fg-2);white-space:nowrap}
-.svc .arrow svg{width:22px;height:22px;color:var(--accent);transition:transform .35s var(--ease)}
-:lang(ar) .svc .arrow svg{transform:scaleX(-1)}
-.svc a:hover .arrow svg{transform:translateX(6px)}
-:lang(ar) .svc a:hover .arrow svg{transform:scaleX(-1) translateX(6px)}
-@media(hover:hover) and (min-width:900px){.svc a:hover{padding-inline-start:14px}:lang(ar) .svc a:hover{padding-inline-start:14px}}
-
-/* ── How ── */
-.steps{display:grid;gap:0;counter-reset:s;border-top:1px solid var(--hair)}
-@media(min-width:860px){.steps{grid-template-columns:repeat(3,1fr);gap:48px;border-top:0}}
-.step{padding:30px 0 34px;border-bottom:1px solid var(--hair)}
-@media(min-width:860px){.step{border-bottom:0;border-top:1px solid var(--gold);padding-top:34px}}
-.step::before{counter-increment:s;content:counter(s,decimal-leading-zero);display:block;font-family:"Bodoni Moda",Didot,serif;
-  font-size:3.4rem;line-height:1;color:var(--accent);opacity:.9;margin-bottom:22px;font-weight:400}
-:lang(ar) .step::before{content:counter(s,arabic-indic)}
-.step h3{margin-bottom:12px}
-.step p{margin:0;color:var(--fg-2);font-size:.98rem}
-.step b{font-weight:500;color:var(--fg)}
-
-/* ── Gallery: stays hidden until real photographs are dropped into /photos ── */
-#gallery[hidden]{display:none!important}
-.shots{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.shot{margin:0;aspect-ratio:4/3;overflow:hidden;background:var(--ivory-2);border-radius:2px}
-.shot img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
-.shot:hover img{transform:scale(1.03)}
-
-/* ── Voices: real words only; hidden while they are placeholders ── */
-#voices[hidden]{display:none!important}
-.quotes{display:grid;gap:24px}
-@media(min-width:860px){.quotes{grid-template-columns:repeat(3,1fr);gap:40px}}
-.quote{margin:0;padding-top:24px;border-top:1px solid var(--gold)}
-.quote p{margin:0 0 18px;font-family:var(--serif);font-size:1.3rem;line-height:1.45;color:var(--fg)}
-.quote cite{font-style:normal;font-size:.84rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg-3)}
-
-/* ── FAQ: native details, eased open where the browser can ── */
-.faq{max-width:52rem;border-top:1px solid var(--hair)}
-.faq details{border-bottom:1px solid var(--hair)}
-.faq summary{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 0;cursor:pointer;
-  list-style:none;font-family:var(--serif);font-size:clamp(1.15rem,2.2vw,1.4rem);line-height:1.3;color:var(--fg);transition:color .25s}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary:hover{color:var(--accent)}
-.faq summary::after{content:"";flex:0 0 14px;height:14px;
-  background:linear-gradient(var(--gold),var(--gold)) center/14px 1px no-repeat,linear-gradient(var(--gold),var(--gold)) center/1px 14px no-repeat;
-  transition:transform .35s var(--ease)}
-.faq details[open] summary::after{transform:rotate(135deg)}
-.faq details::details-content{block-size:0;overflow:hidden;
-  transition:block-size .45s var(--ease),content-visibility .45s allow-discrete}
-.faq details[open]::details-content{block-size:auto}
-.faq .a{padding:0 0 28px;color:var(--fg-2);max-width:62ch}
-.faq .a p{margin:0}
-.faq b{font-weight:500;color:var(--fg)}
-
-/* ── Close: save the number ── */
-.close{text-align:center}
-.close .h2{max-width:14ch;margin-inline:auto}
-.close .lede{margin-inline:auto;text-align:center}
-.cta-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:40px}
-.vcard{display:inline-flex;align-items:center;gap:10px;margin-top:30px;font-size:.9rem;letter-spacing:.06em;
-  color:var(--gold-hi);text-decoration:none;padding-bottom:4px;border-bottom:1px solid rgba(211,184,129,.4);transition:border-color .3s,color .3s}
-.vcard:hover{border-color:var(--gold-hi);color:var(--moon)}
-.vcard svg{width:17px;height:17px}
-
-/* ── Footer ── */
-.foot{padding-block:clamp(56px,8vw,88px) 34px;border-top:1px solid rgba(236,229,214,.08)}
-.fgrid{display:grid;gap:40px}
-@media(min-width:800px){.fgrid{grid-template-columns:1.5fr 1fr 1fr 1fr}}
-.foot p{color:var(--fg-3);margin:20px 0 0;max-width:32ch;font-size:.93rem}
-.foot h2{font-family:var(--sans);font-size:.7rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--fg-3);margin:0 0 18px}
-.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:.95rem}
-.foot a{text-decoration:none;color:var(--fg-2);transition:color .25s}
-.foot a:hover{color:var(--gold-hi)}
-.foot .tel{font-family:"Bodoni Moda",Didot,serif;font-size:1.25rem;color:var(--moon);letter-spacing:.02em}
-.legal{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px 24px;margin-top:56px;padding-top:24px;
-  border-top:1px solid rgba(236,229,214,.08);font-size:.8rem;letter-spacing:.04em;color:var(--fg-3)}
-.legal a{text-decoration:underline;text-decoration-color:rgba(211,184,129,.5);text-underline-offset:4px}
-
-/* ── Mobile dock: appears once the hero's own buttons are out of view ── */
-.dock{position:fixed;inset-inline:0;bottom:0;z-index:50;display:grid;grid-template-columns:1.25fr 1fr;gap:10px;
-  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(7,11,21,.9);
-  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border-top:1px solid rgba(211,184,129,.25);
-  transition:transform .45s var(--ease)}
-.dock .btn{min-height:48px;padding:0 10px;font-size:.95rem}
-.dock .btn-line{--fg:var(--moon)}
-.js .dock{transform:translateY(115%)}
-.js .dock.show{transform:none}
-@media(min-width:880px){.dock{display:none}}
-
-/* ── Reveal on scroll: fade only, and never the thing that shows the text ── */
-.js .rv{opacity:0;transform:translateY(14px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
-.js .rv.in{opacity:1;transform:none}
-@media(prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}}
-
-/* ── Arabic: Amiri for display, Plex for reading. No tracking — it breaks joined letters. ── */
-:lang(ar) body,:lang(ar) .btn{letter-spacing:0}
-:lang(ar) h1,:lang(ar) h2,:lang(ar) h3{font-weight:700;line-height:1.32;letter-spacing:0}
-:lang(ar) .h1{font-size:clamp(2.6rem,8vw,5.4rem);line-height:1.22}
-:lang(ar) .h2{font-size:clamp(1.95rem,4.8vw,3.3rem)}
-:lang(ar) h1 em,:lang(ar) h2 em{font-style:normal}
-:lang(ar) .kicker,:lang(ar) .leg,:lang(ar) .from .lbl,:lang(ar) .svc .k,:lang(ar) .foot h2,:lang(ar) .clock,:lang(ar) .quote cite{
-  letter-spacing:0;text-transform:none;font-size:.86rem}
-:lang(ar) .lede{font-weight:400}
-:lang(ar) .faq summary,:lang(ar) .route .nm,:lang(ar) .svc .t,:lang(ar) .lines b{font-weight:700}
-:lang(ar) .nav{font-size:.95rem;letter-spacing:0}
-[dir=rtl] .hero::before,[dir=rtl] .night{transform:scaleX(-1)}
+html{scroll-behavior:smooth;scroll-padding-top:70px}
+body{background:#FFFDF3;overflow-x:hidden}
+.en,.ar{display:none}html[lang=en] .en,html[lang=ar] .ar{display:revert}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+/* header */
+.bar{position:sticky;top:0;z-index:900;background:rgba(255,200,0,.96);backdrop-filter:blur(8px);border-bottom:3px solid var(--ink)}
+.bar .wrap{display:flex;align-items:center;gap:10px;height:58px}
+.bar .brand b i{color:var(--ink)}.bar .brand img{height:34px}.bar .brand b{font-size:21px}
+.nav{display:none;gap:4px;margin-inline-start:14px}.nav a{padding:6px 12px;border-radius:99px;text-decoration:none;font-weight:500}.nav a:hover{background:var(--ink);color:var(--y)}
+.bar .sp{flex:1}
+.btnx{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);background:#fff;border-radius:99px;padding:7px 14px;font-weight:600;text-decoration:none;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:transform .12s,box-shadow .12s}
+.btnx:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--ink)}
+.btnx.k{background:var(--ink);color:var(--y)}
+/* hero */
+.hero{background:var(--y);position:relative;overflow:hidden;padding:34px 0 96px;border-bottom:3px solid var(--ink)}
+.hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% 10%,#FFE066 0,transparent 45%),radial-gradient(circle at 5% 90%,#FFB400 0,transparent 40%)}
+.hero .wrap{position:relative}
+.sticker{display:inline-block;background:var(--ink);color:var(--y);font-weight:600;border-radius:99px;padding:6px 14px;font-size:14px;transform:rotate(-2deg);letter-spacing:.04em}
+h1.h{font-size:clamp(46px,12vw,96px);line-height:.95;font-style:italic;font-weight:600;margin:14px 0 10px;letter-spacing:-.02em}
+h1.h mark{background:var(--ink);color:var(--y);padding:0 .12em;border-radius:.12em;display:inline-block;transform:rotate(-1.5deg)}
+[lang=ar] h1.h{font-style:normal;line-height:1.15}
+.lead{font-size:clamp(18px,3.4vw,22px);max-width:560px;margin:0 0 18px;font-weight:500}
+.rot{display:inline-block;min-height:1.4em;font-weight:600;border-bottom:3px solid var(--ink)}
+.ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.ctas .btnx{font-size:18px;padding:12px 20px}
+.perks{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.perks>span{background:#fff;border:2px solid var(--ink);border-radius:99px;padding:4px 12px;font-weight:500;font-size:14.5px}
+.road{position:absolute;left:0;right:0;bottom:0;height:70px;background:var(--ink)}
+.road:before{content:"";position:absolute;left:0;right:0;top:32px;height:5px;background:repeating-linear-gradient(90deg,var(--y) 0 36px,transparent 36px 72px);animation:dash 1.2s linear infinite}
+.cab{position:absolute;bottom:34px;font-size:54px;line-height:1;animation:drive 9s linear infinite;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.cab.b{font-size:38px;bottom:8px;animation-duration:13s;animation-delay:-5s;animation-direction:reverse;transform:scaleX(-1)}
+@keyframes drive{0%{left:-90px}100%{left:calc(100% + 30px)}}
+@keyframes dash{to{background-position:-72px 0}}
+.float1,.float2,.float3{position:absolute;font-size:44px;animation:bob 3.5s ease-in-out infinite;opacity:.95}
+.float2{display:none}@media(min-width:700px){.float2{display:block}}.float1{right:8%;top:30px}.float2{right:22%;top:150px;animation-delay:-1s;font-size:34px}.float3{right:4%;top:210px;animation-delay:-2s;font-size:38px}
+@keyframes bob{50%{transform:translateY(-14px) rotate(8deg)}}
+/* ticker */
+.tick{background:var(--ink);color:var(--y);overflow:hidden;white-space:nowrap;font-weight:600;letter-spacing:.14em;font-size:15px;padding:9px 0}
+.tick div{display:inline-block;animation:mq 28s linear infinite}
+@keyframes mq{to{transform:translateX(-50%)}}[dir=rtl] .tick div{animation-name:mqr}@keyframes mqr{to{transform:translateX(50%)}}
+/* booking card */
+#book{margin-top:28px;position:relative;z-index:5;scroll-margin-top:70px}
+.deck>*{min-width:0}.deck{grid-template-columns:minmax(0,1fr);background:#fff;border:3px solid var(--ink);border-radius:26px;box-shadow:8px 8px 0 var(--ink);overflow:hidden;display:grid}
+.deck h2{margin:0}
+#mapwrap{position:relative;min-height:280px;background:#eef0ec}
+#map{position:absolute;inset:0;z-index:1}
+.deck .panel{padding:16px}
+.mapbadge{position:absolute;z-index:500;left:10px;top:10px;background:#fff;border:2px solid var(--ink);border-radius:99px;padding:4px 12px;font-weight:600;font-size:13.5px}
+.deck.tracking #mapwrap{min-height:360px}
+@media(min-width:860px){.deck{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}#mapwrap{min-height:560px}.nav{display:flex}}
+/* sections */
+section.s{padding:56px 0}
+.k{display:inline-block;background:var(--y);border:2px solid var(--ink);border-radius:99px;padding:2px 12px;font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;transform:rotate(-1.5deg)}
+[lang=ar] .k{letter-spacing:0}
+h2.t2{font-size:clamp(30px,6vw,52px);line-height:1.05;margin:10px 0 18px;font-style:italic;font-weight:600}[lang=ar] h2.t2{font-style:normal}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.cd{background:#fff;border:3px solid var(--ink);border-radius:22px;padding:18px;box-shadow:5px 5px 0 var(--ink);transition:transform .15s}
+.cd:hover{transform:translate(-2px,-3px) rotate(-.6deg)}
+.cd .e{font-size:38px;display:block;margin-bottom:6px}.cd h3{margin:0 0 4px;font-size:21px}.cd p{margin:0;color:#3a3a42}
+.cd.y{background:var(--y)}.cd.k2{background:var(--ink);color:#fff}.cd.k2 p{color:#ddd}.cd.g{background:#C9F2DA}.cd.p{background:#FFD9D0}
+button.cd{font:inherit;text-align:start;cursor:pointer;color:inherit}
+.areas{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.steps3{display:grid;gap:14px;counter-reset:s;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.steps3 .cd:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:var(--ink);color:var(--y);font-weight:700;font-size:22px;margin-bottom:8px}
+details{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:12px 16px;margin-bottom:10px}
+summary{font-weight:600;font-size:18px;cursor:pointer}details p{margin:8px 0 0;color:#3a3a42}
+.dark{background:var(--ink);color:#fff}.dark .k{color:var(--ink)}
+.ci{background:var(--ink);color:#fff;border-top:3px solid var(--y);padding:40px 0;text-align:center}
+.ci a.btnx{margin-top:12px;background:var(--y);color:var(--ink);border-color:var(--y);box-shadow:3px 3px 0 #fff}
+footer{background:#fff;border-top:3px solid var(--ink);padding:26px 0 90px;font-size:14.5px;color:#55555d}
+footer a{color:inherit}
+.dock{position:fixed;z-index:950;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));display:flex;gap:8px;max-width:560px;margin:0 auto}
+.dock a,.dock button{flex:1;text-align:center;justify-content:center;font-size:16px;padding:11px 8px}
+@media(min-width:860px){.dock{display:none}footer{padding-bottom:30px}}
+.conf{position:fixed;top:-30px;z-index:2000;font-size:26px;pointer-events:none;animation:fall 2.6s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg);opacity:.9}}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .5s,transform .5s}.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.cab,.float1,.float2,.float3,.tick div,.road:before{animation:none!important}.rv{opacity:1;transform:none}}
+.sr{position:absolute;left:-9999px}
 </style>
 </head>
 <body>
-<a class="skip" href="#book">Skip to booking</a>
+<header class="bar"><div class="wrap">
+  <a class="brand" href="/"><img id="mk" alt="" width="44" height="34"><b id="bn"></b></a>
+  <nav class="nav"><a href="#book"><span class="en">Book</span><span class="ar">احجز</span></a><a href="#why"><span class="en">Why Joy</span><span class="ar">لماذا جوي</span></a><a href="#areas"><span class="en">Areas</span><span class="ar">المناطق</span></a><a href="#faq"><span class="en">Questions</span><span class="ar">أسئلة</span></a></nav>
+  <span class="sp"></span>
+  <button class="btnx" id="lang" type="button">العربية</button>
+  <a class="btnx k" id="callTop" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a>
+</div></header>
 
-<header class="top" id="top">
-  <div class="wrap bar">
-    <a class="wm" href="#top" aria-label="Joy Taxi, home"><span class="wm-j">JOY</span><span class="wm-bar" aria-hidden="true"></span><span class="wm-t">TAXI</span></a>
-    <nav class="nav" aria-label="Main">
-      <a href="#book">Book</a>
-      <a href="#fares">Fares</a>
-      <a href="#areas">Areas</a>
-      <a href="#services">Services</a>
-      <a href="#faq">Questions</a>
-    </nav>
-    <div class="bar-end">
-      <a class="lang" href="ar/" hreflang="ar" lang="ar">عربي</a>
-      <a class="btn btn-line btn-sm" href="tel:+96171056677" data-ev="call" aria-label="Call 71 056 677">
-        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
-        <span class="call-lbl num">71 056 677</span>
-      </a>
-    </div>
-  </div>
-</header>
+<section class="hero"><div class="wrap">
+  <span class="sticker"><span class="en">★ OPEN 24/7 · EVERY DAY ★</span><span class="ar">★ مفتوح ٢٤/٧ · كل يوم ★</span></span>
+  <h1 class="h"><span class="en">Your Ride,<br><mark>Our Priority</mark></span><span class="ar">مشوارك،<br><mark>أولويتنا</mark></span></h1>
+  <p class="lead"><span class="en">Pick your spot on the map. See your driver come to you.<br><span class="rot" id="rot"></span></span><span class="ar">حدّد مكانك على الخريطة وشاهد السائق قادماً إليك.<br><span class="rot" id="rotA"></span></span></p>
+  <div class="ctas"><a class="btnx k" href="#book">🚖 <span class="en">Book now</span><span class="ar">اطلب الآن</span></a><a class="btnx" id="waTop" href="#" target="_blank" rel="noopener">💬 WhatsApp</a></div>
+  <div class="perks"><span><span class="en">💸 Price up front</span><span class="ar">💸 السعر قبل الانطلاق</span></span><span><span class="en">📍 Live tracking</span><span class="ar">📍 تتبع مباشر</span></span><span><span class="en">💵 Cash or Whish</span><span class="ar">💵 نقداً أو ويش</span></span></div>
+  <div class="float1">🌴</div><div class="float2">⭐</div><div class="float3">🌊</div>
+</div>
+<div class="road"><div class="cab">🚖</div><div class="cab b">🚕</div></div></section>
+<div class="tick"><div id="tick"></div></div>
 
 <main>
-
-<!-- ── Hero ──────────────────────────────────────────────────────────── -->
-<section class="hero dark" aria-labelledby="h1">
-<!--night-->
-<svg class="night" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
-  <defs>
-    <linearGradient id="n-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#03060D"/><stop offset=".5" stop-color="#091224"/><stop offset=".62" stop-color="#16233D"/>
-    </linearGradient>
-    <linearGradient id="n-sea" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#101C34"/><stop offset=".35" stop-color="#0A1328"/><stop offset="1" stop-color="#04070F"/>
-    </linearGradient>
-    <radialGradient id="n-moon" cx="880" cy="120" r="300" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#EFE6D0" stop-opacity=".17"/><stop offset="1" stop-color="#EFE6D0" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="n-bay" cx="470" cy="566" r="420" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#C9A56A" stop-opacity=".14"/><stop offset="1" stop-color="#C9A56A" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="n-lamp"><stop offset="0" stop-color="#F0C77F" stop-opacity=".55"/><stop offset="1" stop-color="#F0C77F" stop-opacity="0"/></radialGradient>
-  </defs>
-  <rect width="1440" height="900" fill="url(#n-sky)"/>
-  <g class="scene">
-    <rect x="-400" y="560" width="2240" height="520" fill="url(#n-sea)"/>
-    <rect x="-400" y="-400" width="2240" height="1700" fill="url(#n-moon)"/>
-    <g class="moon"><circle cx="880" cy="120" r="15" fill="#F1E9D6" opacity=".9"/></g>
-    <rect x="-400" y="-400" width="2240" height="1700" fill="url(#n-bay)"/>
-    <!-- Mount Lebanon behind the coast -->
-    <path d="M-400 562C-100 558 220 552 430 544c60-2 100-14 150-24 40-8 70-26 120-34 50-8 80 4 130-8 60-14 90-44 150-52 50-7 80 10 130 2 60-10 100-38 160-40 70-2 120 20 180 12 80-10 140-34 230-30V562z" fill="#0A1326"/>
-    <path d="M700 563c120-10 220-26 340-44 150-22 300-36 480-44 120-5 200-8 320-6V900H540c50-110 90-230 130-300 10-18 20-30 30-37z" fill="#070C19"/>
-    <!-- lights across the bay -->
-    <g><circle cx="254" cy="563" r="1.6" fill="#FFF1D6" opacity="0.59"/><circle cx="266" cy="562" r="1.3" fill="#E9C98C" opacity="0.53"/><circle cx="281" cy="558" r="1.3" fill="#F2DDB0" opacity="0.51"/><circle cx="295" cy="563" r="1.6" fill="#FFF1D6" opacity="0.49"/><rect x="294.0" y="568" width="1.2" height="14" fill="#FFF1D6" opacity=".16"/><circle cx="314" cy="562" r="2.0" fill="#FFF1D6" opacity="0.59"/><circle cx="326" cy="560" r="1.1" fill="#F2DDB0" opacity="0.53"/><circle cx="335" cy="562" r="0.9" fill="#D9A864" opacity="0.69"/><circle cx="349" cy="560" r="1.1" fill="#E9C98C" opacity="0.66"/><circle cx="368" cy="560" r="1.1" fill="#D9A864" opacity="0.8"/><circle cx="385" cy="562" r="0.9" fill="#D9A864" opacity="0.68"/><circle cx="394" cy="561" r="0.9" fill="#FFF1D6" opacity="0.69"/><circle cx="405" cy="559" r="1.1" fill="#E9C98C" opacity="0.67"/><circle cx="422" cy="559" r="0.9" fill="#D9A864" opacity="0.73"/><circle cx="434" cy="561" r="0.9" fill="#F2DDB0" opacity="0.49"/><circle cx="453" cy="560" r="1.3" fill="#D9A864" opacity="0.93"/><circle cx="465" cy="560" r="1.6" fill="#FFF1D6" opacity="0.95"/><rect x="464.0" y="565" width="1.2" height="14" fill="#FFF1D6" opacity=".16"/><circle cx="476" cy="560" r="1.3" fill="#FFF1D6" opacity="0.82"/><circle cx="498" cy="561" r="0.9" fill="#D9A864" opacity="0.55"/><circle cx="507" cy="564" r="0.9" fill="#E9C98C" opacity="0.83"/><circle cx="528" cy="566" r="1.3" fill="#F2DDB0" opacity="0.71"/><circle cx="536" cy="562" r="2.0" fill="#E9C98C" opacity="0.84"/><rect x="535.0" y="567" width="1.2" height="19" fill="#E9C98C" opacity=".16"/><circle cx="554" cy="567" r="1.1" fill="#FFF1D6" opacity="0.85"/><circle cx="568" cy="562" r="2.0" fill="#E9C98C" opacity="0.7"/><circle cx="583" cy="564" r="1.1" fill="#E9C98C" opacity="0.8"/><circle cx="593" cy="567" r="1.3" fill="#E9C98C" opacity="0.93"/><circle cx="604" cy="562" r="1.6" fill="#F2DDB0" opacity="0.55"/><rect x="603.2" y="567" width="1.2" height="19" fill="#F2DDB0" opacity=".16"/><circle cx="626" cy="565" r="1.3" fill="#E9C98C" opacity="0.85"/><circle cx="640" cy="563" r="1.6" fill="#F2DDB0" opacity="0.84"/><rect x="639.1" y="568" width="1.2" height="12" fill="#F2DDB0" opacity=".16"/><circle cx="650" cy="566" r="0.9" fill="#FFF1D6" opacity="0.85"/><circle cx="664" cy="567" r="0.9" fill="#F2DDB0" opacity="0.81"/><circle cx="684" cy="563" r="2.0" fill="#F2DDB0" opacity="0.9"/><rect x="683.3" y="568" width="1.2" height="19" fill="#F2DDB0" opacity=".16"/><circle cx="650" cy="520" r="0.9" fill="#E9C98C" opacity="0.30"/><circle cx="430" cy="500" r="1.1" fill="#E9C98C" opacity="0.48"/><circle cx="419" cy="537" r="0.9" fill="#E9C98C" opacity="0.60"/><circle cx="249" cy="538" r="0.7" fill="#E9C98C" opacity="0.34"/><circle cx="299" cy="512" r="1.1" fill="#E9C98C" opacity="0.36"/><circle cx="428" cy="532" r="0.7" fill="#E9C98C" opacity="0.57"/><circle cx="330" cy="520" r="1.1" fill="#E9C98C" opacity="0.54"/><circle cx="414" cy="532" r="1.1" fill="#E9C98C" opacity="0.30"/><circle cx="460" cy="529" r="0.7" fill="#E9C98C" opacity="0.31"/><circle cx="391" cy="529" r="1.1" fill="#E9C98C" opacity="0.27"/><circle cx="498" cy="519" r="0.9" fill="#E9C98C" opacity="0.52"/><circle cx="538" cy="533" r="0.9" fill="#E9C98C" opacity="0.36"/><circle cx="646" cy="518" r="0.7" fill="#E9C98C" opacity="0.49"/><circle cx="381" cy="522" r="0.9" fill="#E9C98C" opacity="0.43"/><circle cx="276" cy="524" r="0.9" fill="#E9C98C" opacity="0.57"/><circle cx="605" cy="503" r="0.9" fill="#E9C98C" opacity="0.30"/><circle cx="368" cy="509" r="0.9" fill="#E9C98C" opacity="0.52"/><circle cx="607" cy="501" r="1.1" fill="#E9C98C" opacity="0.48"/><circle cx="337" cy="511" r="0.7" fill="#E9C98C" opacity="0.59"/><circle cx="262" cy="541" r="0.9" fill="#E9C98C" opacity="0.56"/><circle cx="370" cy="521" r="0.9" fill="#E9C98C" opacity="0.40"/><circle cx="332" cy="505" r="0.9" fill="#E9C98C" opacity="0.26"/><circle cx="433" cy="517" r="0.7" fill="#E9C98C" opacity="0.38"/><circle cx="414" cy="511" r="0.7" fill="#E9C98C" opacity="0.29"/><circle cx="618" cy="503" r="0.7" fill="#E9C98C" opacity="0.28"/><circle cx="392" cy="346" r="0.6" fill="#EDE6D6" opacity="0.28"/><circle cx="187" cy="172" r="1" fill="#EDE6D6" opacity="0.48"/><circle cx="372" cy="74" r="1" fill="#EDE6D6" opacity="0.39"/><circle cx="1009" cy="52" r="0.6" fill="#EDE6D6" opacity="0.48"/><circle cx="264" cy="342" r="0.8" fill="#EDE6D6" opacity="0.53"/><circle cx="914" cy="309" r="0.6" fill="#EDE6D6" opacity="0.41"/><circle cx="320" cy="115" r="0.6" fill="#EDE6D6" opacity="0.35"/><circle cx="488" cy="219" r="0.8" fill="#EDE6D6" opacity="0.41"/><circle cx="62" cy="275" r="0.6" fill="#EDE6D6" opacity="0.54"/><circle cx="377" cy="85" r="0.8" fill="#EDE6D6" opacity="0.41"/><circle cx="765" cy="94" r="0.8" fill="#EDE6D6" opacity="0.37"/><circle cx="256" cy="145" r="0.6" fill="#EDE6D6" opacity="0.55"/><circle cx="53" cy="27" r="1" fill="#EDE6D6" opacity="0.38"/><circle cx="273" cy="191" r="0.8" fill="#EDE6D6" opacity="0.22"/><circle cx="1179" cy="176" r="0.8" fill="#EDE6D6" opacity="0.38"/><circle cx="1280" cy="369" r="0.8" fill="#EDE6D6" opacity="0.43"/><circle cx="1415" cy="143" r="1" fill="#EDE6D6" opacity="0.45"/><circle cx="201" cy="376" r="0.6" fill="#EDE6D6" opacity="0.49"/><circle cx="21" cy="245" r="0.8" fill="#EDE6D6" opacity="0.34"/><circle cx="80" cy="259" r="0.8" fill="#EDE6D6" opacity="0.50"/><circle cx="966" cy="121" r="0.6" fill="#EDE6D6" opacity="0.44"/><circle cx="65" cy="87" r="0.8" fill="#EDE6D6" opacity="0.34"/><circle cx="379" cy="366" r="1" fill="#EDE6D6" opacity="0.30"/><circle cx="50" cy="338" r="0.6" fill="#EDE6D6" opacity="0.31"/><circle cx="2" cy="157" r="0.8" fill="#EDE6D6" opacity="0.28"/><circle cx="945" cy="109" r="0.6" fill="#EDE6D6" opacity="0.21"/></g>
-    <!-- the road -->
-    <path d="M540 900c60-70 150-130 120-200-20-50 20-85 44-102 8-10 12-20 14-30h4c2 12 8 24 22 34 36 28 76 58 56 98-20 60 50 130 80 200z" fill="#0D1426"/>
-    <path d="M532 900c60-70 150-130 120-200-20-50 20-85 44-102 8-10 12-20 14-30" fill="none" stroke="#ECE5D6" stroke-opacity=".2" stroke-width="1.2"/>
-    <path d="M712 900c14-70 58-140 18-200-30-45-15-75-6-100 3-12-4-22-4-32" fill="none" stroke="#ECE5D6" stroke-opacity=".12" stroke-width="1.4" stroke-dasharray="14 18"/>
-    <!-- sodium lamps along the far verge -->
-    <g fill="url(#n-lamp)"><circle cx="888" cy="840" r="34"/><circle cx="820" cy="742" r="24"/><circle cx="772" cy="662" r="16"/><circle cx="742" cy="614" r="10"/></g>
-    <g fill="#F4D49A"><circle cx="888" cy="840" r="2.6"/><circle cx="820" cy="742" r="2"/><circle cx="772" cy="662" r="1.5"/><circle cx="742" cy="614" r="1.1"/></g>
-    <!-- light trails -->
-    <g>
-      <path class="trail glow away" d="M800 900C800 830 810 765 766 700c-31-45-31-78-32-99 0-11-10-23-13-33"/>
-      <path class="trail core away" d="M800 900C800 830 810 765 766 700c-31-45-31-78-32-99 0-11-10-23-13-33"/>
-      <path class="trail glow away d2" d="M772 900C776 830 790 765 752 700c-28-45-26-78-24-99 1-11-6-23-8-33"/>
-      <path class="trail core away d2" d="M772 900C776 830 790 765 752 700c-28-45-26-78-24-99 1-11-6-23-8-33"/>
-      <path class="trail glow come" d="M620 900c40-70 110-130 74-200-26-45 1-80 20-101 5-11 5-21 5-31"/>
-      <path class="trail core come" d="M620 900c40-70 110-130 74-200-26-45 1-80 20-101 5-11 5-21 5-31"/>
-      <path class="trail glow come d3" d="M650 900c34-70 96-130 60-200-24-45 2-80 18-101 4-11 3-21 3-31"/>
-      <path class="trail core come d3" d="M650 900c34-70 96-130 60-200-24-45 2-80 18-101 4-11 3-21 3-31"/>
-    </g>
-  </g>
-</svg>
-<!--/night-->
-  <div class="wrap hero-in">
-    <p class="clock"><span>Beirut</span> <time id="clock" class="num">24/7</time> <span class="sr">— a driver is on call</span></p>
-    <h1 class="h1" id="h1">Your driver, <em>at any hour.</em></h1>
-    <p class="lede">A private car along Lebanon’s coast road — Beirut, Metn, Bsalim, Jounieh and Jbeil. Book in one message; the price is agreed before the car moves.</p>
-    <div class="hero-cta">
-      <a class="btn btn-gold" href="https://wa.me/96171056677?text=Hi%20Joy%20Taxi%2C%20I%20need%20a%20ride." data-ev="whatsapp">
-        <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>
-        Book on WhatsApp
-      </a>
-      <a class="btn btn-line" href="tel:+96171056677" data-ev="call">Call <span class="num">71 056 677</span></a>
-    </div>
-    <ul class="facts">
-      <li><b>24/7</b>&nbsp;every day</li>
-      <li>Fares from&nbsp;<b>$7</b></li>
-      <li>Cash · USD or LBP</li>
-    </ul>
-  </div>
-</section>
-
-<!-- ── Book ──────────────────────────────────────────────────────────── -->
-<section class="band light" id="book">
-  <div class="wrap split">
-    <div class="book-copy rv">
-      <p class="kicker">Reserve</p>
-      <h2 class="h2">Three taps,<br><em>one message.</em></h2>
-      <p class="lede">Choose where you are and where you are going. WhatsApp opens with everything already written — or simply call, and a person answers.</p>
-      <ul class="notes">
-        <li><b>Your pin</b><span>Tap <i>My location</i> and the driver opens your exact spot on a map.</span></li>
-        <li><b>The price</b><span>Confirmed in writing before anything moves.</span></li>
-        <li><b>Kept minimal</b><span>No account, no app. We note the pickup, destination and time so we can dispatch your ride — no name, no number.</span></li>
-      </ul>
-    </div>
-
-    <form class="booker rv" id="bk" novalidate>
-      <h3>Book a car</h3>
-      <p class="hint">It opens WhatsApp with the message ready. Or call — we answer.</p>
-
-      <fieldset class="field">
-        <legend class="leg">Picking you up from</legend>
-        <div class="chips" id="from-chips"></div>
-        <label class="sr" for="from-other">Pickup, in your own words</label>
-        <input type="text" id="from-other" placeholder="Add the building, street, near what…" autocomplete="off">
-      </fieldset>
-
-      <fieldset class="field">
-        <legend class="leg">Going to</legend>
-        <div class="chips" id="to-chips"></div>
-        <label class="sr" for="to-other">Destination, in your own words</label>
-        <input type="text" id="to-other" placeholder="Anywhere in Lebanon, or add a detail…" autocomplete="off">
-      </fieldset>
-
-      <fieldset class="field">
-        <legend class="leg">When</legend>
-        <div class="when">
-          <button type="button" class="chip" id="when-now" aria-pressed="true">Right now</button>
-          <button type="button" class="chip" id="when-later" aria-pressed="false">Later today</button>
-          <label class="sr" for="when-time">Pickup time</label>
-          <input type="time" id="when-time" hidden>
-        </div>
-      </fieldset>
-
-      <div class="fare" id="fare" hidden aria-live="polite">
-        <span class="d" id="fare-d"></span>
-        <span class="p" id="fare-p"></span>
+<div class="wrap" id="book">
+  <div class="deck" id="deck">
+    <div id="mapwrap"><div id="map"></div><span class="mapbadge" id="mbadge"></span></div>
+    <div class="panel">
+      <!-- PLAN -->
+      <div id="plan">
+        <button class="fld on" id="fP" type="button"><span class="dot"></span><span><small data-t="from"></small><b id="vP"></b></span></button>
+        <button class="fld" id="fD" type="button"><span class="dot sq"></span><span><small data-t="to"></small><b id="vD"></b></span></button>
+        <p class="hint" id="hint"></p>
+        <div class="scroll" id="chips" style="margin:0 -16px"></div>
+        <div class="seg" id="when" style="margin-bottom:10px"><button type="button" data-w="now" class="on" data-t="now"></button><button type="button" data-w="later" data-t="later"></button></div>
+        <input id="time" type="time" hidden style="margin-bottom:10px">
+        <div class="cars" id="cars"></div>
+        <div class="row2"><input id="phone" type="tel" inputmode="tel" autocomplete="tel" data-p="phone"><select id="pay"></select></div>
+        <div class="sum"><span id="sumL"></span><b id="sumP"></b></div>
+        <div class="err" id="err" hidden></div>
+        <button class="cta" id="go" type="button" data-t="book"></button>
+        <p class="fine" data-t="fine"></p>
       </div>
-
-      <p class="preview" id="preview" aria-live="polite"></p>
-
-      <div class="go">
-        <a class="btn btn-gold btn-block" id="wa-go" href="https://wa.me/96171056677" data-ev="whatsapp">
-          <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>
-          Book on WhatsApp
-        </a>
-        <div class="calls">
-          <a class="btn btn-line" href="tel:+96171056677" data-ev="call"><span class="num">71 056 677</span></a>
-          <a class="btn btn-line" href="tel:+96181686839" data-ev="call"><span class="num">81 686 839</span></a>
-        </div>
-      </div>
-      <p class="fineprint">No account is needed. Your message goes by WhatsApp; we also note each request’s pickup, destination and time to dispatch it. We do not store your name, number or exact location.</p>
-    </form>
-  </div>
-</section>
-
-<!-- ── Fares ─────────────────────────────────────────────────────────── -->
-<section class="band dark" id="fares">
-  <div class="wrap fares">
-    <div class="from rv">
-      <span class="lbl">Fares begin at</span>
-      <span class="n num"><sup>$</sup>7</span>
-      <p>Agreed before the car moves. It does not change afterwards.</p>
-    </div>
-    <ul class="lines rv">
-      <li><b>In writing</b><span>Send your pickup and destination and the figure comes back on WhatsApp before you commit to anything.</span></li>
-      <li><b>At night</b><span>Late rides cost more than the same ride in the afternoon — and you are told exactly how much before you say yes.</span></li>
-      <li><b>The airport</b><span>Priced separately from a ride across town, and quoted before you book.</span></li>
-      <li><b>A whole day</b><span>Tours from $120 a day, up to seven seats, with the same driver throughout.</span></li>
-      <li><b>Payment</b><span>Cash to the driver at the end of the ride, in dollars or lira.</span></li>
-    </ul>
-  </div>
-</section>
-
-<!-- ── Areas ─────────────────────────────────────────────────────────── -->
-<section class="band light" id="areas">
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">The coast road</p>
-      <h2 class="h2">One stretch of coast,<br><em>known by heart.</em></h2>
-      <p class="lede">We are not everywhere, and that is deliberate. This is the road our drivers live on — which is why they know which junction is blocked before they reach it.</p>
-    </div>
-    <ol class="route across rv">
-      <li><a href="taxi-beirut-airport/"><span class="node" aria-hidden="true"></span><span class="nm">Beirut Airport</span><span class="nt">Around the clock</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-      <li><a href="taxi-beirut/"><span class="node" aria-hidden="true"></span><span class="nm">Beirut</span><span class="nt">Hamra, Achrafieh, Downtown</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-      <li><a href="taxi-metn/"><span class="node" aria-hidden="true"></span><span class="nm">Metn North</span><span class="nt">The coast and the hills</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-      <li><a href="taxi-bsalim/"><span class="node" aria-hidden="true"></span><span class="nm">Bsalim</span><span class="nt">Home base · fastest pickups</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-      <li><a href="taxi-jounieh/"><span class="node" aria-hidden="true"></span><span class="nm">Jounieh</span><span class="nt">The bay, Kaslik, Maameltein</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-      <li><a href="taxi-jbeil/"><span class="node" aria-hidden="true"></span><span class="nm">Jbeil</span><span class="nt">Byblos, the old port</span><svg class="go-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg></a></li>
-    </ol>
-    <p class="aside-note rv">Going somewhere just off this road? Ask anyway — most of the time the answer is yes.</p>
-  </div>
-</section>
-
-<hr class="gold-rule">
-
-<!-- ── Why ───────────────────────────────────────────────────────────── -->
-<section class="band light">
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">Why people keep the number</p>
-      <h2 class="h2">The quiet things,<br><em>done properly.</em></h2>
-    </div>
-    <div class="why four rv">
-      <div><span class="rn">i.</span><h3 class="h3">Answered by a person</h3><p>At four in the morning as at four in the afternoon. No recording, no queue, no app to install.</p></div>
-      <div><span class="rn">ii.</span><h3 class="h3">On time, or you know</h3><p>If the road is closed or the driver is eight minutes away, you hear eight minutes — not “coming, coming”.</p></div>
-      <div><span class="rn">iii.</span><h3 class="h3">They know the road</h3><p>Local drivers on roads they drive every day. Nobody circling Bsalim with a map open on the dashboard.</p></div>
-      <div><span class="rn">iv.</span><h3 class="h3">A clean, quiet car</h3><p>Air conditioning that works, a car that smells of nothing, and a driver who lets you ride in silence.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Services ──────────────────────────────────────────────────────── -->
-<section class="band dark" id="services">
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">More than a ride</p>
-      <h2 class="h2">Days out, school runs,<br><em>the way to work.</em></h2>
-    </div>
-    <ul class="svc rv">
-      <li><a href="tours/"><span class="k">From $120 a day · up to 7 seats</span><span class="t">Day tours<span class="d">Baalbek, Jeita, Byblos, Faraya — one car and one driver for the whole day, waiting at every stop.</span></span><span class="arrow">Explore<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M3 12h18M15 6l6 6-6 6"/></svg></span></a></li>
-      <li><a href="school-transport/"><span class="k">The same driver · live location</span><span class="t">School &amp; student runs<span class="d">A set time each day, the same familiar face, and their live location on WhatsApp while the car is moving.</span></span><span class="arrow">Explore<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M3 12h18M15 6l6 6-6 6"/></svg></span></a></li>
-      <li><a href="shared-rides/"><span class="k">Work and university</span><span class="t">Shared rides<span class="d">The same run every morning with a colleague or classmate — one fare between you instead of two.</span></span><span class="arrow">Explore<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><path d="M3 12h18M15 6l6 6-6 6"/></svg></span></a></li>
-    </ul>
-  </div>
-</section>
-
-<!-- ── How ───────────────────────────────────────────────────────────── -->
-<section class="band light" id="how">
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">How it works</p>
-      <h2 class="h2">From a message<br><em>to a car at the door.</em></h2>
-    </div>
-    <div class="steps rv">
-      <div class="step"><h3 class="h3">Send where you are</h3><p>Tap <b>My location</b> in the form and your exact pin goes with the message. No explaining which building, no “next to the pharmacy”.</p></div>
-      <div class="step"><h3 class="h3">We confirm the price</h3><p>A figure comes back in writing, with how long the car will be. You agree before anything moves.</p></div>
-      <div class="step"><h3 class="h3">The car arrives</h3><p>You get the driver and the plate. Nothing changes at the end of the ride — you pay what was agreed.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Photographs: hidden until real ones exist in /photos ──────────── -->
-<section class="band light tight" id="gallery" hidden>
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">On the road</p>
-      <h2 class="h2">Ours, <em>photographed.</em></h2>
-    </div>
-    <div class="shots" id="shots"></div>
-  </div>
-</section>
-
-<!-- ── Voices: real ones only; hidden while they are placeholders ────── -->
-<section class="band light tight" id="voices" hidden>
-  <div class="wrap">
-    <div class="head center rv">
-      <p class="kicker">In their words</p>
-      <h2 class="h2">What regulars say.</h2>
-    </div>
-    <div class="quotes rv" id="quotes"></div>
-  </div>
-</section>
-
-<span id="probe" aria-hidden="true"></span>
-
-<!-- ── FAQ ───────────────────────────────────────────────────────────── -->
-<section class="band light paper" id="faq">
-  <div class="wrap">
-    <div class="head rv">
-      <p class="kicker">Before you call</p>
-      <h2 class="h2">Straight answers.</h2>
-    </div>
-    <div class="faq rv">
-      <details>
-        <summary>Are you really open at 4am?</summary>
-        <div class="a"><p>Yes. Nights, weekends and holidays. The number is the same one at four in the morning as it is at four in the afternoon, and it is answered by a person rather than a recording.</p></div>
-      </details>
-      <details>
-        <summary>How much will my ride cost?</summary>
-        <div class="a"><p>Fares start at $7. The exact price depends on how far you are going and what time it is — a late-night ride costs more than the same ride in the afternoon. Send your pickup and destination on WhatsApp and you get the number in writing before you commit to anything, and it does not change afterwards.</p></div>
-      </details>
-      <details>
-        <summary>Can I book for tomorrow morning?</summary>
-        <div class="a"><p>Yes, and for an early flight it is the sensible thing to do. Choose <b>Later today</b> in the form above, or simply say the day and time in your message. We confirm the booking back to you.</p></div>
-      </details>
-      <details>
-        <summary>I do not know how to explain where I am.</summary>
-        <div class="a"><p>You do not have to. Tap <b>My location</b> in the form and your phone attaches a map pin the driver can open and follow. It is the fastest way to be found, especially at night or on a road with no name.</p></div>
-      </details>
-      <details>
-        <summary>Do you go to the airport?</summary>
-        <div class="a"><p>Yes, around the clock, and an airport run is priced separately from a ride across town. Send your flight time when you book and the car is outside before you need it. For anything departing early, book it the night before — that is the one booking worth not leaving to the morning.</p></div>
-      </details>
-      <details>
-        <summary>How do I pay?</summary>
-        <div class="a"><p>Cash to the driver at the end of the ride, in dollars or lira. If you need another arrangement, ask when you book and we will tell you straight away whether it works.</p></div>
-      </details>
-      <details>
-        <summary>Can you take a package instead of a person?</summary>
-        <div class="a"><p>Often, yes — documents, keys, a forgotten bag. Message us with what it is and where it is going and we will tell you whether we can do it and what it costs.</p></div>
-      </details>
-    </div>
-  </div>
-</section>
-
-<!-- ── Save the number ───────────────────────────────────────────────── -->
-<section class="band dark darker close" id="contact">
-  <div class="wrap rv">
-    <p class="kicker" style="justify-content:center">Keep it close</p>
-    <h2 class="h2">Save the number <em>before you need it.</em></h2>
-    <p class="lede">The moment you need a driver is never the moment you want to start looking for one.</p>
-    <div class="cta-row">
-      <a class="btn btn-gold" href="https://wa.me/96171056677?text=Hi%20Joy%20Taxi%2C%20I%20need%20a%20ride." data-ev="whatsapp">
-        <svg class="ico" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 2a8 8 0 1 1-4.1 14.9l-.4-.2-3 .8.8-2.9-.2-.4A8 8 0 0 1 12 4zm-3.5 4c-.2 0-.5.1-.7.4-.3.3-.9.9-.9 2.1s.9 2.4 1 2.6c.1.2 1.7 2.8 4.3 3.8 2.1.8 2.6.7 3 .6.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3l-2-1c-.3-.1-.5-.2-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a6.5 6.5 0 0 1-3.3-2.9c-.2-.4 0-.6.2-.7l.4-.5.3-.5v-.5l-.8-2c-.2-.5-.4-.5-.6-.5z"/></svg>
-        WhatsApp us
-      </a>
-      <a class="btn btn-line" href="tel:+96171056677" data-ev="call">Call <span class="num">71 056 677</span></a>
-      <a class="btn btn-line" href="tel:+96181686839" data-ev="call">Call <span class="num">81 686 839</span></a>
-    </div>
-    <a class="vcard" id="save-contact" href="joy-taxi.vcf" download="joy-taxi.vcf">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
-      Add Joy Taxi to your contacts
-    </a>
-  </div>
-</section>
-
-</main>
-
-<footer class="foot dark darker">
-  <div class="wrap">
-    <div class="fgrid">
-      <div>
-        <a class="wm" href="#top" aria-label="Joy Taxi"><span class="wm-j">JOY</span><span class="wm-bar" aria-hidden="true"></span><span class="wm-t">TAXI</span></a>
-        <p>A private car and a driver who knows the coast road. Twenty-four hours, every day of the year.</p>
-      </div>
-      <div>
-        <h2>Call or message</h2>
-        <ul>
-          <li><a class="tel num" href="tel:+96171056677">71 056 677</a></li>
-          <li><a class="tel num" href="tel:+96181686839">81 686 839</a></li>
-          <li><a href="https://wa.me/96171056677">WhatsApp</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2>Areas</h2>
-        <ul>
-          <li><a href="taxi-beirut/">Beirut</a></li><li><a href="taxi-beirut-airport/">Beirut Airport</a></li><li><a href="taxi-metn/">Metn North</a></li><li><a href="taxi-bsalim/">Bsalim</a></li><li><a href="taxi-jounieh/">Jounieh</a></li><li><a href="taxi-jbeil/">Jbeil</a></li>
-        </ul>
-      </div>
-      <div>
-        <h2>Services</h2>
-        <ul>
-          <li><a href="tours/">Day tours</a></li><li><a href="school-transport/">School &amp; student runs</a></li><li><a href="shared-rides/">Shared rides</a></li>
-        </ul>
+      <!-- TRACK -->
+      <div id="track" hidden>
+        <p class="big" id="tT"></p><p class="sub" id="tS"></p>
+        <div class="steps" id="steps"><i></i><i></i><i></i><i></i></div>
+        <div class="drv" id="drv" hidden><div class="av" id="av"></div><div><b id="dn"></b><div class="sub" id="dc" style="margin:0"></div></div><span class="plate" id="dp"></span></div>
+        <div class="pay" id="payBox" hidden></div>
+        <div id="kv"></div>
+        <div class="btns" id="tb"></div>
       </div>
     </div>
-    <div class="legal">
-      <span>© <span id="yr">2026</span> Joy Taxi · Lebanon</span>
-      <span><a href="ar/" hreflang="ar" lang="ar">عربي</a> · Open 24/7</span>
-    </div>
   </div>
-</footer>
-
-<div class="dock" id="dock" role="group" aria-label="Quick contact">
-  <a class="btn btn-gold" href="https://wa.me/96171056677?text=Hi%20Joy%20Taxi%2C%20I%20need%20a%20ride." data-ev="whatsapp">WhatsApp</a>
-  <a class="btn btn-line" href="tel:+96171056677" data-ev="call">Call now</a>
 </div>
+
+<section class="s" id="why"><div class="wrap">
+  <span class="k"><span class="en">Why Joy</span><span class="ar">لماذا جوي</span></span>
+  <h2 class="t2"><span class="en">Taxi, but make it <u style="text-decoration-color:var(--y);text-decoration-thickness:8px">fun.</u></span><span class="ar">تاكسي… بس بأجواء مبسوطة.</span></h2>
+  <div class="cards">
+    <div class="cd y rv"><span class="e">🌙</span><h3><span class="en">Awake at 4am</span><span class="ar">صاحون الساعة ٤ فجراً</span></h3><p><span class="en">Nights, weekends, holidays. A real person answers — no recording, no queue.</span><span class="ar">ليالي، عطل، أعياد. يرد عليك شخص حقيقي — لا تسجيل ولا انتظار.</span></p></div>
+    <div class="cd rv"><span class="e">💸</span><h3><span class="en">Price before you go</span><span class="ar">السعر قبل ما تتحرك</span></h3><p><span class="en">Agreed before the car moves. It does not change afterwards.</span><span class="ar">يُتفق عليه قبل الانطلاق ولا يتغير بعده.</span></p></div>
+    <div class="cd g rv"><span class="e">📍</span><h3><span class="en">Watch it come</span><span class="ar">شوفه جايي</span></h3><p><span class="en">Live driver on the map, with name and plate. No “coming, coming”.</span><span class="ar">السائق مباشرة على الخريطة مع اسمه ولوحته. لا «جاي جاي».</span></p></div>
+    <div class="cd p rv"><span class="e">🛣️</span><h3><span class="en">They know the road</span><span class="ar">بيعرفوا الطريق</span></h3><p><span class="en">Local drivers on roads they drive every day. Clean, cool, quiet car.</span><span class="ar">سائقون محليون على طرق يسلكونها يومياً. سيارة نظيفة ومكيّفة وهادئة.</span></p></div>
+  </div>
+</div></section>
+
+<section class="s" style="background:var(--y);border-block:3px solid var(--ink)" id="areas"><div class="wrap">
+  <span class="k" style="background:#fff"><span class="en">The coast road</span><span class="ar">الساحل</span></span>
+  <h2 class="t2"><span class="en">Tap a place. We’ll take you.</span><span class="ar">المس مكاناً… ونوصلك.</span></h2>
+  <div class="areas" id="areaCards"></div>
+  <p style="margin-top:14px;font-weight:500"><span class="en">Going somewhere just off this road? Ask anyway — most of the time the answer is yes.</span><span class="ar">وجهتك خارج هذا الخط؟ اسأل — غالباً الجواب نعم.</span></p>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <span class="k"><span class="en">How it works</span><span class="ar">كيف يعمل</span></span>
+  <h2 class="t2"><span class="en">Three taps. Done.</span><span class="ar">ثلاث لمسات. خلص.</span></h2>
+  <div class="steps3">
+    <div class="cd rv"><h3><span class="en">Set your spot</span><span class="ar">حدّد مكانك</span></h3><p><span class="en">Tap the map or <b>My location</b>. Pick where you’re going.</span><span class="ar">المس الخريطة أو <b>موقعي</b> ثم اختر وجهتك.</span></p></div>
+    <div class="cd y rv"><h3><span class="en">See your price</span><span class="ar">شوف السعر</span></h3><p><span class="en">Choose your car. The fare is clear before you book.</span><span class="ar">اختر سيارتك. الأجرة واضحة قبل الحجز.</span></p></div>
+    <div class="cd g rv"><h3><span class="en">Watch it arrive</span><span class="ar">تابع وصوله</span></h3><p><span class="en">Driver, plate and live location. Pay cash or Whish.</span><span class="ar">السائق واللوحة والموقع مباشرة. ادفع نقداً أو عبر ويش.</span></p></div>
+  </div>
+  <h2 class="t2" style="margin-top:44px"><span class="en">More than a ride</span><span class="ar">أكثر من مشوار</span></h2>
+  <div class="cards">
+    <a class="cd k2 rv" href="/tours/" style="text-decoration:none"><span class="e">🏛️</span><h3><span class="en">Day tours</span><span class="ar">جولات يومية</span></h3><p><span class="en">From $120 a day · up to 7 seats. Baalbek, Jeita, Byblos, Faraya.</span><span class="ar">من ١٢٠$ لليوم · حتى ٧ مقاعد. بعلبك، جعيتا، جبيل، فاريا.</span></p></a>
+    <a class="cd rv" href="/school-transport/" style="text-decoration:none"><span class="e">🎒</span><h3><span class="en">School runs</span><span class="ar">نقل مدرسي</span></h3><p><span class="en">Same driver, set time, live location.</span><span class="ar">نفس السائق، وقت ثابت، موقع مباشر.</span></p></a>
+    <a class="cd y rv" href="/shared-rides/" style="text-decoration:none"><span class="e">🤝</span><h3><span class="en">Shared rides</span><span class="ar">مشاوير مشتركة</span></h3><p><span class="en">Same morning run, one fare between you.</span><span class="ar">نفس المشوار كل صباح بأجرة واحدة مشتركة.</span></p></a>
+  </div>
+</div></section>
+
+<section class="s" id="faq" style="padding-top:0"><div class="wrap">
+  <span class="k"><span class="en">Straight answers</span><span class="ar">أجوبة مباشرة</span></span>
+  <h2 class="t2"><span class="en">Questions?</span><span class="ar">أسئلة؟</span></h2>
+  <details><summary><span class="en">Are you really open at 4am?</span><span class="ar">هل أنتم فعلاً مفتوحون ٤ فجراً؟</span></summary><p><span class="en">Yes. Nights, weekends and holidays, answered by a person.</span><span class="ar">نعم. ليلاً وعطلات وأعياداً، ويرد عليك شخص.</span></p></details>
+  <details><summary><span class="en">How much will my ride cost?</span><span class="ar">كم تكلّف الرحلة؟</span></summary><p><span class="en">Fares start at $7. The price depends on distance and time of day — a late-night ride costs more. You see the figure before you commit and it does not change afterwards.</span><span class="ar">تبدأ الأجرة من ٧$. تعتمد على المسافة والوقت — الرحلات الليلية أغلى. ترى الرقم قبل التأكيد ولا يتغير بعده.</span></p></details>
+  <details><summary><span class="en">Can I book for tomorrow morning?</span><span class="ar">هل أحجز لصباح الغد؟</span></summary><p><span class="en">Yes — choose <b>Later</b> and set the time. For an early flight, book the night before.</span><span class="ar">نعم — اختر <b>لاحقاً</b> وحدد الوقت. للرحلات المبكرة احجز في الليلة السابقة.</span></p></details>
+  <details><summary><span class="en">Do you go to the airport?</span><span class="ar">هل تذهبون إلى المطار؟</span></summary><p><span class="en">Yes, around the clock, priced separately from a ride across town.</span><span class="ar">نعم، على مدار الساعة، بسعر منفصل عن المشاوير داخل المدينة.</span></p></details>
+  <details><summary><span class="en">How do I pay?</span><span class="ar">كيف أدفع؟</span></summary><p><span class="en">Cash to the driver in dollars or lira — or Whish when it is offered in the booking form.</span><span class="ar">نقداً للسائق بالدولار أو الليرة — أو عبر ويش عندما يظهر الخيار في الحجز.</span></p></details>
+  <details><summary><span class="en">What do you store about me?</span><span class="ar">ماذا تحفظون عني؟</span></summary><p><span class="en">Only what is needed to run the ride: pickup, destination, time, and the phone number if you choose to add one. No account needed.</span><span class="ar">فقط ما يلزم للمشوار: نقطة الانطلاق والوجهة والوقت ورقم الهاتف إن أضفته. لا حساب مطلوب.</span></p></details>
+</div></section>
+
+<section class="s dark" style="text-align:center"><div class="wrap">
+  <h2 class="t2" style="color:var(--y)"><span class="en">Save the number before you need it.</span><span class="ar">احفظ الرقم قبل أن تحتاجه.</span></h2>
+  <div class="ctas" style="justify-content:center"><a class="btnx" id="waBot" href="#" target="_blank" rel="noopener">💬 WhatsApp</a><a class="btnx k" href="tel:+96171056677" style="background:var(--y);color:var(--ink)">📞 71 056 677</a><a class="btnx k" href="tel:+96181686839" style="background:var(--y);color:var(--ink)">📞 81 686 839</a></div>
+  <p style="margin-top:14px"><a href="/joy-taxi.vcf" style="color:var(--y)"><span class="en">Add Joy Taxi to your contacts</span><span class="ar">أضف جوي تاكسي إلى جهات الاتصال</span></a></p>
+</div></section>
+
+<section class="ci"><div class="wrap"><div class="sticker" style="transform:none">⚡ POWERED BY Ci</div>
+  <h2 class="t2" style="color:#fff;margin:12px 0 4px"><span class="en">Run a taxi company? Get an app like this — with your brand.</span><span class="ar">عندك شركة تاكسي؟ احصل على تطبيق مثل هذا بعلامتك.</span></h2>
+  <p style="color:#bbb;margin:0"><span class="en">Map booking, live driver tracking, alerts, your prices. Built by Crispin intelligence · CCG.</span><span class="ar">حجز على الخريطة، تتبع السائق، تنبيهات، أسعارك. من Crispin intelligence · CCG.</span></p>
+  <a class="btnx" href="https://ci-ccg.com" target="_blank" rel="noopener">🚀 <span class="en">Build my taxi app</span><span class="ar">اطلب تطبيق شركتي</span></a></div></section>
+</main>
+<footer><div class="wrap"><b>Joy Taxi</b> · <span class="en">24/7 · Beirut · Metn North · Bsalim · Jounieh · Jbeil</span><span class="ar">٢٤/٧ · بيروت · المتن الشمالي · بصاليم · جونية · جبيل</span><br>
+<a href="/taxi-beirut/">Beirut</a> · <a href="/taxi-beirut-airport/">Airport</a> · <a href="/taxi-metn/">Metn</a> · <a href="/taxi-bsalim/">Bsalim</a> · <a href="/taxi-jounieh/">Jounieh</a> · <a href="/taxi-jbeil/">Jbeil</a><br>
+<span style="font-size:13px">© Joy Taxi · Map © OpenStreetMap contributors · Powered by <a href="https://ci-ccg.com">Ci</a></span></div></footer>
+
+<div class="dock"><a class="btnx k" href="tel:+96171056677">📞 <span class="en">Call</span><span class="ar">اتصل</span></a><button class="btnx" id="dockGo" type="button" style="background:var(--y)">🚖 <span class="en">Book</span><span class="ar">احجز</span></button><a class="btnx" id="waDock" href="#" target="_blank" rel="noopener">💬</a></div>
 
 <script type="application/ld+json">
 {
@@ -804,385 +242,6 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
   "availableLanguage":["ar","en"]
 }
 </script>
-
-<script>
-/* ──────────────────────────────────────────────────────────────────────────
-   Everything below is optional. With JavaScript off, the page still reads
-   and every phone number and WhatsApp link still works — which for a taxi
-   is the only thing that must never break.
-   ────────────────────────────────────────────────────────────────────── */
-(function () {
-  'use strict';
-
-  /* The one place to edit. ─────────────────────────────────────────────── */
-  var CFG = {
-    whatsapp: '96171056677',              // digits only, country code, no +
-    from: ['Bsalim', 'Beirut', 'Metn North', 'Jounieh', 'Jbeil'],
-    to:   ['Beirut', 'Beirut Airport', 'Jounieh', 'Jbeil', 'Metn North', 'Bsalim'],
-    airportName: 'Beirut Airport',
-    // Real coordinates, used only to work out roughly how far a ride is.
-    places: {
-      'Beirut':         [33.8938, 35.5018],
-      'Beirut Airport': [33.8209, 35.4884],
-      'Bsalim':         [33.9047, 35.5906],
-      'Metn North':     [33.9050, 35.6400],
-      'Jounieh':        [33.9808, 35.6178],
-      'Jbeil':          [34.1232, 35.6519],
-    },
-    roadFactor: 1.3,                       // roads are not straight lines
-    // ── FARES ───────────────────────────────────────────────────────────────
-    // Until base and perKm are real numbers from Joy Taxi, the estimator shows the
-    // distance and says the price is confirmed on WhatsApp. Nothing is guessed.
-    rates: {
-      base: null,        // what every ride starts at, in dollars
-      perKm: null,       // added per kilometre
-      minimum: 7,        // never quote below the published "from $7"
-      nightFrom: null,   // hour the night rate begins, e.g. 23
-      nightTo: null,     // hour it ends, e.g. 5
-      nightExtra: null,  // multiplier at night, e.g. 1.25
-      airport: null,     // { 'Bsalim': 25, 'Jbeil': 45 } to price airport runs separately
-      spread: 0.12,      // quoted as a range, because traffic and route vary
-    },
-    // Real photographs only. Drop any of these into /photos and the gallery appears.
-    photoDir: 'photos/',
-    photos: ['car-1.jpg', 'car-2.jpg', 'car-3.jpg', 'interior.jpg', 'driver.jpg',
-             'coast.jpg', 'jounieh-bay.jpg', 'byblos-port.jpg'],
-    voices: [                                          // replace with real ones; see README
-      { placeholder: true, quote: 'A real customer’s own words go here — one or two sentences is plenty.', name: 'First name', place: 'Jounieh' },
-      { placeholder: true, quote: 'What they say about the driver, the price, or being picked up at three in the morning.', name: 'First name', place: 'Jbeil' },
-      { placeholder: true, quote: 'Short and in their own voice beats polished and written for them.', name: 'First name', place: 'Beirut' },
-    ],
-    t: {
-      hi: 'Hi Joy Taxi,',
-      pickup: 'Pickup', dest: 'Going to', when: 'When',
-      now: 'Now, as soon as possible',
-      at: 'Today at ',
-      pin: 'My location',
-      ask: 'Could you confirm the price and how long the car will be?',
-      empty: 'Pick where you are and where you are going — the message writes itself.',
-      locating: 'Finding you…', located: 'Location attached', denied: 'Location off',
-      about: 'about {km} km',
-      roughly: 'Distance',
-      quoteOnWa: 'Your price, confirmed in seconds',
-      alt: 'Joy Taxi on the coast road',
-      citeSep: ', ',
-      clockLocale: 'en-GB'
-    }
-  };
-
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var enc = encodeURIComponent;
-
-  var state = { from: '', to: '', coords: null, later: false, time: '' };
-
-  /* ── Beirut, now ─────────────────────────────────────────────────────── */
-  (function () {
-    var el = $('#clock');
-    if (!el || !window.Intl) return;
-    var fmt;
-    try { fmt = new Intl.DateTimeFormat(CFG.t.clockLocale, { timeZone: 'Asia/Beirut', hour: '2-digit', minute: '2-digit', hour12: false }); }
-    catch (e) { return; }
-    function tick() { el.textContent = fmt.format(new Date()); }
-    tick(); setInterval(tick, 15000);
-  })();
-
-  /* ── Chips ───────────────────────────────────────────────────────────── */
-  function chip(label, group) {
-    var b = document.createElement('button');
-    b.type = 'button'; b.className = 'chip'; b.textContent = label;
-    b.setAttribute('aria-pressed', 'false');
-    b.addEventListener('click', function () {
-      var on = b.getAttribute('aria-pressed') === 'true';
-      Array.prototype.forEach.call(b.parentNode.querySelectorAll('.chip'), function (o) {
-        if (o !== b && !o.classList.contains('chip-gps')) o.setAttribute('aria-pressed', 'false');
-      });
-      b.setAttribute('aria-pressed', on ? 'false' : 'true');
-      if (group === 'from') state.from = on ? '' : label;
-      else                  state.to   = on ? '' : label;
-      render();
-    });
-    return b;
-  }
-
-  var fromBox = $('#from-chips'), toBox = $('#to-chips');
-  CFG.from.forEach(function (n) { fromBox.appendChild(chip(n, 'from')); });
-  CFG.to.forEach(function (n) { toBox.appendChild(chip(n, 'to')); });
-
-  /* ── "My location": the feature that actually saves the driver time ──── */
-  var gps = document.createElement('button');
-  gps.type = 'button';
-  gps.className = 'chip chip-gps';
-  gps.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></svg>' +
-    '<span>' + CFG.t.pin + '</span>';
-  var gpsLabel = gps.querySelector('span');
-
-  function resetGps() { gps.removeAttribute('data-state'); gpsLabel.textContent = CFG.t.pin; }
-
-  if ('geolocation' in navigator) {
-    fromBox.insertBefore(gps, fromBox.firstChild);
-    gps.addEventListener('click', function () {
-      if (gps.getAttribute('data-state') === 'on') {
-        state.coords = null; resetGps(); render(); return;
-      }
-      gps.setAttribute('data-state', 'busy');
-      gpsLabel.textContent = CFG.t.locating;
-      navigator.geolocation.getCurrentPosition(function (p) {
-        state.coords = [p.coords.latitude.toFixed(5), p.coords.longitude.toFixed(5)];
-        gps.setAttribute('data-state', 'on');
-        gpsLabel.textContent = CFG.t.located;
-        render();
-      }, function () {
-        resetGps();
-        gpsLabel.textContent = CFG.t.denied;
-        setTimeout(resetGps, 2600);
-      }, { enableHighAccuracy: true, timeout: 9000, maximumAge: 30000 });
-    });
-  }
-
-  /* ── When ────────────────────────────────────────────────────────────── */
-  var nowBtn = $('#when-now'), laterBtn = $('#when-later'), timeIn = $('#when-time');
-  function setWhen(later) {
-    state.later = later;
-    nowBtn.setAttribute('aria-pressed', String(!later));
-    laterBtn.setAttribute('aria-pressed', String(later));
-    timeIn.hidden = !later;
-    if (later && !timeIn.value) {
-      var d = new Date(Date.now() + 45 * 60000);
-      timeIn.value = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-    }
-    state.time = timeIn.value;
-    render();
-  }
-  nowBtn.addEventListener('click', function () { setWhen(false); });
-  laterBtn.addEventListener('click', function () { setWhen(true); });
-  timeIn.addEventListener('input', function () { state.time = timeIn.value; render(); });
-
-  /* ── Free text ADDS to the chip, it never replaces it ─────────────────────
-     The area chip says which town; this field says where inside it. Both go
-     into the message, and keeping the chip lit keeps the distance estimate
-     alive while the passenger types the building. */
-  ['from', 'to'].forEach(function (g) {
-    $('#' + g + '-other').addEventListener('input', render);
-  });
-
-  /* ── Distance, and what it costs ──────────────────────────────────────────
-     Distance is real geography: great-circle between two known points, scaled by
-     roadFactor for the fact that roads are not straight lines. Checked against the
-     runs that matter — Beirut to Jbeil comes out 38km against a true 37, Beirut to
-     the airport 11 against 9. Close enough to show as "about", never as a promise.
-
-     The fare is NOT geography, and is not guessed. Until rates are set in CFG this
-     shows the distance and says the price is confirmed on WhatsApp, which is what
-     the rest of the page already promises. Nothing here invents a number.
-     ──────────────────────────────────────────────────────────────────────── */
-  function distanceKm(a, b) {
-    var R = 6371, rad = function (d) { return d * Math.PI / 180; };
-    var dLat = rad(b[0] - a[0]), dLon = rad(b[1] - a[1]);
-    var x = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(rad(a[0])) * Math.cos(rad(b[0])) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    return 2 * R * Math.asin(Math.sqrt(x)) * CFG.roadFactor;
-  }
-
-  function pointFor(end) {
-    if (end === 'from' && state.coords) return [+state.coords[0], +state.coords[1]];
-    var name = end === 'from' ? state.from : state.to;
-    return CFG.places[name] || null;
-  }
-
-  function estimate() {
-    var a = pointFor('from'), b = pointFor('to');
-    if (!a || !b) return null;
-    var d = Math.round(distanceKm(a, b));
-    if (!d) return null;
-
-    var r = CFG.rates || {}, price = null, fixed = false;
-
-    // An airport run is priced as its own thing when a table says so. A fixed price is
-    // quoted exactly — no night multiplier, no range. That is what fixed means, and
-    // wrapping it in a spread would hand back the uncertainty it exists to remove.
-    if (r.airport) {
-      var other = state.to === CFG.airportName ? state.from
-                : state.from === CFG.airportName ? state.to : null;
-      if (other && r.airport[other] != null) { price = r.airport[other]; fixed = true; }
-    }
-    if (price == null && r.base != null && r.perKm != null) price = r.base + r.perKm * d;
-    if (price == null) return { km: d, lo: null, hi: null };
-    if (fixed) return { km: d, lo: Math.round(price), hi: Math.round(price), fixed: true };
-
-    if (r.nightFrom != null && r.nightExtra) {
-      var hh = state.later && state.time ? parseInt(state.time.slice(0, 2), 10) : new Date().getHours();
-      var night = r.nightFrom > r.nightTo ? (hh >= r.nightFrom || hh < r.nightTo)
-                                          : (hh >= r.nightFrom && hh < r.nightTo);
-      if (night) price *= r.nightExtra;
-    }
-    if (r.minimum != null) price = Math.max(price, r.minimum);
-
-    var spread = r.spread || 0;
-    return {
-      km: d,
-      lo: Math.max(r.minimum || 0, Math.round(price * (1 - spread))),
-      hi: Math.round(price * (1 + spread)),
-    };
-  }
-
-  function renderFare() {
-    var e = estimate(), box = $('#fare');
-    if (!e) { box.hidden = true; return e; }
-    box.hidden = false;
-    $('#fare-d').textContent = CFG.t.about.replace('{km}', e.km);
-    var p = $('#fare-p');
-    if (e.lo == null) { p.className = 'p soft'; p.textContent = CFG.t.quoteOnWa; }
-    else { p.className = 'p'; p.textContent = e.lo === e.hi ? '$' + e.lo : '$' + e.lo + '–' + e.hi; }
-    return e;
-  }
-
-  /* ── The message ──────────────────────────────────────────────────────── */
-  function pickup() {
-    var typed = $('#from-other').value.trim();
-    var parts = [];
-    if (state.from) parts.push(state.from);
-    if (typed) parts.push(typed);
-    if (state.coords) parts.push('https://maps.google.com/?q=' + state.coords[0] + ',' + state.coords[1]);
-    return parts.join(' — ');
-  }
-  function dest() {
-    var typed = $('#to-other').value.trim();
-    var parts = [];
-    if (state.to) parts.push(state.to);
-    if (typed) parts.push(typed);
-    return parts.join(' — ');
-  }
-  function message() {
-    var p = pickup(), d = dest();
-    var when = state.later && state.time ? CFG.t.at + state.time : CFG.t.now;
-    var lines = [CFG.t.hi, ''];
-    if (p) lines.push(CFG.t.pickup + ': ' + p);
-    if (d) lines.push(CFG.t.dest + ': ' + d);
-    lines.push(CFG.t.when + ': ' + when);
-    // The estimate travels with the message, so the driver answers against the same
-    // number the passenger was shown rather than a different one.
-    var e = estimate();
-    if (e) {
-      lines.push(CFG.t.roughly + ': ' + CFG.t.about.replace('{km}', e.km)
-        + (e.lo != null ? ' · $' + (e.lo === e.hi ? e.lo : e.lo + '–' + e.hi) : ''));
-    }
-    lines.push('', CFG.t.ask);
-    return lines.join('\n');
-  }
-
-  var preview = $('#preview'), waGo = $('#wa-go');
-  function render() {
-    var p = pickup(), d = dest();
-    if (!p && !d) { preview.textContent = CFG.t.empty; }
-    else { preview.textContent = message(); }
-    renderFare();
-    waGo.href = 'https://wa.me/' + CFG.whatsapp + '?text=' + enc(message());
-  }
-  /* Dispatch note: a background record of the request (pickup, destination, time, estimate).
-     Never blocks or changes WhatsApp; the exact map pin is stripped and goes only via WhatsApp. */
-  var LOG_URL = 'https://joytaxi-backend.onrender.com/api/rides';
-  waGo.addEventListener('click', function () {
-    try {
-      var strip = function (s) { return s.replace(/\s*\u2014?\s*https?:\/\/maps\.google\.com\S*/g, '').trim(); };
-      var p = strip(pickup()), d = dest();
-      if (!p && !d) return;
-      var e = estimate();
-      fetch(LOG_URL, { method: 'POST', keepalive: true, mode: 'cors',
-        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-        body: JSON.stringify({ pickup: p, destination: d,
-          when: state.later && state.time ? state.time : 'now',
-          est_km: e ? e.km : null,
-          est_text: e && e.lo != null ? '$' + (e.lo === e.hi ? e.lo : e.lo + '\u2013' + e.hi) : null,
-          lang: document.documentElement.lang === 'ar' ? 'ar' : 'en' })
-      }).catch(function () {});
-    } catch (_) {}
-  });
-  $('#bk').addEventListener('submit', function (e) { e.preventDefault(); waGo.click(); });
-  render();
-
-  /* ── Photographs: shown only if the files are actually there ────────────
-     Probed once the reader is heading down the page, not at load, so an empty
-     /photos folder costs the first screen nothing. */
-  function probePhotos() {
-    var shots = $('#shots'), gallery = $('#gallery'), found = 0;
-    CFG.photos.forEach(function (name) {
-      var img = new Image();
-      img.alt = CFG.t.alt;
-      // Deliberately NOT loading="lazy": this is a detached probe, and a detached lazy
-      // image is never fetched, so onload would never fire.
-      img.decoding = 'async';
-      img.onload = function () {
-        var f = document.createElement('figure');
-        f.className = 'shot';
-        f.appendChild(img);
-        shots.appendChild(f);
-        if (!found++) gallery.hidden = false;
-      };
-      img.src = CFG.photoDir + name;
-    });
-  }
-  var probe = $('#probe');
-  if ('IntersectionObserver' in window && probe) {
-    var po = new IntersectionObserver(function (es) {
-      if (es.some(function (e) { return e.isIntersecting; })) { po.disconnect(); probePhotos(); }
-    }, { rootMargin: '1200px 0px' });
-    po.observe(probe);
-  } else { addEventListener('load', probePhotos); }
-
-  /* ── What regulars say. Nothing here is written for them. ─────────────────
-     While every entry is still a placeholder the section stays hidden: an empty
-     testimonial has no place on the live page. Real ones switch it on. */
-  (function () {
-    var sec = $('#voices'), box = $('#quotes');
-    var rows = (CFG.voices || []).filter(function (v) { return !v.placeholder; });
-    if (!rows.length) return;
-    rows.forEach(function (v) {
-      var card = document.createElement('figure');
-      card.className = 'quote';
-      var p = document.createElement('p');
-      p.textContent = v.quote;
-      var who = document.createElement('cite');
-      who.textContent = v.name + (v.place ? (CFG.t.citeSep || ', ') + v.place : '');
-      card.appendChild(p); card.appendChild(who);
-      box.appendChild(card);
-    });
-    sec.hidden = false;
-  })();
-
-  /* ── Small touches ────────────────────────────────────────────────────── */
-  var hd = $('.top');
-  function onScroll() { hd.classList.toggle('stuck', scrollY > 24); }
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
-
-  $('#yr').textContent = new Date().getFullYear();
-
-  // The dock appears once the hero's own buttons have scrolled away.
-  var dock = $('#dock'), heroCta = $('.hero-cta');
-  if ('IntersectionObserver' in window && heroCta) {
-    new IntersectionObserver(function (es) {
-      dock.classList.toggle('show', !es[0].isIntersecting && es[0].boundingClientRect.top < 0);
-    }).observe(heroCta);
-  } else { dock.classList.add('show'); }
-
-  var els = Array.prototype.slice.call(document.querySelectorAll('.rv'));
-  function show(el) { el.classList.add('in'); }
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) { if (e.isIntersecting) { show(e.target); io.unobserve(e.target); } });
-    }, { threshold: .08, rootMargin: '0px 0px -40px' });
-    els.forEach(function (n) { io.observe(n); });
-    // An element scrolled PAST never intersects; sweep so a jump never leaves blanks.
-    var sweep = function () {
-      els.forEach(function (el) {
-        if (!el.classList.contains('in') && el.getBoundingClientRect().top < innerHeight) { show(el); io.unobserve(el); }
-      });
-    };
-    addEventListener('scroll', sweep, { passive: true }); setTimeout(sweep, 0);
-  } else { els.forEach(show); }
-})();
-</script>
-<!-- FAQ schema, generated from the questions above by tools/build-home-faq.py -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -1249,6 +308,172 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
   ]
 }
 </script>
-<script async src="https://ci-alfa-app.onrender.com/v.js"></script>
+<script src="/app/vendor/leaflet/leaflet.js"></script>
+<script src="/app/brand.js"></script>
+<script>
+(function () {
+'use strict';
+var B = window.BRAND, $ = function (s) { return document.querySelector(s); };
+var T = {
+  en: { from: 'Pickup', to: 'Destination', now: 'Now', later: 'Later', book: 'Book my ride 🚖', phone: 'Phone (optional)',
+    fine: 'Your request goes straight to our dispatcher. Phone is optional so the driver can call you. We keep only what is needed for the ride.',
+    hintP: 'Tap the map or a place below to set your pickup.', hintD: 'Now tap where you are going.', phP: 'Where are we picking you up?',
+    cash: '💵 Cash', whish: '📱 Whish', noPrice: 'Price confirmed by dispatcher', km: 'km', near: 'Near ', pin: 'Pinned spot', cur: 'My location',
+    s_new: 'Finding your driver…', s_new2: 'Dispatch has your request. Hang tight!', s_confirmed: 'Confirmed ✅', s_confirmed2: 'A driver is being assigned.',
+    s_assigned: 'Your driver is on the way 🚖', s_arrived: 'Your driver has arrived 🎉', s_ontrip: 'Enjoy the ride ✨', s_done: 'Trip complete — thank you! 💛', s_cancelled: 'Ride cancelled',
+    cancel: 'Cancel ride', again: 'Book another', call: 'Call driver', callUs: 'Call dispatch', payTo: 'Pay with Whish to', ride: 'Ride', pickup: 'Pickup', dest: 'To',
+    errBoth: 'Pick your pickup and destination first.', errNet: 'Could not reach dispatch (the server may be waking up). Try again or call us.', eta: 'About {m} min away', fixed: 'Fixed price', badge: '🗺️ Tap the map', sent: 'Request sent!',
+    rot: ['Beirut → Airport at 3am ✈️', 'Jounieh nights 🌙', 'Byblos old port ⚓', 'Bsalim to anywhere 🛣️', 'School run, sorted 🎒', 'Hamra coffee run ☕'] },
+  ar: { from: 'الانطلاق', to: 'الوجهة', now: 'الآن', later: 'لاحقاً', book: 'اطلب مشوارك 🚖', phone: 'الهاتف (اختياري)',
+    fine: 'طلبك يصل مباشرة إلى المركز. الهاتف اختياري ليتصل بك السائق. نحتفظ فقط بما يلزم للمشوار.',
+    hintP: 'المس الخريطة أو مكاناً أدناه لتحديد نقطة الانطلاق.', hintD: 'الآن المس وجهتك.', phP: 'من أين نقلّك؟',
+    cash: '💵 نقداً', whish: '📱 ويش', noPrice: 'يؤكد المركز السعر', km: 'كم', near: 'قرب ', pin: 'موقع محدد', cur: 'موقعي',
+    s_new: 'نبحث عن سائق…', s_new2: 'وصل طلبك إلى المركز. لحظات!', s_confirmed: 'تم التأكيد ✅', s_confirmed2: 'يتم تعيين سائق.',
+    s_assigned: 'السائق في الطريق 🚖', s_arrived: 'وصل السائق 🎉', s_ontrip: 'رحلة سعيدة ✨', s_done: 'انتهى المشوار — شكراً! 💛', s_cancelled: 'تم إلغاء الطلب',
+    cancel: 'إلغاء الطلب', again: 'طلب جديد', call: 'اتصل بالسائق', callUs: 'اتصل بالمركز', payTo: 'ادفع عبر ويش إلى', ride: 'مشوار', pickup: 'من', dest: 'إلى',
+    errBoth: 'حدد نقطة الانطلاق والوجهة أولاً.', errNet: 'تعذر الوصول إلى المركز (قد يكون الخادم يستيقظ). حاول مجدداً أو اتصل بنا.', eta: 'على بعد {m} دقيقة تقريباً', fixed: 'سعر ثابت', badge: '🗺️ المس الخريطة', sent: 'تم إرسال الطلب!',
+    rot: ['بيروت ← المطار الساعة ٣ فجراً ✈️', 'سهرات جونية 🌙', 'مرفأ جبيل القديم ⚓', 'من بصاليم لأي مكان 🛣️', 'المدرسة؟ مرتبة 🎒', 'قهوة الحمرا ☕'] }
+};
+function ld(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function sv(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+var qs = /[?&]lang=(ar|en)/.exec(location.search);
+var lang = (qs && qs[1]) || ld('jt_lang') || ((navigator.language || '').slice(0, 2) === 'ar' ? 'ar' : 'en');
+function t(k) { return T[lang][k] || T.en[k] || k; }
+var S = { field: 'P', P: null, D: null, car: B.cars[0].key, later: false, pay: 'cash', cfg: null, ride: null, poll: null, drvMk: null, lastDrv: null };
+var WA = 'https://wa.me/' + B.wa + '?text=' + encodeURIComponent('Hi Joy Taxi, I need a ride.');
+
+/* map */
+var map = L.map('map', { zoomControl: true, scrollWheelZoom: false, attributionControl: true }).setView(B.map.center, B.map.zoom);
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+function icon(c) { return L.divIcon({ className: '', html: '<div class="pin ' + c + '"></div>', iconSize: [18, 18], iconAnchor: [9, 9] }); }
+var mkP = null, mkD = null, line = null;
+function fit() { var pts = []; if (S.P) pts.push([S.P.lat, S.P.lng]); if (S.D) pts.push([S.D.lat, S.D.lng]); if (S.lastDrv) pts.push(S.lastDrv);
+  if (pts.length > 1) map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 }); else if (pts.length) map.setView(pts[0], Math.max(map.getZoom(), 13)); }
+function hav(a, b) { var R = 6371, r = Math.PI / 180, dl = (b[0] - a[0]) * r, dn = (b[1] - a[1]) * r, x = Math.sin(dl / 2) * Math.sin(dl / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dn / 2) * Math.sin(dn / 2); return 2 * R * Math.asin(Math.sqrt(x)); }
+function nearName(ll) { var best = null, bd = 1e9; B.areas.forEach(function (a) { var d = hav(ll, a.ll); if (d < bd) { bd = d; best = a; } }); return best ? { a: best, d: bd } : null; }
+function labelFor(ll) { var n = nearName(ll); if (!n) return t('pin'); return n.d < 1.5 ? n.a[lang] : t('near') + n.a[lang]; }
+function setPlace(which, p) {
+  S[which] = p; var mk = which === 'P' ? mkP : mkD; if (mk) map.removeLayer(mk);
+  mk = L.marker([p.lat, p.lng], { icon: icon(which === 'P' ? 'from' : 'to') }).addTo(map); if (which === 'P') mkP = mk; else mkD = mk;
+  if (line) { map.removeLayer(line); line = null; }
+  if (S.P && S.D) line = L.polyline([[S.P.lat, S.P.lng], [S.D.lat, S.D.lng]], { color: '#111114', weight: 4, dashArray: '8 10', opacity: .7 }).addTo(map);
+  if (which === 'P' && !S.D) S.field = 'D'; draw(); fit();
+}
+map.on('click', function (e) { if (S.ride) return; var ll = [e.latlng.lat, e.latlng.lng]; setPlace(S.field, { lat: ll[0], lng: ll[1], name: labelFor(ll) }); });
+
+/* plan UI */
+function dist() { return S.P && S.D ? hav([S.P.lat, S.P.lng], [S.D.lat, S.D.lng]) * 1.3 : 0; }
+function priceFor(car) {
+  var r = S.cfg && S.cfg.rates; if (!r || !r.enabled || !S.P || !S.D) return null;
+  var airport = B.areas.filter(function (a) { return a.airport; })[0], km = dist(), mult = (r.mult && r.mult[car]) || 1;
+  if (airport && r.airport) { var nr = function (p) { return hav([p.lat, p.lng], airport.ll) < 3; }; var other = nr(S.P) ? S.D : nr(S.D) ? S.P : null;
+    if (other) { var n = nearName([other.lat, other.lng]); var fx = n && r.airport[n.a.en]; if (fx) { var v = Math.round(fx * mult); return { lo: v, hi: v, fixed: true }; } } }
+  var v2 = Math.max(r.base + r.perKm * km * mult, r.minimum), h = new Date().getHours();
+  if (r.nightFrom > r.nightTo ? (h >= r.nightFrom || h < r.nightTo) : (h >= r.nightFrom && h < r.nightTo)) v2 *= r.nightExtra;
+  return { lo: Math.round(v2 * (1 - r.spread)), hi: Math.round(v2 * (1 + r.spread)) };
+}
+function draw() {
+  document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.querySelectorAll('[data-t]').forEach(function (n) { n.textContent = t(n.getAttribute('data-t')); });
+  document.querySelectorAll('[data-p]').forEach(function (n) { n.placeholder = t(n.getAttribute('data-p')); });
+  $('#lang').textContent = lang === 'ar' ? 'English' : 'العربية'; $('#mbadge').textContent = t('badge');
+  $('#vP').textContent = S.P ? S.P.name : t('phP'); $('#vP').className = S.P ? '' : 'ph';
+  $('#vD').textContent = S.D ? S.D.name : t('to'); $('#vD').className = S.D ? '' : 'ph';
+  $('#fP').classList.toggle('on', S.field === 'P'); $('#fD').classList.toggle('on', S.field === 'D');
+  $('#hint').textContent = S.field === 'P' ? t('hintP') : t('hintD');
+  var h = '<button class="chip loc" data-loc="1" type="button">📍 ' + t('cur') + '</button>';
+  B.areas.forEach(function (a, i) { h += '<button class="chip" data-a="' + i + '" type="button">' + esc(a[lang]) + '</button>'; }); $('#chips').innerHTML = h;
+  $('#cars').innerHTML = B.cars.map(function (c) { var p = priceFor(c.key);
+    return '<div class="car' + (c.key === S.car ? ' on' : '') + '" data-c="' + c.key + '"><span class="e">' + c.icon + '</span><b>' + esc(c[lang]) + '</b><small>' + (p ? B.currency + p.lo + (p.hi > p.lo ? '–' + p.hi : '') : c.seats + ' 👤') + '</small></div>'; }).join('');
+  var pays = '<option value="cash">' + t('cash') + '</option>'; if (S.cfg && S.cfg.whish && S.cfg.whish.enabled) pays += '<option value="whish">' + t('whish') + '</option>';
+  var cur = $('#pay').value || S.pay; $('#pay').innerHTML = pays; $('#pay').value = cur; S.pay = $('#pay').value;
+  var p = priceFor(S.car), km = dist();
+  $('#sumL').textContent = km ? km.toFixed(1) + ' ' + t('km') + (p && p.fixed ? ' · ' + t('fixed') : '') : '';
+  $('#sumP').textContent = p ? B.currency + p.lo + (p.hi > p.lo ? '–' + p.hi : '') : (km ? t('noPrice') : ''); $('#sumP').style.fontSize = p ? '' : '14px';
+  $('#areaCards').innerHTML = B.areas.map(function (a, i) { var cls = ['y', '', 'g', 'p'][i % 4]; return '<button class="cd ' + (cls === 'y' ? '' : cls) + '" style="' + (cls === 'y' ? 'background:#fff' : '') + '" data-ac="' + i + '" type="button"><span class="e">' + (a.airport ? '✈️' : ['🏙️', '', '☕', '🎨', '🌲', '🏡', '⛵', '🏛️'][i] || '📍') + '</span><h3>' + esc(a[lang]) + '</h3><p>' + (lang === 'ar' ? 'المس لتحديد وجهتك' : 'Tap to go here') + '</p></button>'; }).join('');
+  var rot = T[lang].rot; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el && !el.textContent) el.textContent = rot[0];
+  $('#tick').innerHTML = (B.areas.map(function (a) { return a[lang].toUpperCase(); }).join(' ★ ') + ' ★ 24/7 ★ ').repeat(4);
+}
+$('#fP').onclick = function () { S.field = 'P'; draw(); };
+$('#fD').onclick = function () { S.field = 'D'; draw(); };
+$('#chips').onclick = function (e) { var b = e.target.closest('button'); if (!b) return;
+  if (b.getAttribute('data-loc')) { if (!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(function (g) { var ll = [g.coords.latitude, g.coords.longitude]; setPlace(S.field, { lat: ll[0], lng: ll[1], name: labelFor(ll) }); }, function () {}, { enableHighAccuracy: true, timeout: 10000 }); return; }
+  var a = B.areas[+b.getAttribute('data-a')]; setPlace(S.field, { lat: a.ll[0], lng: a.ll[1], name: a[lang] }); };
+$('#areaCards').onclick = function (e) { var b = e.target.closest('[data-ac]'); if (!b || S.ride) return; var a = B.areas[+b.getAttribute('data-ac')];
+  S.field = 'D'; setPlace('D', { lat: a.ll[0], lng: a.ll[1], name: a[lang] }); $('#book').scrollIntoView({ behavior: 'smooth' }); };
+$('#cars').onclick = function (e) { var c = e.target.closest('.car'); if (c) { S.car = c.getAttribute('data-c'); draw(); } };
+$('#when').onclick = function (e) { var b = e.target.closest('button'); if (!b) return; S.later = b.getAttribute('data-w') === 'later';
+  document.querySelectorAll('#when button').forEach(function (x) { x.classList.toggle('on', x === b); }); $('#time').hidden = !S.later; };
+$('#pay').onchange = function () { S.pay = this.value; };
+$('#lang').onclick = function () { lang = lang === 'ar' ? 'en' : 'ar'; sv('jt_lang', lang); if (S.P) S.P.name = labelFor([S.P.lat, S.P.lng]); if (S.D) S.D.name = labelFor([S.D.lat, S.D.lng]); draw(); if (S.ride) showTrack(); };
+$('#dockGo').onclick = function () { $('#book').scrollIntoView({ behavior: 'smooth' }); };
+$('#callTop').href = 'tel:' + B.tel; ['#waTop', '#waBot', '#waDock'].forEach(function (s) { $(s).href = WA; });
+
+function confetti() { var em = ['🎉', '💛', '⭐', '🚖', '✨', '🌴']; for (var i = 0; i < 26; i++) { var s = document.createElement('span'); s.className = 'conf'; s.textContent = em[i % em.length]; s.style.left = Math.random() * 100 + 'vw'; s.style.animationDelay = Math.random() * .6 + 's'; s.style.fontSize = 18 + Math.random() * 22 + 'px'; document.body.appendChild(s); setTimeout(function (n) { n.remove(); }, 3600, s); } }
+
+/* book */
+$('#go').onclick = function () {
+  var er = $('#err'); er.hidden = true; if (!S.P || !S.D) { er.textContent = t('errBoth'); er.hidden = false; return; }
+  var p = priceFor(S.car), km = dist(), btn = this; btn.disabled = true;
+  var body = { pickup: S.P.name, destination: S.D.name, when: S.later && $('#time').value ? $('#time').value : 'now', lat: S.P.lat, lng: S.P.lng, dest_lat: S.D.lat, dest_lng: S.D.lng,
+    est_km: km ? +km.toFixed(1) : null, est_text: p ? B.currency + p.lo + (p.hi > p.lo ? '-' + p.hi : '') : (km ? km.toFixed(1) + ' km' : null), vehicle: S.car, phone: $('#phone').value.trim() || null, pay: S.pay, lang: lang };
+  fetch(B.api + '/api/rides', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || r.status); return j; }); })
+    .then(function (j) { S.ride = { id: j.id, token: j.token, status: 'new', pickup: body.pickup, destination: body.destination, est_text: body.est_text, vehicle: body.vehicle, pay: body.pay, lat: body.lat, lng: body.lng, dest_lat: body.dest_lat, dest_lng: body.dest_lng };
+      sv('jt_ride', JSON.stringify({ id: j.id, token: j.token })); sv('jt_phone', body.phone); confetti(); start(); })
+    .catch(function () { er.innerHTML = esc(t('errNet')) + ' <a href="tel:' + B.tel + '">' + B.phones[0] + '</a>'; er.hidden = false; })
+    .then(function () { btn.disabled = false; });
+};
+
+/* tracking */
+function start() { $('#plan').hidden = true; $('#track').hidden = false; $('#deck').classList.add('tracking'); map.scrollWheelZoom.enable(); showTrack(); clearInterval(S.poll); poll(); S.poll = setInterval(poll, 4000); setTimeout(function () { map.invalidateSize(); $('#book').scrollIntoView({ behavior: 'smooth' }); }, 150); }
+function poll() { if (!S.ride) return;
+  fetch(B.api + '/api/rides/' + S.ride.id + '/status?token=' + encodeURIComponent(S.ride.token)).then(function (r) { if (r.status === 404 || r.status === 403) { reset(); throw 0; } return r.json(); })
+    .then(function (j) { var r = j.ride || j; for (var k in r) S.ride[k] = r[k]; showTrack(); }).catch(function () {}); }
+function showTrack() {
+  var r = S.ride; if (!r) return; var s = r.status;
+  $('#tT').innerHTML = (s === 'new' || s === 'confirmed' ? '<span class="pulse"></span>' : '') + esc(t('s_' + s));
+  $('#tS').textContent = s === 'new' ? t('s_new2') : s === 'confirmed' ? t('s_confirmed2') : '#' + r.id + ' · ' + (r.est_text || '');
+  var lvl = s === 'new' || s === 'confirmed' ? 0 : s === 'assigned' ? 1 : s === 'arrived' ? 2 : 3;
+  document.querySelectorAll('#steps i').forEach(function (n, i) { n.classList.toggle('on', s !== 'cancelled' && i <= lvl); });
+  var hasD = r.driver_name && s !== 'new' && s !== 'cancelled'; $('#drv').hidden = !hasD;
+  if (hasD) { $('#av').textContent = r.driver_name.charAt(0).toUpperCase(); $('#dn').textContent = r.driver_name; $('#dp').textContent = r.driver_plate || ''; $('#dp').hidden = !r.driver_plate;
+    var eta = ''; if (r.driver_lat != null && s === 'assigned' && r.lat != null) { var m = Math.max(1, Math.round(hav([+r.driver_lat, +r.driver_lng], [+r.lat, +r.lng]) * 1.3 / 30 * 60)); eta = t('eta').replace('{m}', m); } $('#dc').textContent = eta; }
+  if (r.driver_lat != null && ['assigned', 'arrived', 'ontrip'].indexOf(s) > -1) {
+    S.lastDrv = [+r.driver_lat, +r.driver_lng];
+    if (!S.drvMk) { S.drvMk = L.marker(S.lastDrv, { icon: L.divIcon({ className: 'car', html: '<div class="carmk">🚖</div>', iconSize: [30, 30], iconAnchor: [15, 15] }) }).addTo(map); fit(); } else S.drvMk.setLatLng(S.lastDrv);
+  } else if (S.drvMk) { map.removeLayer(S.drvMk); S.drvMk = null; S.lastDrv = null; }
+  if (r.lat != null && !mkP) mkP = L.marker([+r.lat, +r.lng], { icon: icon('from') }).addTo(map);
+  if (r.dest_lat != null && !mkD) mkD = L.marker([+r.dest_lat, +r.dest_lng], { icon: icon('to') }).addTo(map);
+  if (!S.fitted && r.lat != null) { S.fitted = 1; var pts = [[+r.lat, +r.lng]]; if (r.dest_lat != null) pts.push([+r.dest_lat, +r.dest_lng]); map.fitBounds(pts, { padding: [40, 40], maxZoom: 15 }); }
+  var w = S.cfg && S.cfg.whish, pb = $('#payBox');
+  if (s === 'done' && r.pay === 'whish' && w && w.enabled && w.number) { pb.hidden = false; pb.innerHTML = esc(t('payTo')) + '<b dir="ltr">' + esc(w.number) + '</b>' + esc(w.name || '') + (r.est_text ? ' · ' + esc(r.est_text) : ''); } else pb.hidden = true;
+  $('#kv').innerHTML = '<div class="kv"><span>' + t('pickup') + '</span><b>' + esc(r.pickup) + '</b></div><div class="kv"><span>' + t('dest') + '</span><b>' + esc(r.destination) + '</b></div>' + (r.vehicle ? '<div class="kv"><span>' + t('ride') + '</span><b>' + esc(r.vehicle) + '</b></div>' : '');
+  var b = '';
+  if (s === 'new' || s === 'confirmed' || s === 'assigned') b += '<button class="btn" id="cx" type="button">' + t('cancel') + '</button>';
+  if (s !== 'done' && s !== 'cancelled') b += '<a class="btn y" href="tel:' + B.tel + '">' + t('callUs') + '</a><a class="btn" target="_blank" rel="noopener" href="' + WA + '">WhatsApp</a>';
+  if (s === 'done' || s === 'cancelled') b += '<button class="btn y" id="again" type="button">' + t('again') + '</button>';
+  $('#tb').innerHTML = b; if (s === 'done' || s === 'cancelled') { clearInterval(S.poll); if (s === 'done' && !S.cele) { S.cele = 1; confetti(); } }
+}
+$('#tb').onclick = function (e) { if (e.target.id === 'again') return reset();
+  if (e.target.id === 'cx') { e.target.disabled = true; fetch(B.api + '/api/rides/' + S.ride.id + '/cancel', { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify({ token: S.ride.token }) }).then(poll); } };
+function reset() { clearInterval(S.poll); sv('jt_ride', null); S.ride = null; S.fitted = 0; S.cele = 0;
+  [mkP, mkD, line, S.drvMk].forEach(function (m) { if (m) map.removeLayer(m); }); mkP = mkD = line = S.drvMk = null; S.P = S.D = null; S.field = 'P'; S.lastDrv = null;
+  $('#track').hidden = true; $('#plan').hidden = false; $('#deck').classList.remove('tracking'); map.setView(B.map.center, B.map.zoom); draw(); setTimeout(function () { map.invalidateSize(); }, 100); }
+
+/* fun: rotating line, reveal on scroll */
+var ri = 0; setInterval(function () { var rot = T[lang].rot; ri = (ri + 1) % rot.length; var el = lang === 'ar' ? $('#rotA') : $('#rot'); if (el) el.textContent = rot[ri]; }, 2400);
+if ('IntersectionObserver' in window) { var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .15 }); document.querySelectorAll('.rv').forEach(function (n) { io.observe(n); }); } else document.querySelectorAll('.rv').forEach(function (n) { n.classList.add('in'); });
+
+/* init */
+$('#mk').src = B.mark; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1]; $('#phone').value = ld('jt_phone');
+draw();
+fetch(B.api + '/api/config').then(function (r) { return r.json(); }).then(function (c) { S.cfg = c.config || c; draw(); }).catch(function () {});
+var saved = ld('jt_ride'); if (saved) { try { var o = JSON.parse(saved); S.ride = { id: o.id, token: o.token, status: 'new', pickup: '…', destination: '' }; start(); } catch (e) { sv('jt_ride', null); } }
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' }).catch(function () {});
+setTimeout(function () { map.invalidateSize(); }, 400);
+})();
+</script>
 </body>
 </html>
