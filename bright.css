@@ -1,0 +1,47 @@
+/* Bright Joy Taxi theme — loaded after area.css on every inner page so the whole site matches the home page. */
+:root{--y:#FFC800;--yd:#E4B000;--ink:#111114;
+  --serif:"Jost","Avenir Next",Avenir,system-ui,sans-serif;--night:#111114;--navy:#FFC800;--navy-2:#fff;--navy-3:#FFE066;
+  --ivory:#FFFDF3;--ivory-2:#FFF4C2;--paper:#fff;--ink-2:#3a3a42;--ink-3:#55555d;
+  --moon:#111114;--moon-2:#33333a;--moon-3:#55555d;--gold:#111114;--gold-hi:#111114;--gold-ink:#111114}
+:lang(ar){--serif:"Plex Arabic","Jost",system-ui,sans-serif}
+body{background:#FFFDF3;color:var(--ink)}
+.light{--bg:#FFFDF3;--card:#fff;--accent:#111114;--hair:rgba(17,17,20,.2)}
+.paper{--bg:#fff;--card:#FFFDF3}
+.dark{--bg:#FFC800;--fg:#111114;--fg-2:#33333a;--fg-3:#44444c;--hair:rgba(17,17,20,.3);--accent:#111114;--card:#fff;color-scheme:light}
+.darker{--bg:#111114;--fg:#fff;--fg-2:#e6e6ea;--fg-3:#bdbdc4;--hair:rgba(255,255,255,.2);--accent:#FFC800;--card:#1d1d22;color-scheme:dark}
+h1,h2,h3,.h1,.h2{font-family:var(--serif);font-weight:600;font-style:italic;letter-spacing:-.01em}
+:lang(ar) h1,:lang(ar) h2,:lang(ar) h3,:lang(ar) .h1,:lang(ar) .h2{font-style:normal}
+h1 em,h2 em{font-style:italic;background:#111114;color:#FFC800;padding:0 .12em;border-radius:.12em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.darker h1 em,.darker h2 em{background:#FFC800;color:#111114}
+:lang(ar) h1 em,:lang(ar) h2 em{font-style:normal}
+/* hero: bright yellow instead of the night scene */
+.hero{background:linear-gradient(135deg,#FFE066,#FFC800 45%,#FFB400)}
+.night,.hero::before,.moon,.scene{display:none!important}
+.hero .h1,.hero .lede,.hero .clock,.hero .facts{color:#111114}
+.hero .lede{max-width:46ch;font-weight:500}
+.hero .facts li{border-color:rgba(17,17,20,.35)}
+.top{color:#111114}
+.top.stuck{background:rgba(255,200,0,.96);border-bottom:3px solid #111114;backdrop-filter:blur(8px)}
+.wm,.wm-t,.nav a,.lang{color:#111114}.nav a:hover,.lang:hover{color:#111114;text-decoration:underline}
+.wm-j{font-family:"Jost",sans-serif;font-style:italic;font-weight:600;letter-spacing:.06em}
+.wm-bar{background:#111114;opacity:1}
+.top{background:rgba(255,200,0,.96);border-bottom:3px solid #111114}
+/* buttons: chunky sticker style */
+.btn{border:2px solid #111114;border-radius:99px;font-weight:600;box-shadow:3px 3px 0 #111114;transition:transform .12s,box-shadow .12s}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 #111114}
+.btn-gold{background:#111114;color:#FFC800}
+.btn-gold:hover{filter:none;background:#111114;box-shadow:4px 4px 0 #fff}
+.btn-line{background:#fff;color:#111114;border:2px solid #111114}
+.btn-line:hover{background:#fff;border-color:#111114}
+.top .btn-line{--fg:#111114}
+.darker .btn-gold{background:#FFC800;color:#111114;border-color:#FFC800;box-shadow:3px 3px 0 #fff}
+.darker .btn-line{background:transparent;color:#fff;border-color:#fff;box-shadow:3px 3px 0 #FFC800}
+.dark .btn-gold{background:#111114;color:#FFC800}
+.dock{background:rgba(255,200,0,.96);border-top:3px solid #111114}
+.dock .btn-line{--fg:#111114}
+/* cards & details get outlines */
+.card,.svc,.route,.faq details,details{border-color:#111114}
+.faq details,details{background:#fff;border:2px solid #111114;border-radius:14px}
+.skip{background:#FFC800;color:#111114}
+:focus-visible{outline-color:#111114}
+.jt-book{display:inline-flex}
