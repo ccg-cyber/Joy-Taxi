@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>طلبات جوي تاكسي</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFC800">
+<link rel="icon" href="../favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="../app.css">
+<style>
+[hidden]{display:none!important}
+body{font-size:18px}
+.page{padding-bottom:90px}
+.order{border-inline-start:8px solid var(--y)}
+.order.assigned,.order.arrived,.order.ontrip{border-inline-start-color:var(--ok)}
+.route{font-size:21px;font-weight:600;line-height:1.35;margin:6px 0}
+.route small{display:block;font-weight:400;color:var(--mut);font-size:14px}
+.dbtn{display:block;width:100%;text-align:start;margin-top:8px;border:2px solid var(--ink);background:var(--y);border-radius:14px;padding:14px;font:inherit;font-weight:600;font-size:19px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+.dbtn:active{transform:translate(3px,3px);box-shadow:none}.dbtn.w{background:#fff}
+.sm{display:flex;gap:8px;margin-top:8px}.sm>*{flex:1;text-align:center;padding:12px;font-size:16px}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}.empty b{display:block;font-size:46px}
+.bar2{display:flex;gap:8px;margin:6px 0 12px}.bar2>*{flex:1}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="top"><a class="brand" href="#"><img id="mk" alt="" width="44" height="34"><b id="bn"></b></a><button class="pill" id="lang" type="button">English</button></header>
+
+  <section id="login" class="card" hidden>
+    <h3 id="tLogin"></h3><p class="meta" id="tLoginS"></p>
+    <input id="tok" type="password" placeholder="••••••••"><button class="cta" id="go" type="button" style="margin-top:12px"></button>
+    <div class="err" id="lerr" hidden style="margin-top:10px"></div>
+  </section>
+
+  <section id="main" hidden>
+    <div class="bar2"><button class="pill" id="alerts" type="button"></button><button class="pill" id="mydr" type="button"></button></div>
+    <div id="drivers" class="card" hidden>
+      <h3 id="tDr"></h3><p class="meta" id="tDrS"></p><div id="drList"></div>
+      <div class="row2" style="margin-top:10px"><input id="dn" placeholder=""><input id="dp" type="tel" inputmode="tel" placeholder=""></div>
+      <button class="cta" id="addDr" type="button"></button>
+    </div>
+    <div id="list"></div>
+  </section>
+</div>
+<script src="../brand.js"></script>
+<script>
+(function () {
+'use strict';
+var B = window.BRAND, API = B.api, $ = function (s) { return document.querySelector(s); };
+var T = { ar: { title: 'طلبات جوي تاكسي', login: 'دخول', loginS: 'أدخل الرمز الخاص بك.', go: 'دخول', bad: 'الرمز غير صحيح.', alerts: '🔔 فعّل التنبيهات', alertsOn: '🔔 التنبيهات شغّالة', mydr: '👥 سائقيني', drT: 'سائقيني', drS: 'أضف السائقين مرة واحدة، وبعدها ابعت أي طلب لسائق بضغطة.', dn: 'الاسم', dp: 'رقم الموبايل', add: 'أضف سائق', rm: 'حذف',
+    none: 'لا توجد طلبات الآن', noneS: 'أول ما يطلب أحد مشواراً بيظهر هنا مع صوت تنبيه.', st: { new: 'جديد', confirmed: 'مؤكد', assigned: 'مع السائق', arrived: 'السائق وصل', ontrip: 'في الرحلة', done: 'منتهي', cancelled: 'ملغي' }, from: 'من', to: 'إلى', now: 'الآن', send: '📲 ابعته لـ ', other: '➕ سائق آخر…', call: '📞 اتصل بالزبون', cancel: '✕ إلغاء الطلب', sure: 'إلغاء هذا الطلب؟', withd: 'السائق: ', needDr: 'أضف سائقاً أولاً من «سائقيني».', pickN: 'اسم السائق؟', pickP: 'رقم موبايله؟', fail: 'تعذّر الإرسال.', sent: 'تم الإرسال إلى ', lateAgo: 'قبل ', min: ' د' },
+  en: { title: 'Joy Taxi orders', login: 'Sign in', loginS: 'Enter your private code.', go: 'Sign in', bad: 'Code not accepted.', alerts: '🔔 Turn on alerts', alertsOn: '🔔 Alerts on', mydr: '👥 My drivers', drT: 'My drivers', drS: 'Add your drivers once, then send any order to a driver in one tap.', dn: 'Name', dp: 'Mobile number', add: 'Add driver', rm: 'Remove',
+    none: 'No orders right now', noneS: 'When someone books a ride it shows up here with a sound.', st: { new: 'New', confirmed: 'Confirmed', assigned: 'With driver', arrived: 'Driver arrived', ontrip: 'On trip', done: 'Done', cancelled: 'Cancelled' }, from: 'From', to: 'To', now: 'Now', send: '📲 Send to ', other: '➕ Another driver…', call: '📞 Call rider', cancel: '✕ Cancel order', sure: 'Cancel this order?', withd: 'Driver: ', needDr: 'Add a driver first under “My drivers”.', pickN: 'Driver name?', pickP: 'His mobile number?', fail: 'Could not send.', sent: 'Sent to ', lateAgo: '', min: ' min ago' } };
+var lang = (function () { try { return localStorage.getItem('jt_olang') || 'ar'; } catch (e) { return 'ar'; } })();
+function t(k) { return T[lang][k]; }
+function ld(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
+function sv(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+var tok = '', rides = [], timer = null, lastNew = -1, ac = null;
+function api(path, method, body) { return fetch(API + path, { method: method || 'GET', headers: { Authorization: 'Bearer ' + tok, 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined })
+  .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) { var e = new Error(j.error || r.status); e.status = r.status; throw e; } return j; }); }); }
+function beep() { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); [0, .25, .5].forEach(function (d) { var o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = 880 + d * 400; g.gain.value = .15; o.connect(g); g.connect(ac.destination); o.start(ac.currentTime + d); o.stop(ac.currentTime + d + .18); }); if (navigator.vibrate) navigator.vibrate([300, 150, 300]); } catch (e) {} }
+function roster() { try { return JSON.parse(ld('jt_roster') || '[]'); } catch (e) { return []; } }
+function waNum(p) { var d = String(p || '').replace(/\D/g, '').replace(/^00/, ''); if (!d) return ''; if (d.indexOf('961') === 0) return d; return '961' + d.replace(/^0+/, ''); }
+function ago(ts) { var m = Math.round((Date.now() - new Date(ts)) / 60000); return m < 1 ? '•' : lang === 'ar' ? 'قبل ' + m + ' د' : m + ' min ago'; }
+function msgFor(r, link) { return lang === 'ar' ? '🚖 طلب جديد من جوي تاكسي #' + r.id + '\nمن: ' + r.pickup + '\nإلى: ' + r.destination + '\nالوقت: ' + (r.when_text === 'now' ? 'الآن' : r.when_text) + (r.vehicle ? '\nالسيارة: ' + r.vehicle : '') + (r.est_text ? '\nالأجرة: ' + r.est_text : '') + (r.note ? '\nملاحظة: ' + r.note : '') + '\n\nافتح الرابط للقبول ولمشاركة موقعك:\n' + link
+  : '🚖 New Joy Taxi ride #' + r.id + '\nFrom: ' + r.pickup + '\nTo: ' + r.destination + '\nWhen: ' + (r.when_text === 'now' ? 'now' : r.when_text) + (r.vehicle ? '\nCar: ' + r.vehicle : '') + (r.est_text ? '\nFare: ' + r.est_text : '') + (r.note ? '\nNote: ' + r.note : '') + '\n\nOpen to accept and share your location:\n' + link; }
+function sendTo(id, name, phone) {
+  var r = rides.filter(function (x) { return String(x.id) === String(id); })[0]; if (!r) return;
+  // open WhatsApp synchronously inside the tap (popup rules), fill after the server answers
+  var w = window.open('about:blank', '_blank');
+  api('/api/rides/' + id + '/dispatch', 'POST', { driver_name: name, driver_phone: phone, plate: '' }).then(function (j) {
+    var url = 'https://wa.me/' + waNum(phone) + '?text=' + encodeURIComponent(msgFor(r, location.origin + '/app/go/?r=' + id + '&k=' + j.key));
+    if (w) w.location.href = url; else location.href = url; refresh();
+  }, function () { if (w) w.close(); alert(t('fail')); });
+}
+function draw() {
+  var open = rides.filter(function (r) { return ['done', 'cancelled'].indexOf(r.status) < 0; }), ro = roster();
+  $('#list').innerHTML = open.length ? open.map(function (r) {
+    var isNew = r.status === 'new' || r.status === 'confirmed', h = '<div class="card order ' + r.status + '" data-id="' + r.id + '"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="tag-s ' + r.status + '">' + esc(t('st')[r.status] || r.status) + '</span><span class="meta" style="margin:0">#' + r.id + ' · ' + ago(r.created_at) + '</span></div>' +
+      '<div class="route"><small>' + t('from') + '</small>' + esc(r.pickup) + '<small style="margin-top:6px">' + t('to') + '</small>' + esc(r.destination) + '</div>' +
+      '<div class="meta">' + [r.when_text === 'now' ? t('now') : r.when_text, r.vehicle, r.est_text, r.pay === 'whish' ? 'Whish' : ''].filter(Boolean).map(esc).join(' · ') + (r.note ? '<br>✨ ' + esc(r.note) : '') + '</div>';
+    if (!isNew && r.driver_name) h += '<div class="meta"><b>' + t('withd') + esc(r.driver_name) + '</b></div>';
+    if (isNew) { h += ro.map(function (d, i) { return '<button class="dbtn" type="button" data-send="' + i + '">' + t('send') + esc(d.n) + '</button>'; }).join('') + '<button class="dbtn w" type="button" data-other="1">' + t('other') + '</button>'; }
+    h += '<div class="sm">' + (r.phone ? '<a class="btn" href="tel:' + esc(r.phone) + '">' + t('call') + '</a>' : '') + '<button class="btn" type="button" data-cancel="1">' + t('cancel') + '</button></div></div>';
+    return h; }).join('') : '<div class="empty"><b>🚖</b><h3>' + t('none') + '</h3><p>' + t('noneS') + '</p></div>';
+}
+function drawDr() { var ro = roster(); $('#drList').innerHTML = ro.map(function (d, i) { return '<div class="kv"><span><b>' + esc(d.n) + '</b> · <span dir="ltr">' + esc(d.p) + '</span></span><button class="link" type="button" data-rm="' + i + '">' + t('rm') + '</button></div>'; }).join(''); }
+function refresh() { api('/api/rides').then(function (j) { rides = j.rides; var n = rides.filter(function (r) { return r.status === 'new'; }).length; if (lastNew >= 0 && n > lastNew) beep(); lastNew = n; draw(); }).catch(function (e) { if (e.status === 401) out(t('bad')); }); }
+$('#list').addEventListener('click', function (e) {
+  var card = e.target.closest('.order'); if (!card) return; var id = card.getAttribute('data-id'), b;
+  if ((b = e.target.closest('[data-send]'))) { var d = roster()[+b.getAttribute('data-send')]; sendTo(id, d.n, d.p); }
+  else if (e.target.closest('[data-other]')) { var n = prompt(t('pickN')); if (!n) return; var p = prompt(t('pickP')); if (!p) return; var ro = roster().filter(function (d) { return waNum(d.p) !== waNum(p); }); ro.unshift({ n: n.trim(), p: p.trim() }); sv('jt_roster', JSON.stringify(ro.slice(0, 40))); sendTo(id, n.trim(), p.trim()); }
+  else if (e.target.closest('[data-cancel]')) { if (confirm(t('sure'))) api('/api/rides/' + id, 'PATCH', { status: 'cancelled' }).then(refresh); }
+});
+$('#drList').addEventListener('click', function (e) { var b = e.target.closest('[data-rm]'); if (!b) return; var ro = roster(); ro.splice(+b.getAttribute('data-rm'), 1); sv('jt_roster', JSON.stringify(ro)); drawDr(); draw(); });
+$('#addDr').onclick = function () { var n = $('#dn').value.trim(), p = $('#dp').value.trim(); if (!n || !p) return; var ro = roster().filter(function (d) { return waNum(d.p) !== waNum(p); }); ro.push({ n: n, p: p }); sv('jt_roster', JSON.stringify(ro)); $('#dn').value = $('#dp').value = ''; drawDr(); draw(); };
+$('#mydr').onclick = function () { $('#drivers').hidden = !$('#drivers').hidden; drawDr(); };
+function b64(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(r, function (c) { return c.charCodeAt(0); }); }
+$('#alerts').onclick = function () { var btn = this;
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) { alert(lang === 'ar' ? 'افتح الصفحة من Chrome على أندرويد، أو أضفها إلى الشاشة الرئيسية على آيفون.' : 'Open in Chrome on Android, or Add to Home Screen on iPhone.'); return; }
+  Notification.requestPermission().then(function (p) { if (p !== 'granted') throw 0; return Promise.all([navigator.serviceWorker.register('../sw.js', { scope: '/app/' }).then(function () { return navigator.serviceWorker.ready; }), fetch(API + '/api/push/key').then(function (r) { return r.json(); })]); })
+    .then(function (a) { if (!a[1].key) throw 1; return a[0].pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(a[1].key) }); })
+    .then(function (s) { return api('/api/push/subscribe', 'POST', { subscription: s.toJSON() }); })
+    .then(function () { btn.textContent = t('alertsOn'); btn.classList.add('on'); sv('jt_opush', '1'); }, function () { alert(t('fail')); }); };
+function texts() { document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; document.title = t('title'); $('#lang').textContent = lang === 'ar' ? 'English' : 'عربي';
+  $('#tLogin').textContent = t('login'); $('#tLoginS').textContent = t('loginS'); $('#go').textContent = t('go'); $('#alerts').textContent = ld('jt_opush') ? t('alertsOn') : t('alerts'); $('#mydr').textContent = t('mydr');
+  $('#tDr').textContent = t('drT'); $('#tDrS').textContent = t('drS'); $('#dn').placeholder = t('dn'); $('#dp').placeholder = t('dp'); $('#addDr').textContent = t('add'); drawDr(); draw(); }
+$('#lang').onclick = function () { lang = lang === 'ar' ? 'en' : 'ar'; sv('jt_olang', lang); texts(); };
+function enter() { $('#login').hidden = true; $('#main').hidden = false; lastNew = -1; refresh(); clearInterval(timer); timer = setInterval(refresh, 5000); document.addEventListener('click', function f() { beep.armed = 1; document.removeEventListener('click', f); }); }
+function out(msg) { clearInterval(timer); sv('jt_atok', null); $('#main').hidden = true; $('#login').hidden = false; if (msg) { $('#lerr').textContent = msg; $('#lerr').hidden = false; } }
+$('#go').onclick = function () { tok = $('#tok').value.trim(); if (!tok) return; api('/api/rides').then(function () { sv('jt_atok', tok); enter(); }, function () { out(t('bad')); }); };
+$('#mk').src = '../logo-mark.png'; $('#bn').innerHTML = '<i>' + B.words[0] + '</i> ' + B.words[1];
+var qt = new URLSearchParams(location.search).get('t'); if (qt) { tok = qt.trim(); sv('jt_atok', tok); try { history.replaceState(null, '', location.pathname); } catch (e) {} } else tok = ld('jt_atok');
+texts(); if (tok) api('/api/rides').then(enter, function () { out(''); }); else $('#login').hidden = false;
+})();
+</script>
+</body>
+</html>
