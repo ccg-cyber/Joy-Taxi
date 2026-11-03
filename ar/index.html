@@ -506,7 +506,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
       <ul class="notes">
         <li><b>موقعك</b><span>دوس <i>موقعي</i> والسوّاق بيفتح مكانك بالزبط عالخريطة.</span></li>
         <li><b>السعر</b><span>بيوصلك مكتوب قبل ما يتحرّك شي.</span></li>
-        <li><b>ما منخزّن شي</b><span>لا حساب ولا تطبيق. الرسالة بتنبعت من تلفونك إنت.</span></li>
+        <li><b>أقل ما فيه</b><span>لا حساب ولا تطبيق. منسجّل بس مكان الانطلاق والوجهة والوقت لنرتّب مشوارك — بلا اسم وبلا رقم.</span></li>
       </ul>
     </div>
 
@@ -555,7 +555,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
           <a class="btn btn-line" href="tel:+96181686839" data-ev="call"><span class="num" dir="ltr">81 686 839</span></a>
         </div>
       </div>
-      <p class="fineprint">ما منخزّن شي وما بدّك حساب. الرسالة بتنكتب على تلفونك وإنت يلّي بتبعتها.</p>
+      <p class="fineprint">ما بدّك حساب. الرسالة بتنبعت عالواتساب، ومنسجّل كمان مكان الانطلاق والوجهة والوقت لنرتّب المشوار. ما منخزّن اسمك ولا رقمك ولا موقعك بالتحديد.</p>
     </form>
   </div>
 </section>
@@ -1064,6 +1064,25 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
     renderFare();
     waGo.href = 'https://wa.me/' + CFG.whatsapp + '?text=' + enc(message());
   }
+  /* Dispatch note: a background record of the request (pickup, destination, time, estimate).
+     Never blocks or changes WhatsApp; the exact map pin is stripped and goes only via WhatsApp. */
+  var LOG_URL = 'https://joytaxi-backend.onrender.com/api/rides';
+  waGo.addEventListener('click', function () {
+    try {
+      var strip = function (s) { return s.replace(/\s*\u2014?\s*https?:\/\/maps\.google\.com\S*/g, '').trim(); };
+      var p = strip(pickup()), d = dest();
+      if (!p && !d) return;
+      var e = estimate();
+      fetch(LOG_URL, { method: 'POST', keepalive: true, mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({ pickup: p, destination: d,
+          when: state.later && state.time ? state.time : 'now',
+          est_km: e ? e.km : null,
+          est_text: e && e.lo != null ? '$' + (e.lo === e.hi ? e.lo : e.lo + '\u2013' + e.hi) : null,
+          lang: document.documentElement.lang === 'ar' ? 'ar' : 'en' })
+      }).catch(function () {});
+    } catch (_) {}
+  });
   $('#bk').addEventListener('submit', function (e) { e.preventDefault(); waGo.click(); });
   render();
 

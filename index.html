@@ -508,7 +508,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
       <ul class="notes">
         <li><b>Your pin</b><span>Tap <i>My location</i> and the driver opens your exact spot on a map.</span></li>
         <li><b>The price</b><span>Confirmed in writing before anything moves.</span></li>
-        <li><b>Nothing stored</b><span>No account, no app. The message is sent from your own phone.</span></li>
+        <li><b>Kept minimal</b><span>No account, no app. We note the pickup, destination and time so we can dispatch your ride — no name, no number.</span></li>
       </ul>
     </div>
 
@@ -557,7 +557,7 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
           <a class="btn btn-line" href="tel:+96181686839" data-ev="call"><span class="num">81 686 839</span></a>
         </div>
       </div>
-      <p class="fineprint">Nothing is stored and no account is needed. The message is written on your phone and sent by you.</p>
+      <p class="fineprint">No account is needed. Your message goes by WhatsApp; we also note each request’s pickup, destination and time to dispatch it. We do not store your name, number or exact location.</p>
     </form>
   </div>
 </section>
@@ -1079,6 +1079,25 @@ input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px color-mix
     renderFare();
     waGo.href = 'https://wa.me/' + CFG.whatsapp + '?text=' + enc(message());
   }
+  /* Dispatch note: a background record of the request (pickup, destination, time, estimate).
+     Never blocks or changes WhatsApp; the exact map pin is stripped and goes only via WhatsApp. */
+  var LOG_URL = 'https://joytaxi-backend.onrender.com/api/rides';
+  waGo.addEventListener('click', function () {
+    try {
+      var strip = function (s) { return s.replace(/\s*\u2014?\s*https?:\/\/maps\.google\.com\S*/g, '').trim(); };
+      var p = strip(pickup()), d = dest();
+      if (!p && !d) return;
+      var e = estimate();
+      fetch(LOG_URL, { method: 'POST', keepalive: true, mode: 'cors',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        body: JSON.stringify({ pickup: p, destination: d,
+          when: state.later && state.time ? state.time : 'now',
+          est_km: e ? e.km : null,
+          est_text: e && e.lo != null ? '$' + (e.lo === e.hi ? e.lo : e.lo + '\u2013' + e.hi) : null,
+          lang: document.documentElement.lang === 'ar' ? 'ar' : 'en' })
+      }).catch(function () {});
+    } catch (_) {}
+  });
   $('#bk').addEventListener('submit', function (e) { e.preventDefault(); waGo.click(); });
   render();
 
