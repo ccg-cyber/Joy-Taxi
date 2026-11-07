@@ -161,4 +161,36 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/shared-rides/"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/shared-rides/"/>
   </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-tripoli-airport/</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-tripoli-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-tripoli-airport/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-tripoli-airport/</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-tripoli-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-tripoli-airport/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/taxi-zahle-airport/</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-zahle-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-zahle-airport/"/>
+  </url>
+  <url>
+    <loc>https://joytaxi.cierp.uk/ar/taxi-zahle-airport/</loc>
+    <lastmod>2026-11-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://joytaxi.cierp.uk/taxi-zahle-airport/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://joytaxi.cierp.uk/ar/taxi-zahle-airport/"/>
+  </url>
 </urlset>
