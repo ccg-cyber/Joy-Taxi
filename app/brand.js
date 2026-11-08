@@ -5,7 +5,7 @@ window.BRAND = {
   words: ['JOY', 'TAXI'],
   mark: '/app/logo-mark.png',
   tagline: { en: ['Your Ride,', 'Our Priority'], ar: ['مشوارك،', 'أولويتنا'] },
-  api: 'https://joytaxi-backend.onrender.com',
+  api: 'https://joytaxi-api.cierp.uk',
   wa: '96171056677',
   phones: ['71 056 677', '81 686 839'],
   tel: '+96171056677', tel2: '+96181686839',
